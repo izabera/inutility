@@ -1,0 +1,4 @@
+inutility
+obj/*
+src/struct.h
+src/proto.h
