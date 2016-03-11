@@ -1,19 +1,31 @@
 #include <string.h>
+#include <stdlib.h>
 #include <stdint.h>
 #include <stdio.h>
 
 #include "flags.h"
 
+#define optpush(opt, arg) do {                                                \
+  opt.count++;                                                                \
+  if (!(opt.args = realloc(opt.args, sizeof(char*) * opt.count))) return '@'; \
+  opt.args[opt.count-1] = arg;                                                \
+} while (0)
+
+int opterr = 1;
 int parseopts(int argc, char *argv[], const char *opts) {
   char *valid = ":ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
   if (strlen(opts) != strspn(opts, valid)) return -1;
   valid++;
+  if (*opts == ':') {
+    opts++;
+    opterr = 0;
+  }
+  if (*opts == ':') return -1;
 
   int64_t needflag = 0;
   int i, j;
   for (i = 0; opts[i]; i++)
-    if (opts[i+1] == ':')
-      needflag |= 1 << opt(opts[i]);
+    if (opts[i+1] == ':') needflag |= 1 << opt(opts[i]);
 
   char c;
   for (i = 0; i < argc && argv[i][0] == '-' && argv[i][1]; i++) {
@@ -22,24 +34,20 @@ int parseopts(int argc, char *argv[], const char *opts) {
       break;
     }
     for (j = 1; (c = argv[i][j]); j++) {
-      if (strchr(valid, c)) {
+      if (strchr(opts, c)) {
         if (needflag & 1 << opt(c)) {
-          if (argv[i][j+1])
-            flags[opt(c)] = &argv[i][j+1];
-          else if (++i < argc)
-            flags[opt(c)] = &argv[i][0];
+               if (argv[i][j+1]) optpush(flags[opt(c)], &argv[i][j+1]);
+          else if (++i < argc)   optpush(flags[opt(c)], &argv[i][0]);
           else {
-            if (opterr)
-              fprintf(stderr, "Missing argument for option: -%c\n", c);
+            if (opterr) fprintf(stderr, "Missing argument for option: -%c\n", c);
             return ':';
           }
           break;
         }
-        else flags[opt(c)] += 1;
+        else flags[opt(c)].count++;
       }
       else {
-        if (opterr)
-          fprintf(stderr, "Unknown option: -%c\n", c);
+        if (opterr) fprintf(stderr, "Unknown option: -%c\n", c);
         return '?';
       }
     }

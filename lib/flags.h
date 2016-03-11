@@ -1,4 +1,7 @@
-char *flags[63];
+struct flags {
+  size_t count;
+  char **args;
+} flags[63];
 
 #define isnum(x)   (x >= 48 && x <= 57)
 #define isupper(x) (x >= 64 && x <= 90)
@@ -11,5 +14,5 @@ int optind, opterr;
 
 int parseopts(int argc, char *argv[], const char *opts);
 
-#define options(str) if (parseopts(argc-1, argv+1, str)) return -1; argc -= optind; argv += optind;
+#define options(str) if (parseopts(argc-1, argv+1, str)) return 1; argc -= optind; argv += optind;
 

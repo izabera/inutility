@@ -10,7 +10,7 @@ obj = $(addprefix $(objdir)/,$(addsuffix .o,$(programs))) $(objlib)
 CFLAGS = -Wall -Wextra -O2 -g -march=native
 LDFLAGS = -flto
 
-all: inutility
+all: $(objdir) inutility
 
 inutility: $(obj) $(srcdir)/proto.h $(srcdir)/struct.h inutility.c
 	$(CC) $(CFLAGS) $(LDFLAGS) $@.c $(obj) -o $@
@@ -34,14 +34,18 @@ $(srcdir)/struct.h: $(src)
 $(objdir)/%.o: $(srcdir)/%.c $(lib)
 	$(CC) $(CFLAGS) -Dmain=main_$* -c $(srcdir)/$*.c -o $@
 
+$(objdir):
+	mkdir -p $(objdir)
+
 clean:
 	rm -f $(obj) $(srcdir)/proto.h $(srcdir)/struct.h
 
 install: inutility
-	mkdir -p "$(DESTDIR)$(PREFIX)/bin"
-	cp inutility "$(DESTDIR)$(PREFIX)/bin"
+	mkdir -p $(DESTDIR)$(PREFIX)/bin
+	cp inutility $(DESTDIR)$(PREFIX)/bin
+	strip $(DESTDIR)$(PREFIX)/bin/inutility
 	for target in $(programs) list; do				\
-		ln -fs "inutility" "$(DESTDIR)$(PREFIX)/bin/$$target";	\
+		ln -fs inutility "$(DESTDIR)$(PREFIX)/bin/$$target";	\
 	done
 
 uninstall:
