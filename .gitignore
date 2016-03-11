@@ -1,4 +1,5 @@
 inutility
-obj/*
+*.o
 src/struct.h
 src/proto.h
+bin/*

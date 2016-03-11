@@ -10,7 +10,7 @@ int main(int argc, char *argv[]) {
   char buf[BUFSIZ];
   int file;
   ssize_t size;
-  if (parseopts(argc, argv, ":u")) return -1;
+  options(":u");
 
   if (argc == 1) {
     file = 0;

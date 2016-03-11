@@ -3,8 +3,9 @@ objdir = obj
 libdir = lib
 programs = $(basename $(notdir $(wildcard $(srcdir)/*.c)))
 lib = $(wildcard $(libdir)/*.h)
+objlib = $(basename $(lib)).o
 src = $(addprefix $(srcdir)/,$(addsuffix .c,$(programs)))
-obj = $(addprefix $(objdir)/,$(addsuffix .o,$(programs)))
+obj = $(addprefix $(objdir)/,$(addsuffix .o,$(programs))) $(objlib)
 
 CFLAGS = -Wall -Wextra -O2 -g -march=native
 LDFLAGS = -flto
