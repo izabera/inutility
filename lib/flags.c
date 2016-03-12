@@ -12,8 +12,10 @@
 } while (0)
 
 int parseoptind, parseopterr = 1;
+struct flags flags[63];
+
 int parseopts(int argc, char *argv[], const char *opts) {
-  char *valid = ":ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
+  char *valid = ":-ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
   if (strlen(opts) != strspn(opts, valid)) return -1;
   valid++;
   if (*opts == ':') {

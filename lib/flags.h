@@ -1,7 +1,8 @@
 struct flags {
   size_t count;
   char **args;
-} flags[63];
+};
+extern struct flags flags[63];
 
 #define isnum(x)   (x >= 48 && x <= 57)
 #define isupper(x) (x >= 64 && x <= 90)

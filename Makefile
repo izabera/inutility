@@ -2,8 +2,9 @@ srcdir = src
 objdir = obj
 libdir = lib
 programs = $(basename $(notdir $(wildcard $(srcdir)/*.c)))
-lib = $(wildcard $(libdir)/*.h)
-objlib = $(basename $(lib)).o
+libheaders = $(wildcard $(libdir)/*.h)
+lib = $(wildcard $(libdir)/*.[ch])
+objlib = $(basename $(libheaders)).o
 src = $(addprefix $(srcdir)/,$(addsuffix .c,$(programs)))
 obj = $(addprefix $(objdir)/,$(addsuffix .o,$(programs))) $(objlib)
 
