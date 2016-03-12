@@ -10,7 +10,7 @@ struct flags {
                 isupper(x) ? x - 55 :   \
                 islower(x) ? x - 61 : 63)
 
-int optind, opterr;
+extern int parseoptind, parseopterr;
 
 int parseopts(int argc, char *argv[], const char *opts);
 

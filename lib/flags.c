@@ -11,14 +11,14 @@
   opt.args[opt.count-1] = arg;                                                \
 } while (0)
 
-int opterr = 1;
+int parseoptind, parseopterr = 1;
 int parseopts(int argc, char *argv[], const char *opts) {
   char *valid = ":ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
   if (strlen(opts) != strspn(opts, valid)) return -1;
   valid++;
   if (*opts == ':') {
     opts++;
-    opterr = 0;
+    parseopterr = 0;
   }
   if (*opts == ':') return -1;
 
@@ -39,7 +39,7 @@ int parseopts(int argc, char *argv[], const char *opts) {
                if (argv[i][j+1]) optpush(flags[opt(c)], &argv[i][j+1]);
           else if (++i < argc)   optpush(flags[opt(c)], &argv[i][0]);
           else {
-            if (opterr) fprintf(stderr, "Missing argument for option: -%c\n", c);
+            if (parseopterr) fprintf(stderr, "Missing argument for option: -%c\n", c);
             return ':';
           }
           break;
@@ -47,11 +47,11 @@ int parseopts(int argc, char *argv[], const char *opts) {
         else flags[opt(c)].count++;
       }
       else {
-        if (opterr) fprintf(stderr, "Unknown option: -%c\n", c);
+        if (parseopterr) fprintf(stderr, "Unknown option: -%c\n", c);
         return '?';
       }
     }
   }
-  optind = i;
+  parseoptind = i;
   return 0;
 }
