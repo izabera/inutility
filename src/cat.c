@@ -3,27 +3,57 @@
 #include <sys/stat.h>
 #include <fcntl.h>
 #include <stdio.h>
+#include <errno.h>
 
 #include "lib/flags.h"
 
+#define hat(x) (x < 32)
+#define lowmeta(x) (x > 127 && x < 160)
+#define himeta(x) (x > 159)
 int main(int argc, char *argv[]) {
   char buf[BUFSIZ];
-  int file;
+  int file, c;
   ssize_t size;
-  options("u");
+  /* todo: -b -s */
+  options("AeEntTuv");
 
+  if (flag('A')) flag('v') = flag('E') = flag('T') = 1;
+  if (flag('e')) flag('v') = flag('E') = 1;
+  if (flag('t')) flag('v') = flag('T') = 1;
+  if (flag('u')) setvbuf(stdout, NULL, _IONBF, 0);
+
+  char line = 1, anyflag = !!(flag('E') | flag('n') | flag('T') | flag('v'));
+
+  size_t linecount = 1;
+  FILE *fileptr;
   if (argc == 1) {
     file = 0;
+    fileptr = stdin;
     goto inner;
   }
   while (*++argv) {
     if (argv[0][0] == '-' && argv[0][1] == 0) file = 0;
-    else if (!(file = open(argv[0], O_RDONLY))) continue;
+    else if ((file = open(argv[0], O_RDONLY)) == -1) continue;
+    fileptr = fdopen(file, "r");
 inner:
-    while ((size = read(file, buf, BUFSIZ)) > 0) {
-      write(1, buf, size);
+    if (anyflag) {
+      while ((c = fgetc(fileptr)) != EOF) {
+             if (line)      { printf(flag('n') ? "%6lu\t" : "", linecount); line = 0; }
+             if (c == '\t')   printf(flag('T') ? "^I"     : "\t");
+        else if (c == '\n') { printf(flag('E') ? "$\n"    : "\n"); linecount++; line = 1; }
+        else if (hat(c))      printf(flag('v') ? "^%c"    : "%c", c + !!flag('v') * 64);
+        else if (c == 127)    printf(flag('v') ? "^?"     : "\177");
+        else if (c == 255)    printf(flag('v') ? "M-^?"   : "\377");
+        else if (lowmeta(c))  printf(flag('v') ? "M-^%c"  : "%c", c - 64);
+        else if (himeta(c))   printf(flag('v') ? "M-%c"   : "%c", c - 128);
+        else                  putchar(c);
+      }
     }
-    close(file);
+    else {
+      while ((size = read(file, buf, BUFSIZ)) > 0)
+        write(1, buf, size);
+    }
+    fclose(fileptr);
   }
-  return 0;
+  return !!errno;
 }

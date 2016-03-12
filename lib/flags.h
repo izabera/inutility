@@ -14,5 +14,8 @@ extern int parseoptind, parseopterr;
 
 int parseopts(int argc, char *argv[], const char *opts);
 
-#define options(str) if (parseopts(argc-1, argv+1, str)) return 1; argc -= optind; argv += optind;
+#define options(str) if (parseopts(argc-1, argv+1, str)) return 1;  \
+                     argc -= parseoptind;                           \
+                     argv += parseoptind;
 
+#define flag(x) flags[opt(x)].count

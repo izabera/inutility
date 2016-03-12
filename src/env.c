@@ -8,7 +8,8 @@ extern char **environ;
 
 int main(int argc, char *argv[]) {
   options("i0u:");
-  if (flags[opt('i')].count)
+
+  if (flag('i'))
     *environ = NULL;
   while (flags[opt('u')].count--)
     unsetenv(flags[opt('u')].args[flags[opt('u')].count]);
