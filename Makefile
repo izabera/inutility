@@ -4,11 +4,11 @@ libdir = lib
 programs = $(basename $(notdir $(wildcard $(srcdir)/*.c)))
 libheaders = $(wildcard $(libdir)/*.h)
 lib = $(wildcard $(libdir)/*.[ch])
-objlib = $(basename $(libheaders)).o
+objlib = $(addsuffix .o,$(basename $(libheaders)))
 src = $(addprefix $(srcdir)/,$(addsuffix .c,$(programs)))
 obj = $(addprefix $(objdir)/,$(addsuffix .o,$(programs))) $(objlib)
 
-CFLAGS = -Wall -Wextra -O2 -g -march=native
+CFLAGS = -Wall -Wextra -O2 -g -march=native -D_GNU_SOURCE
 LDFLAGS = -flto
 
 all: $(objdir) inutility
@@ -32,11 +32,14 @@ $(srcdir)/struct.h: $(src)
 		done > struct.h;					\
 	}
 
-$(objdir)/%.o: $(srcdir)/%.c $(lib)
+$(objdir)/%.o: $(srcdir)/%.c $(objlib)
 	$(CC) $(CFLAGS) -Dmain=main_$* -c $(srcdir)/$*.c -o $@
 
 $(objdir):
 	mkdir -p $(objdir)
+
+$(libdir)/%.o: $(libdir)/%.c
+	$(CC) $(CFLAGS) -c $(libdir)/$*.c -o $@
 
 clean:
 	rm -f $(obj) $(srcdir)/proto.h $(srcdir)/struct.h

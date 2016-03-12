@@ -12,7 +12,7 @@
 #define himeta(x) (x > 159)
 int main(int argc, char *argv[]) {
   char buf[BUFSIZ];
-  int file, c;
+  int file = 0, c;
   ssize_t size;
   /* todo: -b -s */
   options("AeEntTuv");
@@ -25,12 +25,10 @@ int main(int argc, char *argv[]) {
   char line = 1, anyflag = !!(flag('E') | flag('n') | flag('T') | flag('v'));
 
   size_t linecount = 1;
-  FILE *fileptr;
-  if (argc == 1) {
-    file = 0;
-    fileptr = stdin;
+  FILE *fileptr = stdin;
+  if (argc == 1)
     goto inner;
-  }
+
   while (*++argv) {
     if (argv[0][0] == '-' && argv[0][1] == 0) { file = 0; fileptr = stdin; }
     else if ((file = open(argv[0], O_RDONLY)) == -1) continue;

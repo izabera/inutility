@@ -7,8 +7,10 @@ dirname [-z] suffix] [name...]
 env [-i0] [-u unset...] [-] [VAR=value...] [cmd [args...]]
 false
 link file1 file2
-list
+list                                                         # lists inutilities
 sleep number[suffix]
+tac [file...]                                                # no -r
 true
 unlink [file...]
+uptime
 yes [args...]
