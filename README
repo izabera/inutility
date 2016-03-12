@@ -1,0 +1,14 @@
+inutility
+=========
+
+basename [-az] [-s suffix] [name...]
+cat [-AeEntTuv] [file...]                                    # todo -b -s
+dirname [-z] suffix] [name...]
+env [-i0] [-u unset...] [-] [VAR=value...] [cmd [args...]]
+false
+link file1 file2
+list
+sleep number[suffix]
+true
+unlink [file...]
+yes [args...]

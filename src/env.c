@@ -9,6 +9,10 @@ extern char **environ;
 int main(int argc, char *argv[]) {
   options("i0u:");
 
+  if (argv[1][0] == '-' && argv[1][1] == 0) {
+    flag('i') = 1;
+    argv++;
+  }
   if (flag('i'))
     *environ = NULL;
   while (flags[opt('u')].count--)
