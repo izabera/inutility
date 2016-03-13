@@ -62,8 +62,8 @@ int parseopts(int argc, char *argv[], const char *program, struct opts options) 
         if (options.argleast > 0)        /* needed args */
           for (; i <= options.argleast; i++)
             printf("arg%d ", i);
-        if (options.argnomore > 0) {     /* no more than argnomore-1 args */
-          for (; i < options.argnomore; i++)
+        if (options.arglessthan > 0) {   /* less than lessthan args */
+          for (; i < options.arglessthan; i++)
             printf("[arg%d] ", i);
         }
         else printf("[arg...]");

@@ -24,7 +24,7 @@ int cmp(const void *a, const void *b) {
 }
 
 int main_list(int argc, char *argv[]) {
-  options("n", .argnomore = 1);
+  options("n", .arglessthan = 1);
   qsort(inutility, arrsize(inutility), sizeof(*inutility), cmp);
   size_t linelen = 0, i;
   if (arrsize(inutility)) {
