@@ -1,16 +1,19 @@
 inutility
 =========
 
-basename [-az] [-s suffix] [name...]
-cat [-AeEntTuv] [file...]                                    # todo -b -s
-dirname [-z] suffix] [name...]
-env [-i0] [-u unset...] [-] [VAR=value...] [cmd [args...]]
-false
-link file1 file2
-list                                                         # lists inutilities
-sleep number[suffix]
-tac [file...]                                                # no -r
-true
-unlink [file...]
-uptime
-yes [args...]
+synopsis                                                    | notes
+------------------------------------------------------------+-----------------
+basename [-az] [-s suffix] [name...]                        |
+cat [-AeEntTuv] [file...]                                   | todo -b -s
+dirname [-z] suffix] [name...]                              |
+env [-i0] [-u unset...] [-] [VAR=value...] [cmd [args...]]  |
+false                                                       |
+link file1 file2                                            |
+list                                                        | lists inutilities
+sleep number[suffix]                                        |
+tac [file...]                                               | no opts
+tee [-ai] [file...]                                         |
+true                                                        |
+unlink [file...]                                            | allows more than 1 file
+uptime                                                      | no opts
+yes [args...]                                               |
