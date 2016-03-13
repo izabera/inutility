@@ -38,7 +38,7 @@ inner:
       while ((read = getline(&line, &len, fileptr)) != -1) {
         if (lines.used == lines.size) {
           lines.size *= 2;
-          if (!(lines.line = realloc(lines.line, sizeof(struct string)))) return 1;
+          if (!(lines.line = realloc(lines.line, lines.size * sizeof(struct string)))) return 1;
         }
         if (!(lines.line[lines.used].str = malloc(read))) return 1;
         lines.line[lines.used].size = read;
