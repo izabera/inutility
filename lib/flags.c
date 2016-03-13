@@ -12,10 +12,10 @@
 } while (0)
 
 int parseoptind, parseopterr = 1;
-struct flags flags[63];
+struct flags flags[64];
 
 int parseopts(int argc, char *argv[], const char *program, struct opts options) {
-  char *valid = ":-ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789",
+  char *valid = ":-ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789#",
        *opts = options.shortopts;
   if (strlen(opts) != strspn(opts, valid)) return -1;
   valid++;
@@ -46,15 +46,18 @@ int parseopts(int argc, char *argv[], const char *program, struct opts options) 
       else {
         int brkt = 0;
         for (i = 0; opts[i]; i++) {
-          if (!brkt) {
-            brkt = 1;
-            printf("[-");
-          }
-          if (opts[i+1] == ':') {
-            printf("%s-%c arg] ", brkt ? "] [" : "", opts[i++]);
+          if (opts[i] == '#') {
+            printf("%s-num] ", brkt ? "] [" : "[");
             brkt = 0;
           }
-          else putchar(opts[i]);
+          else if (opts[i+1] == ':') {
+            printf("%s-%c arg] ", brkt ? "] [" : "[", opts[i++]);
+            brkt = 0;
+          }
+          else {
+            printf("%s%c", brkt ? "" : "[-", opts[i]);
+            brkt = 1;
+          }
         }
         if (brkt) printf("] ");
 
@@ -71,6 +74,14 @@ int parseopts(int argc, char *argv[], const char *program, struct opts options) 
         putchar('\n');
       }
       return 'h';
+    }
+    /* parse numeric options like head -6232345 
+     * todo: floats? */
+    if (strchr(opts, '#') &&
+        strlen(argv[i]+1+(argv[i][1] == '-')) == 
+        strspn(argv[i]+1+(argv[i][1] == '-'), "0123456789")) {
+      optpush(flags[opt('#')], &argv[i][1]);
+      continue;
     }
     for (j = 1; (c = argv[i][j]); j++) {
       if (strchr(opts, c)) {
