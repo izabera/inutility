@@ -19,7 +19,7 @@ int main(int argc, char *argv[]) {
   options("diw:", .arglessthan = 2);
   FILE *file = stdin;
   if (argc > 2) return 1;
-  if (argc == 2) file = fopen(argv[1], "r");
+  if (argc == 2) if (!(file = fopen(argv[1], "r"))) return 1;
   if (flag('w')) flag('w') = strtoul(flags[opt('w')].args[flag('w')-1], NULL, 10);
   else flag('w') = 76;
 
