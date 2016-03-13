@@ -3,6 +3,7 @@ inutility
 
 synopsis                                                    | notes
 ------------------------------------------------------------+-----------------
+base64 [-di] [-w num] [file]                                |
 basename [-az] [-s suffix] [name...]                        |
 cat [-AeEntTuv] [file...]                                   | todo -b -s
 dirname [-z] suffix] [name...]                              |
