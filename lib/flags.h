@@ -13,9 +13,20 @@ extern struct flags flags[63];
 
 extern int parseoptind, parseopterr;
 
-int parseopts(int argc, char *argv[], const char *opts);
+// https://github.com/mcinglis/c-style#use-structs-to-name-functions-optional-arguments
+struct opts {
+  char *shortopts, *descr, *help;
+  short argleast, argnomore;
+  /* todo: long opts */
+};
 
-#define options(str) if (parseopts(argc-1, argv+1, str)) return 1;  \
+int parseopts(int argc, char *argv[], const char *program, struct opts opts);
+
+#define options(...) switch (parseopts(argc-1, argv+1, __func__,    \
+                                  (struct opts) { __VA_ARGS__ })) { \
+                       case 'h': return 0;                          \
+                       case '?': case ':': return 1;                \
+                     }                                              \
                      argc -= parseoptind;                           \
                      argv += parseoptind;
 

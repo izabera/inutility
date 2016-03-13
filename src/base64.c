@@ -16,7 +16,7 @@ void printchar(char c) {
 /* translation from https://github.com/izabera/bashutils/blob/master/bash64
  * because why not */
 int main(int argc, char *argv[]) {
-  options("diw:");
+  options("diw:", .argnomore = 2);
   FILE *file = stdin;
   if (argc > 2) return 1;
   if (argc == 2) file = fopen(argv[1], "r");

@@ -6,7 +6,7 @@ synopsis                                                    | notes
 base64 [-di] [-w num] [file]                                |
 basename [-az] [-s suffix] [name...]                        |
 cat [-AeEntTuv] [file...]                                   | todo -b -s
-dirname [-z] suffix] [name...]                              |
+dirname [-z] [name...]                                      |
 env [-i0] [-u unset...] [-] [VAR=value...] [cmd [args...]]  |
 false                                                       |
 link file1 file2                                            |
@@ -15,6 +15,6 @@ sleep number[suffix]                                        |
 tac [file...]                                               | no opts
 tee [-ai] [file...]                                         |
 true                                                        |
-unlink [file...]                                            | allows more than 1 file
+unlink file [file...]                                       | allows more than 1 file
 uptime                                                      | no opts
 yes [args...]                                               |

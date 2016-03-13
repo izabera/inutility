@@ -7,7 +7,7 @@
 #include "lib/flags.h"
 
 int main(int argc, char *argv[]) {
-  options("");
+  options("", .help = "number[suffix]");
   if (argc == 1) return 1;
   argv++;
   double arg = strtod(*argv, argv);
