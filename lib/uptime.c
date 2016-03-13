@@ -10,6 +10,8 @@ int print_uptime() {
   if (sysinfo(&info) == -1) return 1;
   time_t timenow = time(NULL);
   struct tm *tmnow = localtime(&timenow);
+  printf(" %02d:%02d:%02d up ", tmnow->tm_hour, tmnow->tm_min, tmnow->tm_sec);
+
   int day, hour, min, users = 0;
   info.uptime /= 60;
   min = info.uptime % 60;
@@ -17,27 +19,19 @@ int print_uptime() {
   hour = info.uptime % 24;
   day = info.uptime / 24;
 
-  struct utmpx *entry;
-  char *uptime = "";
+  if (day) printf("%d day%s", day, plural(day));
+  if (hour) printf("%2d:%02d", hour, min);
+  else printf("%d min", min);
 
+  struct utmpx *entry;
   setutxent();
   while ((entry = getutxent()))
     if (entry->ut_type == USER_PROCESS) users++;
   endutxent();
 
-  if (day) asprintf(&uptime, "%d day%s", day, plural(day));
-  else if (hour) asprintf(&uptime, "%2d:%02d", hour, min);
-  else asprintf(&uptime, "%d min", min);
-
   printf(
-      " %02d:%02d:%02d "
-      "up %s, "
-      "%2d:%02d, "
-      " %d user%s, "
+      ",  %d user%s, "
       " load average: %.2f, %.2f, %.2f\n",
-      tmnow->tm_hour, tmnow->tm_min, tmnow->tm_sec,
-      uptime,
-      hour, min,
       users, plural(users),
       info.loads[0] / (65536 * 1.0), info.loads[1] / (65536 * 1.0), info.loads[2] / (65536 * 1.0)
   );
