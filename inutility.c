@@ -14,6 +14,8 @@ struct inutility {
 #include "src/struct.h"
 };
 
+#include "lib/flags.h"
+
 #define arrsize(a) sizeof(a)/sizeof(*a)
 
 int cmp(const void *a, const void *b) {
@@ -22,20 +24,29 @@ int cmp(const void *a, const void *b) {
 }
 
 int main_list(int argc, char *argv[]) {
-  (void) argc; (void) argv;
-  puts("inutility list:");
+  options("n");
   qsort(inutility, arrsize(inutility), sizeof(*inutility), cmp);
-  char *separator = "";
-  size_t linelen = 0;
-  for (size_t i = 0; i < arrsize(inutility); i++) {
-    if ((linelen += strlen(inutility[i].name)) > 80) {
-      separator = "\n";
-      linelen = 0;
+  size_t linelen = 0, i;
+  if (arrsize(inutility)) {
+    if (flag('n')) {
+      for (i = 0; i < arrsize(inutility); i++)
+        printf("%s\n", inutility[i].name);
     }
-    printf("%s%s", separator, inutility[i].name);
-    separator = " ";
+    else {
+      puts("inutility list:");
+      for (i = 0; i < arrsize(inutility); i++) {
+        if ((linelen += strlen(inutility[i].name)) <= 80)
+          printf("%s", inutility[i].name);
+        else {
+          printf("\n%s", inutility[i].name);
+          linelen = strlen(inutility[i].name);
+        }
+        linelen++;
+        putchar(' ');
+      }
+      if (linelen) putchar('\n');
+    }
   }
-  putchar('\n');
   return 0;
 }
 
