@@ -16,11 +16,11 @@ void printchar(char c) {
 /* translation from https://github.com/izabera/bashutils/blob/master/bash64
  * because why not */
 int main(int argc, char *argv[]) {
-  options("diw:", .arglessthan = 2);
+  options("diw|", .arglessthan = 2);
   FILE *file = stdin;
   if (argc > 2) return 1;
   if (argc == 2) if (!(file = fopen(argv[1], "r"))) return 1;
-  if (flag('w')) flag('w') = strtoul(flags[opt('w')].args[flag('w')-1], NULL, 10);
+  if (flag('w')) flag('w') = flags[opt('w')].nums[flag('w')-1];
   else flag('w') = 76;
 
   char *valid = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/=";
