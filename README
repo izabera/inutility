@@ -9,6 +9,7 @@ cat [-AeEntTuv] [file...]                                   | todo -b -s
 dirname [-z] [name...]                                      |
 env [-i0] [-u unset...] [-] [VAR=value...] [cmd [args...]]  |
 false                                                       |
+head [-n num] [-num] [-c num] [-qvz]                        | todo negative args
 link file1 file2                                            |
 list [-n]                                                   | lists inutilities
 sleep number[suffix]                                        |

@@ -5,17 +5,27 @@
 
 #include "flags.h"
 
-#define optpush(opt, arg) do {                                                \
+#define argpush(opt, arg) do {                                                \
   opt.count++;                                                                \
   if (!(opt.args = realloc(opt.args, sizeof(char*) * opt.count))) return '@'; \
   opt.args[opt.count-1] = arg;                                                \
+} while (0)
+
+#define numpush(opt, arg) do {                                                \
+  opt.count++;                                                                \
+  if (!(opt.nums = realloc(opt.nums, sizeof(int  ) * opt.count))) return '@'; \
+  opt.nums[opt.count-1] = atoi(arg);                                          \
 } while (0)
 
 int parseoptind, parseopterr = 1;
 struct flags flags[64];
 
 int parseopts(int argc, char *argv[], const char *program, struct opts options) {
-  char *valid = ":-ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789#",
+  char *valid = ":|-ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789#",
+       /* : == needs string arg
+        * | == needs num arg
+        * # == -num for things like head
+        * - == reserved for long opts, to be added eventually */
        *opts = options.shortopts;
   if (strlen(opts) != strspn(opts, valid)) return -1;
   valid++;
@@ -27,10 +37,11 @@ int parseopts(int argc, char *argv[], const char *program, struct opts options) 
   char *ptr;
   if ((ptr = strchr(program, '_'))) program = ptr + 1;
 
-  int64_t needarg = 0;
+  int64_t needarg = 0, neednum = 0;
   int i, j;
   for (i = 0; opts[i]; i++)
-    if (opts[i+1] == ':') needarg |= 1 << opt(opts[i]);
+         if (opts[i+1] == ':') needarg |= 1 << opt(opts[i]);
+    else if (opts[i+1] == '|') neednum |= 1 << opt(opts[i]);
 
   char c;
   for (i = 0; i < argc && argv[i][0] == '-' && argv[i][1]; i++) {
@@ -52,6 +63,10 @@ int parseopts(int argc, char *argv[], const char *program, struct opts options) 
           }
           else if (opts[i+1] == ':') {
             printf("%s-%c arg] ", brkt ? "] [" : "[", opts[i++]);
+            brkt = 0;
+          }
+          else if (opts[i+1] == '|') {
+            printf("%s-%c num] ", brkt ? "] [" : "[", opts[i++]);
             brkt = 0;
           }
           else {
@@ -80,14 +95,24 @@ int parseopts(int argc, char *argv[], const char *program, struct opts options) 
     if (strchr(opts, '#') &&
         strlen(argv[i]+1+(argv[i][1] == '-')) == 
         strspn(argv[i]+1+(argv[i][1] == '-'), "0123456789")) {
-      optpush(flags[opt('#')], &argv[i][1]);
+      numpush(flags[opt('#')], &argv[i][1]);
       continue;
     }
     for (j = 1; (c = argv[i][j]); j++) {
+      if (c == ':') goto unknown; /* this can be in opts */
       if (strchr(opts, c)) {
         if (needarg & 1 << opt(c)) {
-               if (argv[i][j+1]) optpush(flags[opt(c)], &argv[i][j+1]);
-          else if (++i < argc)   optpush(flags[opt(c)], &argv[i][0]);
+               if (argv[i][j+1]) argpush(flags[opt(c)], &argv[i][j+1]);
+          else if (++i < argc)   argpush(flags[opt(c)], &argv[i][0]);
+          else {
+            if (parseopterr) fprintf(stderr, "%s: Missing argument for option: -%c\n", program, c);
+            return ':';
+          }
+          break;
+        }
+        else if (neednum & 1 << opt(c)) {
+               if (argv[i][j+1]) numpush(flags[opt(c)], &argv[i][j+1]);
+          else if (++i < argc)   numpush(flags[opt(c)], &argv[i][0]);
           else {
             if (parseopterr) fprintf(stderr, "%s: Missing argument for option: -%c\n", program, c);
             return ':';
@@ -97,6 +122,7 @@ int parseopts(int argc, char *argv[], const char *program, struct opts options) 
         else flags[opt(c)].count++;
       }
       else {
+unknown:
         if (parseopterr) fprintf(stderr, "%s: Unknown option: -%c\n", program, c);
         return '?';
       }
