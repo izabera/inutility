@@ -30,7 +30,7 @@ int main(int argc, char *argv[]) {
 
   /* todo: use mmap to avoid all these allocations for regular files */
   while (*++argv) {
-    if (argv[0][0] == '-' && argv[0][1] == 0) { file = 0; fileptr = stdin; }
+         if (argv[0][0] == '-' && argv[0][1] == 0) { file = 0; fileptr = stdin; }
     else if ((file = open(argv[0], O_RDONLY)) == -1) continue;
     else fileptr = fdopen(file, "r");
 inner:
