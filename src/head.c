@@ -16,8 +16,7 @@ int main(int argc, char **argv) {
   FILE *fileptr = stdin;
   int firstfile = 0, verbose = flag('v') || (argc > 2 && !flag('q'));
   char *line = NULL;
-  size_t len = 0;
-  ssize_t read;
+  size_t len = 0, read;
   if (argc == 1) {
     argv[0] = "-";
     goto inner;
