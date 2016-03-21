@@ -6,7 +6,7 @@
 #include "lib/common.h"
 
 struct str {
-  char *str;
+  unsigned char *str;
   size_t len;
 };
 
@@ -56,7 +56,7 @@ int unescape(char *src, int *i) {
 
 void makestr(struct str *dest, char *src) {
   size_t bufsize;
-  FILE *stream = open_memstream(&(dest->str), &bufsize);
+  FILE *stream = open_memstream((char **)&(dest->str), &bufsize);
 #define makeclass(name, chars) { name, chars, sizeof(name)-1, sizeof(chars)-1 },
   struct class {
     const char *name, *characters;
@@ -79,7 +79,7 @@ void makestr(struct str *dest, char *src) {
   int character = -1;
   for (int i = 0; src[i]; i++) {
     switch (src[i]) {
-      case '[': for (int j = 0; j < arrsize(classes); j++) {
+      case '[': for (size_t j = 0; j < arrsize(classes); j++) {
                   if (!strncmp(classes[j].name, src+i, classes[j].namelen)) {
                     fwrite(classes[j].characters, 1, classes[j].charlen, stream);
                     character = -1;
@@ -110,8 +110,9 @@ int main(int argc, char *argv[]) {
   options("cCtds", .argleast = 1, .arglessthan = 3);
   if (argc == 1 || argc > 3) return 1;
   if (argc == 2 && !(flag('d') || flag('s'))) return 1;
+  if (argc == 3 && flag('d') && !flag('s')) return 1;
   if (flag('C')) flag('c') = 1;
-  char map[256], delete[256] = { 0 }, squeeze[256] = { 0 }, tmp[256] = { 0 }; /* only supports LANG=C */
+  unsigned char map[256], delete[256] = { 0 }, squeeze[256] = { 0 }, tmp[256] = { 0 }; /* only supports LANG=C */
   size_t i, j;
   for (i = 0; i < 256; i++) map[i] = i;
 
@@ -131,12 +132,9 @@ int main(int argc, char *argv[]) {
 
   if (!flag('t') && argc == 3 && str[0].len > str[1].len)
     for (; i < str[0].len; i++)
-      map[(int)str[0].str[i]] = str[1].str[str[1].len-1];
+      map[(int)str[0].str[i]] = str[1].str[(int)str[1].len-1];
 
-  printf("1: %zu %zu\n", str[0].len, str[1].len);
-  printf("2: %zu %zu\n", str[0].len, str[1].len);
   if (flag('d')) {
-    fwrite(str[0].str, 1, str[0].len, stdout);
     for (i = 0; i < 256; i++)
       if (memchr(str[0].str, i, str[0].len)) delete[i] = 1;
     if (flag('s')) {
