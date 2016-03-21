@@ -12,6 +12,7 @@
 } while (0)
 
 #define numpush(opt, arg) do {                                                \
+  printf("%s\n", arg);  \
   opt.count++;                                                                \
   if (!(opt.nums = realloc(opt.nums, sizeof(int  ) * opt.count))) return '@'; \
   opt.nums[opt.count-1] = atoi(arg);                                          \
@@ -40,8 +41,8 @@ int parseopts(int argc, char *argv[], const char *program, struct opts options) 
   int64_t needarg = 0, neednum = 0;
   int i, j;
   for (i = 0; opts[i]; i++)
-         if (opts[i+1] == ':') needarg |= 1 << opt(opts[i]);
-    else if (opts[i+1] == '|') neednum |= 1 << opt(opts[i]);
+         if (opts[i+1] == ':') needarg |= 1LL << opt(opts[i]);
+    else if (opts[i+1] == '|') neednum |= 1LL << opt(opts[i]);
 
   char c;
   for (i = 0; i < argc && argv[i][0] == '-' && argv[i][1]; i++) {
