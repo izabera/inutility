@@ -82,7 +82,7 @@ void makestr(struct str *dest, char *src) {
       case '[': for (size_t j = 0; j < arrsize(classes); j++) {
                   if (!strncmp(classes[j].name, src+i, classes[j].namelen)) {
                     fwrite(classes[j].characters, 1, classes[j].charlen, stream);
-                    i += classes[j].namelen;
+                    i += classes[j].namelen - 1;
                     character = -1;
                     goto outfor;
                   }
