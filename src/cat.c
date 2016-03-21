@@ -1,11 +1,4 @@
-#include <unistd.h>
-#include <sys/types.h>
-#include <sys/stat.h>
-#include <fcntl.h>
-#include <stdio.h>
-#include <errno.h>
-
-#include "lib/flags.h"
+#include "lib/common.h"
 
 #define hat(x) (x < 32)
 #define lowmeta(x) (x > 127 && x < 160)

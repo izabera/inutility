@@ -1,8 +1,3 @@
-#include <stdio.h>
-#include <string.h>
-#include <stdlib.h>
-
-#include "lib/flags.h"
 #include "lib/common.h"
 #include "lib/unescape.h"
 

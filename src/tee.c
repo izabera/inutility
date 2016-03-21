@@ -1,12 +1,4 @@
-#include <unistd.h>
-#include <errno.h>
-#include <sys/types.h>
-#include <sys/stat.h>
-#include <fcntl.h>
-#include <signal.h>
-#include <stdio.h>
-
-#include "lib/flags.h"
+#include "lib/common.h"
 
 int main(int argc, char *argv[]) {
   options("ai");

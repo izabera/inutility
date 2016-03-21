@@ -149,18 +149,27 @@ nextwhile: ;
   if (options[optibs  ]) ibs = options[optibs];
   if (options[optobs  ]) obs = options[optobs];
   if (options[optobs  ]) obs = options[optobs];
-  if (options[optseek ]) lseek(ofd, obs * options[optseek], SEEK_CUR);
-  if (options[optskip ]) lseek(ifd, ibs * options[optskip], SEEK_CUR); /* todo: fallback? */
+  if (options[optseek ]) {
+    if (options[seek_bytes]) lseek(ofd,       options[optseek], SEEK_CUR);
+    else                     lseek(ofd, obs * options[optseek], SEEK_CUR);
+  }
+  if (options[optskip ]) {
+    if (options[skip_bytes]) lseek(ifd,       options[optskip], SEEK_CUR);
+    else                     lseek(ifd, ibs * options[optskip], SEEK_CUR); /* todo: fallback? */
+  }
 
+  struct buffer { off_t begin, end; } writebuf = { 0 }, readbuf = { 0 };
   /* do the thing */
   char *buf = malloc(ibs + obs + 1); /* +1 for stuff like conv=swab */
   ssize_t readsiz, writesiz;
-  enum { canread, mustread, canwrite, mustwrite, canconv, other } loopstate;
-  enum { err, eof } readstate, writestate;
   if (!buf) return errno;
 
   while (1) {
     errno = 0;
+    if (writebuf.end - writebuf.begin >= writesize) {
+      if (write(ofd, writebuf.buf + writebuf.begin, obs) == -1) goto out;
+    }
+    else if (readsiz = read
     switch (loopstate) {
       default: goto out;
 

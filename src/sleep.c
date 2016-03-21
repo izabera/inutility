@@ -1,10 +1,4 @@
-#include <unistd.h>
-#include <stdlib.h>
-#include <errno.h>
-#include <time.h>
-
-#include <stdio.h>
-#include "lib/flags.h"
+#include "lib/common.h"
 
 int main(int argc, char *argv[]) {
   options("", .help = "number[suffix]");

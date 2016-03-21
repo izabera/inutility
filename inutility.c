@@ -1,7 +1,4 @@
-#include <string.h>
-#include <libgen.h>
-#include <stdio.h>
-#include <stdlib.h>
+#include "lib/common.h"
 
 #include "src/proto.h"
 int main_list(int, char **);
@@ -13,9 +10,6 @@ struct inutility {
   { "list", main_list },
 #include "src/struct.h"
 };
-
-#include "lib/flags.h"
-#include "lib/common.h"
 
 int cmp(const void *a, const void *b) {
   const struct inutility *inutila = a, *inutilb = b;

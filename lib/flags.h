@@ -1,8 +1,11 @@
+#include <stdint.h>
+#include <stddef.h>
+
 struct flags {
   size_t count;
   union {
     char **args;
-    int *nums;
+    int64_t *nums;
   };
 };
 extern struct flags flags[64];

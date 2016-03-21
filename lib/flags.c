@@ -4,6 +4,7 @@
 #include <stdio.h>
 
 #include "flags.h"
+#include "parsenumb.h"
 
 #define argpush(opt, arg) do {                                                \
   opt.count++;                                                                \
@@ -15,7 +16,7 @@
   printf("%s\n", arg);  \
   opt.count++;                                                                \
   if (!(opt.nums = realloc(opt.nums, sizeof(int  ) * opt.count))) return '@'; \
-  opt.nums[opt.count-1] = atoi(arg);                                          \
+  opt.nums[opt.count-1] = parsenumb(arg);                                     \
 } while (0)
 
 int parseoptind, parseopterr = 1;

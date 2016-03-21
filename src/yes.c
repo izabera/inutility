@@ -1,6 +1,5 @@
-#include <stdio.h>
+#include "lib/common.h"
 
-#include "lib/flags.h"
 int main(int argc, char *argv[]) {
   options("");
        if (argc == 1) while (1) puts("y");

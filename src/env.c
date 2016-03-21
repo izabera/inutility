@@ -1,9 +1,5 @@
-#include <stdio.h>
-#include <stdlib.h>
-#include <string.h>
-#include <unistd.h>
+#include "lib/common.h"
 
-#include "lib/flags.h"
 extern char **environ;
 
 int main(int argc, char *argv[]) {

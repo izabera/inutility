@@ -1,8 +1,4 @@
-#include <string.h>
-#include <libgen.h>
-#include <stdio.h>
-
-#include "lib/flags.h"
+#include "lib/common.h"
 
 int main(int argc, char *argv[]) {
   options("as:z");

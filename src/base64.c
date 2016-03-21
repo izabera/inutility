@@ -1,8 +1,4 @@
-#include <stdio.h>
-#include <errno.h>
-#include <stdlib.h>
-
-#include "lib/flags.h"
+#include "lib/common.h"
 
 unsigned long col = 0;
 void printchar(char c) {

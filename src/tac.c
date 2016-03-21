@@ -1,11 +1,4 @@
-#include <stdio.h>
-#include <string.h>
-#include <errno.h>
-#include <sys/types.h>
-#include <fcntl.h>
-#include <stdlib.h>
-
-#include "lib/flags.h"
+#include "lib/common.h"
 
 int main(int argc, char *argv[]) {
   options("");
