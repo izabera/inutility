@@ -15,8 +15,7 @@ struct inutility {
 };
 
 #include "lib/flags.h"
-
-#define arrsize(a) sizeof(a)/sizeof(*a)
+#include "lib/common.h"
 
 int cmp(const void *a, const void *b) {
   const struct inutility *inutila = a, *inutilb = b;

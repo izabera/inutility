@@ -1,9 +1,9 @@
 #include <unistd.h>
 #include <string.h>
-#include <stdlib.h>
+/*#include <stdlib.h>*/
 #include <errno.h>
 
-#define arrsize(a) sizeof(a)/sizeof(*a)
+#include "lib/common.h"
 
 /* handy for lookups, and make it easier to add/remove options in the future */
 enum { optbs, optcbs, optconv, optcount, optibs, optiflag, optobs, optoflag,
@@ -155,12 +155,12 @@ nextwhile: ;
   /* do the thing */
   char *buf = malloc(ibs + obs + 1); /* +1 for stuff like conv=swab */
   ssize_t readsiz, writesiz;
-  enum { canread, mustread, canwrite, mustwrite, other } loopstate;
+  enum { canread, mustread, canwrite, mustwrite, canconv, other } loopstate;
   enum { err, eof } readstate, writestate;
   if (!buf) return errno;
 
-  errno = 0;
   while (1) {
+    errno = 0;
     switch (loopstate) {
       default: goto out;
 
@@ -169,9 +169,10 @@ nextwhile: ;
                      else if (readsiz  < 0) readstate = err;
                      else 
                      break;
-      case canwrite: writesiz = write(ofd, buf, obs);
+      case canwrite: if (write(ofd, buf, obs) == -1) goto out; /* todo: eagain */
                      foo;
                      break;
+      case  canconv: 
     }
   }
 

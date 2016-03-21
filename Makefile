@@ -8,7 +8,7 @@ objlib = $(addsuffix .o,$(basename $(libheaders)))
 src = $(addprefix $(srcdir)/,$(addsuffix .c,$(programs)))
 obj = $(addprefix $(objdir)/,$(addsuffix .o,$(programs))) $(objlib)
 
-CFLAGS = -Wall -O2 -g -march=native -D_GNU_SOURCE
+CFLAGS = -Wall -Wextra -O2 -g -march=native -D_GNU_SOURCE
 LDFLAGS = -flto
 
 all: $(objdir) inutility
