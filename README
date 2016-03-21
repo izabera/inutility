@@ -15,6 +15,7 @@ list [-n]                                                   | lists inutilities
 sleep number[suffix]                                        |
 tac [file...]                                               | no opts
 tee [-ai] [file...]                                         |
+tr [-cCtds] set1 [set2]                                     | no [=equiv=] [x*n]
 true                                                        |
 unlink file [file...]                                       | allows more than 1 file
 uptime                                                      | no opts
