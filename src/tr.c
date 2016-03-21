@@ -133,8 +133,8 @@ int main(int argc, char *argv[]) {
     for (; i < str[0].len; i++)
       map[(int)str[0].str[i]] = str[1].str[str[1].len-1];
 
-  printf("1: %lu %lu\n", str[0].len, str[1].len);
-  printf("2: %lu %lu\n", str[0].len, str[1].len);
+  printf("1: %zu %zu\n", str[0].len, str[1].len);
+  printf("2: %zu %zu\n", str[0].len, str[1].len);
   if (flag('d')) {
     fwrite(str[0].str, 1, str[0].len, stdout);
     for (i = 0; i < 256; i++)

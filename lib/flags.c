@@ -101,7 +101,7 @@ int parseopts(int argc, char *argv[], const char *program, struct opts options) 
     for (j = 1; (c = argv[i][j]); j++) {
       if (c == ':') goto unknown; /* this can be in opts */
       if (strchr(opts, c)) {
-        if (needarg & 1 << opt(c)) {
+        if (needarg & 1LL << opt(c)) {
                if (argv[i][j+1]) argpush(flags[opt(c)], &argv[i][j+1]);
           else if (++i < argc)   argpush(flags[opt(c)], &argv[i][0]);
           else {
@@ -110,7 +110,7 @@ int parseopts(int argc, char *argv[], const char *program, struct opts options) 
           }
           break;
         }
-        else if (neednum & 1 << opt(c)) {
+        else if (neednum & 1LL << opt(c)) {
                if (argv[i][j+1]) numpush(flags[opt(c)], &argv[i][j+1]);
           else if (++i < argc)   numpush(flags[opt(c)], &argv[i][0]);
           else {

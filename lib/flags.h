@@ -10,7 +10,7 @@ extern struct flags flags[64];
 #define opt(x) ((x >= 48 && x <= 57) ? x - 48 :   \
                 (x >= 64 && x <= 90) ? x - 55 :   \
                 (x >= 97 && x <= 122)? x - 61 :   \
-                x == '#'             ? 63     : 64)
+                x == '#'             ? 62     : 63)
 
 extern int parseoptind, parseopterr;
 
