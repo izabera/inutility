@@ -43,10 +43,10 @@ int64_t parsenumb(const char *string) {
   return INT64_MIN;
 }
 
-uint64_t parsebyte(const char *string) {
+int64_t parsebyte(const char *string) {
   char *end;
   int64_t num = strtoll(string, &end, 10);
   for (size_t i = 0; i < arrsize(bytes); i++)
     if (!strcasecmp(end, bytes[i].name)) return num * bytes[i].value;
-  return UINT64_MAX;
+  return INT64_MIN;
 }

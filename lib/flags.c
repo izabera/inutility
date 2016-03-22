@@ -6,10 +6,10 @@
 #include "flags.h"
 #include "parsenumb.h"
 
-#define argpush(opt, arg, target) do {                                        \
-  opt.count++;                                                                \
-  if (!(opt.nums = realloc(opt.nums, sizeof(int  ) * opt.count))) return '@'; \
-  opt.target[opt.count-1] = arg;                                              \
+#define argpush(opt, arg, target) do {                                              \
+  opt.count++;                                                                      \
+  if (!(opt.nums = realloc(opt.nums, sizeof(typeof(arg)) * opt.count))) return '@'; \
+  opt.target[opt.count-1] = arg;                                                    \
 } while (0)
 
 int parseoptind, parseopterr = 1;
@@ -62,12 +62,11 @@ int parseopts(int argc, char *argv[], const char *program, struct opts options) 
             printf("%s-num] ", brkt ? "] [" : "[");
             brkt = 0;
           }
-          else if (opts[i+1] == ':') {
-            printf("%s-%c arg] ", brkt ? "] [" : "[", opts[i++]);
-            brkt = 0;
-          }
-          else if (opts[i+1] == '|') {
-            printf("%s-%c num] ", brkt ? "] [" : "[", opts[i++]);
+          else if (opts[i+1] == '|' || opts[i+1] == '*' || opts[i+1] == ':') {
+            printf("%s-%c %s] ", brkt ? "] [" : "[", opts[i],
+                opts[i+1] == '|' ? "num"  :
+                opts[i+1] == '*' ? "byte" : "arg");
+            i++;
             brkt = 0;
           }
           else {
@@ -114,8 +113,8 @@ int parseopts(int argc, char *argv[], const char *program, struct opts options) 
           break;
         }
         else if (needbyt & 1LL << opt(c)) {
-               if (argv[i][j+1]) argpush(flags[opt(c)], (int64_t)parsebyte(&argv[i][j+1]), nums);
-          else if (++i < argc)   argpush(flags[opt(c)], (int64_t)parsebyte(&argv[i][0]), nums);
+               if (argv[i][j+1]) argpush(flags[opt(c)], parsebyte(&argv[i][j+1]), nums);
+          else if (++i < argc)   argpush(flags[opt(c)], parsebyte(&argv[i][0]), nums);
           else goto missing;
           break;
         }
