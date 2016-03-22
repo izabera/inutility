@@ -117,13 +117,13 @@ int main(int argc, char *argv[]) {
 
 
   size_t read;
-  char inbuf[BUFSIZ], outbuf[BUFSIZ];
+  unsigned char inbuf[BUFSIZ], outbuf[BUFSIZ];
   int prev = -1;
   while ((read = fread(inbuf, 1, BUFSIZ, stdin)) > 0) {
     for (i = j = 0; i < read; i++) {
-      if (!delete[(int)inbuf[i]]) {
-        if (!squeeze[(int)inbuf[i]] || prev != map[(int)inbuf[i]])
-          outbuf[j++] = prev = map[(int)inbuf[i]];
+      if (!delete[inbuf[i]]) {
+        if (!squeeze[inbuf[i]] || prev != map[inbuf[i]])
+          outbuf[j++] = prev = map[inbuf[i]];
       }
     }
     fwrite(outbuf, 1, j, stdout);
