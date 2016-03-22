@@ -31,7 +31,7 @@ int parseopts(int argc, char *argv[], const char *program, struct opts opts);
                      switch (parseopts(argc-1, argv+1, __func__,                        \
                                   (struct opts) { __VA_ARGS__ })) {                     \
                      _Pragma("GCC diagnostic pop")                                      \
-                       case 'h': return 0;                                              \
+                       case 'h': case 'v': return 0;                                    \
                        case '?': case ':': case '@': return 1;                          \
                      }                                                                  \
                      argc -= parseoptind;                                               \

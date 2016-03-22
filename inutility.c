@@ -47,6 +47,8 @@ int main(int argc, char *argv[]) {
   if (!strcmp(basename(argv[0]), "inutility")) {
     if (argc == 1)
       return main_list(argc, argv);
+#define __func__ "inutility"
+    options("", .help = "[command] [args]");
     argc--;
     argv++;
   }
