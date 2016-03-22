@@ -9,8 +9,21 @@ int main(int argc, char **argv) {
   FILE *fileptr = stdin;
   int firstfile = 0, verbose = flag('v') || (argc > 2 && !flag('q'));
   char *line = NULL;
+
+  char *bytebuffer;
+  struct linebuffer { char *line; size_t len; } *linebuffer;
+  if (number < 0) {
+    if (flag('c')) {
+      if (!(bytebuffer = malloc(BUFSIZ +                    -number))) return 1;
+    }
+    else {
+      if (!(linebuffer = malloc(sizeof(struct linebuffer) * -number))) return 1;
+    }
+  }
+
   size_t len = 0;
   ssize_t read;
+  int64_t i = 0;
   if (argc == 1) {
     argv[0] = "-";
     goto inner;
@@ -21,24 +34,46 @@ int main(int argc, char **argv) {
 inner:
     if (verbose) printf("%s==> %s <==\n", firstfile++ ? "\n" : "", argv[0]);
     if (flag('c')) {
-      char buf[BUFSIZ];
-      int64_t i = number;
-      while (i > BUFSIZ) {
-        if ((read = fread(buf, 1, BUFSIZ, fileptr)) > 0)
-          fwrite(buf, 1, read, stdout);
-        else break;
-        i -= BUFSIZ;
+      if (number < 0) {
+        
       }
-      if ((read = fread(buf, 1, i, fileptr)) > 0)
-        fwrite(buf, 1, read, stdout);
+      else {
+        char buf[BUFSIZ];
+        i = number;
+        while (i > BUFSIZ) {
+          if ((read = fread(buf, 1, BUFSIZ, fileptr)) > 0)
+            fwrite(buf, 1, read, stdout);
+          else break;
+          i -= read;
+        }
+        if ((read = fread(buf, 1, i, fileptr)) > 0)
+          fwrite(buf, 1, read, stdout);
+      }
     }
     else {
-      for (int64_t i = 0; i < number; i++) {
-        if ((read = getdelim(&line, &len, !flag('z') * '\n', fileptr)) > 0)
-          fwrite(line, 1, read, stdout);
-        else break;
+      if (number < 0) {
+        for (i = 0; i > number; i--) {
+          if ((read = getline(&line, &len, stdin)) <= 0) goto nextfile;
+          linebuffer[-i].line = memdup(line, read);
+          linebuffer[-i].len = read;
+        }
+        while ((read = getline(&line, &len, stdin)) > 0) {
+          fwrite(linebuffer[-i%number].line, 1, linebuffer[-i%number].len, stdout);
+          fflush(stdout);
+          linebuffer[-i%number].line = memdup(line, read);
+          linebuffer[-i%number].len = read;
+          i--;
+        }
+      }
+      else {
+        for (int64_t i = 0; i < number; i++) {
+          if ((read = getdelim(&line, &len, !flag('z') * '\n', fileptr)) > 0)
+            fwrite(line, 1, read, stdout);
+          else break;
+        }
       }
     }
+nextfile:
     if (fileptr != stdin) fclose(fileptr);
   }
   return errno;

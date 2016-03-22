@@ -23,3 +23,5 @@ struct str {
   unsigned char *str;
   size_t len;
 };
+
+char *memdup(const char *mem, size_t len);
