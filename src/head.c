@@ -35,7 +35,14 @@ inner:
     if (verbose) printf("%s==> %s <==\n", firstfile++ ? "\n" : "", argv[0]);
     if (flag('c')) {
       if (number < 0) {
-        
+        char c;
+        for (i = 0; i > number; i--)
+          if ((bytebuffer[-i] = getc(fileptr)) == EOF) goto nextfile;
+        while ((c = getc_unlocked(fileptr)) != EOF) {
+          putchar_unlocked(bytebuffer[-i%number]);
+          bytebuffer[-i%number] = c;
+          i--;
+        }
       }
       else {
         char buf[BUFSIZ];
@@ -53,13 +60,13 @@ inner:
     else {
       if (number < 0) {
         for (i = 0; i > number; i--) {
-          if ((read = getline(&line, &len, stdin)) <= 0) goto nextfile;
+          if ((read = getdelim(&line, &len, !flag('z') * '\n', fileptr)) <= 0) goto nextfile;
           linebuffer[-i].line = memdup(line, read);
           linebuffer[-i].len = read;
         }
-        while ((read = getline(&line, &len, stdin)) > 0) {
+        while ((read = getdelim(&line, &len, !flag('z') * '\n', fileptr)) > 0) {
           fwrite(linebuffer[-i%number].line, 1, linebuffer[-i%number].len, stdout);
-          fflush(stdout);
+          free(linebuffer[-i%number].line);
           linebuffer[-i%number].line = memdup(line, read);
           linebuffer[-i%number].len = read;
           i--;
