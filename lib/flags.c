@@ -6,10 +6,10 @@
 #include "flags.h"
 #include "parsenumb.h"
 
-#define argpush(opt, arg, target) do {                                              \
-  opt.count++;                                                                      \
-  if (!(opt.nums = realloc(opt.nums, sizeof(typeof(arg)) * opt.count))) return '@'; \
-  opt.target[opt.count-1] = arg;                                                    \
+#define argpush(opt, arg, target) do {                                          \
+  opt.count++;                                                                  \
+  if (!(opt.target = realloc(opt.target, sizeof(arg) * opt.count))) return '@'; \
+  opt.target[opt.count-1] = arg;                                                \
 } while (0)
 
 int parseoptind, parseopterr = 1;

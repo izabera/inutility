@@ -10,7 +10,7 @@ obj = $(addprefix $(objdir)/,$(addsuffix .o,$(programs))) $(objlib)
 
 CFLAGS = -Wall -Wextra -O2 -g -march=native
 LDFLAGS = -flto
-override CFLAGS += -DVERSION='"$(shell git describe --always || echo xxxxxxx)"' -D_GNU_SOURCE
+override CFLAGS += -DVERSION='"$(shell git describe --always --dirty || echo xxxxxxx)"' -D_GNU_SOURCE
 
 all: $(objdir) inutility
 
