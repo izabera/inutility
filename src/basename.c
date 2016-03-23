@@ -7,7 +7,7 @@ int main(int argc, char *argv[]) {
   size_t baselen, sufflen = 0;
   if (flag('s')) {
     flag('a') = 1;
-    suffix = flags[opt('s')].args[0];
+    suffix = lastarg('s');
   }
   if (!flag('a')) {
     suffix = argv[2];

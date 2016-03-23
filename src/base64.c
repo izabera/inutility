@@ -16,7 +16,7 @@ int main(int argc, char *argv[]) {
   FILE *file = stdin;
   if (argc > 2) return 1;
   if (argc == 2) if (!(file = fopen(argv[1], "r"))) return 1;
-  if (flag('w')) flag('w') = flags[opt('w')].nums[flag('w')-1];
+  if (flag('w')) flag('w') = lastnum('w');
   else flag('w') = 76;
 
   char *valid = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/=";

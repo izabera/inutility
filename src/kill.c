@@ -3,7 +3,7 @@
 int main(int argc, char *argv[]) {
   options("#l?s|");
   int64_t signal;
-       if (flag('s'))   signal =  flags[opt('s')].nums[flag('s')-1];
+       if (flag('s'))   signal = lastnum('s');
   else if (flag('#')) { signal = *flags[opt('#')].nums++; flag('#')--; }
   else                  signal = 15;
   /* if the option parser gets -9 -1 both are put in flag('#')
