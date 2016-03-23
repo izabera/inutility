@@ -20,10 +20,10 @@ int main(int argc, char *argv[]) {
     if (argc == 1 && flag('#') == 0) return 1;
     for (size_t i = 0; i < flag('#'); i++)
       kill(-flags[opt('#')].nums[i], signal);
+    char *end;
     while (*++argv) {
-      char *end = NULL;
       pid_t pid = strtol(*argv, &end, 10);
-      if (end) return 1;
+      if (*end) return 1;
       kill(pid, signal);
     }
   }
