@@ -1,0 +1,5 @@
+#!/bin/bash
+inutility list -n |
+while read -r; do
+  printf "%10s: %s\n" "$REPLY" "$(inutility "$REPLY" --help)"
+done

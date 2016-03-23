@@ -1,7 +1,7 @@
 #include "lib/common.h"
 
 int main(int argc, char **argv) {
-  options("#n|c*qvz"); /* todo: negative args */
+  options("#n|c*qvz");
   int64_t number = flag('n') ? flags[opt('n')].nums[flag('n')-1] :
                flag('#') ? flags[opt('#')].nums[flag('#')-1] :
                flag('c') ? flags[opt('c')].nums[flag('c')-1] : 10;
@@ -35,7 +35,7 @@ inner:
     if (verbose) printf("%s==> %s <==\n", firstfile++ ? "\n" : "", argv[0]);
     if (flag('c')) {
       if (number < 0) {
-        char c;
+        char c; /* todo: replace this with something faster */
         for (i = 0; i > number; i--)
           if ((bytebuffer[-i] = getc(fileptr)) == EOF) goto nextfile;
         while ((c = getc_unlocked(fileptr)) != EOF) {
