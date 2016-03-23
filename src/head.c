@@ -3,8 +3,8 @@
 int main(int argc, char **argv) {
   options("#n|c*qvz");
   int64_t number = flag('n') ? flags[opt('n')].nums[flag('n')-1] :
-               flag('#') ? flags[opt('#')].nums[flag('#')-1] :
-               flag('c') ? flags[opt('c')].nums[flag('c')-1] : 10;
+                   flag('#') ? flags[opt('#')].nums[flag('#')-1] :
+                   flag('c') ? flags[opt('c')].nums[flag('c')-1] : 10;
 
   FILE *fileptr = stdin;
   int firstfile = 0, verbose = flag('v') || (argc > 2 && !flag('q'));
