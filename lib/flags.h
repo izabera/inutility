@@ -37,6 +37,6 @@ int parseopts(int argc, char *argv[], const char *program, struct opts opts);
                      argc -= parseoptind;                                               \
                      argv += parseoptind;
 
-#define flag(x) flags[opt(x)].count
+#define flag(x)    flags[opt(x)].count
 #define lastarg(x) flags[opt(x)].args[flag(x)-1]
 #define lastnum(x) flags[opt(x)].nums[flag(x)-1]

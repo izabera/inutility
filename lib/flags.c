@@ -3,8 +3,7 @@
 #include <stdint.h>
 #include <stdio.h>
 
-#include "flags.h"
-#include "parsenumb.h"
+#include "common.h"
 
 #define argpush(opt, arg, target) do {                                          \
   opt.count++;                                                                  \
