@@ -1,3 +1,5 @@
+#include "lib/common.h"
+
 int unescape(char *src, int *i) {
   int character;
   switch (src[++*i]) {
@@ -12,7 +14,7 @@ int unescape(char *src, int *i) {
     case '\\': character = '\\';    break;
     default:   character = src[*i]; break;
                                                                                     
-    case '0': case '1': case '2': case '3': case '4': case '5': case '6': case '7':
+    case caseoct:
       character = src[*i] - '0';
       if (src[*i+1] >= '0' && src[*i+1] <= '9') {
         character = character * 8 + src[++*i] - '0';
