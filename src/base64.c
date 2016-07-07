@@ -1,7 +1,7 @@
 #include "lib/common.h"
 
 unsigned long col = 0;
-void printchar(char c) {
+static void printchar(char c) {
   putchar(c);
   if (++col == flag('w')) {
     putchar('\n');

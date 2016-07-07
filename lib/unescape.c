@@ -1,4 +1,4 @@
-#include "lib/common.h"
+#include "common.h"
 
 int unescape(char *src, int *i) {
   int character;
