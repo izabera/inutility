@@ -138,5 +138,14 @@ missing:
     }
   }
   parseoptind = i;
+  if (options.argleast > 0 && i+options.argleast > argc) {
+    if (parseopterr) fprintf(stderr, "%s: at least %d argument%s\n", program, options.argleast, options.argleast == 1 ? "" : "s");
+    return 'n';
+  }
+  if (options.arglessthan > 0 && i+options.arglessthan <= argc) {
+
+    if (parseopterr) fprintf(stderr, "%s: at most %d argument%s\n", program, options.arglessthan-1, options.arglessthan == 2 ? "" : "s");
+    return 'n';
+  }
   return 0;
 }
