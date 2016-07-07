@@ -134,12 +134,12 @@ int64_t parsemode(const char *modestr, mode_t mode) {
     switch (modearray[i].which) {
       default: // not reached
       case whichperm:
-        if (modearray[i].perm & 1 << r) modeint |= mask & (S_IRUSR|S_IRGRP|S_IROTH); break;
-        if (modearray[i].perm & 1 << w) modeint |= mask & (S_IWUSR|S_IWGRP|S_IWOTH); break;
-        if (modearray[i].perm & 1 << x) modeint |= mask & (S_IXUSR|S_IXGRP|S_IXOTH); break;
-//      if (modearray[i].perm & 1 << X) modeint |= mask & (S_IXUSR|S_IXGRP|S_IXOTH); break;
-        if (modearray[i].perm & 1 << s) modeint |= mask & (S_ISUID|S_ISGID        ); break;
-        if (modearray[i].perm & 1 << t) modeint |=        (S_ISVTX                ); break;
+        if (modearray[i].perm & 1 << r) { modeint |= mask & (S_IRUSR|S_IRGRP|S_IROTH); break; }
+        if (modearray[i].perm & 1 << w) { modeint |= mask & (S_IWUSR|S_IWGRP|S_IWOTH); break; }
+        if (modearray[i].perm & 1 << x) { modeint |= mask & (S_IXUSR|S_IXGRP|S_IXOTH); break; }
+//      if (modearray[i].perm & 1 << X) { modeint |= mask & (S_IXUSR|S_IXGRP|S_IXOTH); break; }
+        if (modearray[i].perm & 1 << s) { modeint |= mask & (S_ISUID|S_ISGID        ); break; }
+        if (modearray[i].perm & 1 << t) { modeint |=        (S_ISVTX                ); break; }
         break;
       case whichcopy:
         switch (modearray[i].from) {
