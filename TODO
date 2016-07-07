@@ -1,4 +1,3 @@
 - improve tac for regular files
 - improve head -c -1234
 - (maybe) improve head -c -1234 for regular files?
-- option parser check number of args

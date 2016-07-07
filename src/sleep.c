@@ -1,8 +1,7 @@
 #include "lib/common.h"
 
 int main(int argc, char *argv[]) {
-  options("", .help = "number[suffix]");
-  if (argc == 1) return 1;
+  options("", .argleast = 1, .arglessthan = 2, .help = "number[suffix]");
   argv++;
   double arg = strtod(*argv, argv);
   if (arg < 0) return 1;
