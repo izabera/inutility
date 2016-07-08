@@ -57,7 +57,7 @@ int main(int argc, char *argv[]) {
     else fileptr = fdopen(file, "r");
 inner:
     saverrno = errno;
-    if (fileptr == stdin && stdinonce) {
+    if (fileptr == stdin && stdinonce++) {
       count = (struct Wc) { 0 };
       goto readdone;
     }
@@ -79,7 +79,7 @@ readdone:
       tot.w += count.w;
       printwc(count, argc == 1 ? NULL : *argv);
     }
-    if (fileptr != stdin || !stdinonce++) close(file);
+    if (fileptr != stdin) close(file);
   }
   if (argc > 2) printwc(tot, "total");
   return errno;
