@@ -6,8 +6,8 @@ struct Wc { size_t w, c, m, l; };
 static void printwc(struct Wc count, const char *name) {
   if (flag('l')) printf("%7zu ", count.l);
   if (flag('w')) printf("%7zu ", count.w);
-  if (flag('c')) printf("%7zu ", count.c);
   if (flag('m')) printf("%7zu ", count.m);
+  if (flag('c')) printf("%7zu ", count.c);
   if (name) printf("%s", name);
   putchar('\n');
 }
@@ -33,12 +33,12 @@ struct Wc wc(int fd) { /* counts both utf8 chars and bytes, assuming valid utf8 
     }
     bytes += len;
   }
-  return (struct Wc){ words, chars, bytes, lines };
+  return (struct Wc){ words, bytes, chars, lines };
 }
 
 int main(int argc, char *argv[]) {
   options("wclm");
-  int fl = (!!flag('w')) | (!!flag('c'))<<1 || flag('l')<<2 | (!!flag('m'))<<3;
+  int fl = (!!flag('w')) | (!!flag('c'))<<1 | flag('l')<<2 | (!!flag('m'))<<3;
   int saverrno, file = 0;
   FILE *fileptr = stdin;
   if (!fl) {
@@ -59,14 +59,16 @@ inner:
     saverrno = errno;
     if (fl == 2) {
       struct stat st;
-      fstat(file, &st);
+      if (fstat(file, &st) == -1) goto readit;
       if (!S_ISREG(st.st_mode) || st.st_size == 0) goto readit;
-      count.c = 0;
+      count.c = st.st_size;
+      goto readdone;
     }
     else {
 readit:
       errno = saverrno;
       count = wc(file);
+readdone:
       tot.c += count.c;
       tot.l += count.l;
       tot.m += count.m;
