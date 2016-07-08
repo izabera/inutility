@@ -20,7 +20,7 @@ int main(int argc, char *argv[]) {
             case 'A': case 'a': case 'E': case 'e': case 'F': case 'f': case 'G': case 'g':
                      printf(currformat, strtod(*argv ? *argv++ : "", NULL)); break;
             case 'd': case 'i': case 'o': case 'u': case 'x': case 'X':
-                     printf(currformat, *argv && **argv == '\'' ? *++*argv++ : strtoll(*argv++, NULL, 10));
+                     printf(currformat, *argv && **argv == '\'' ? *++*argv++ : strtoll(*argv++, NULL, 0));
                      break;
             case 's':
                      printf(currformat, *argv ? *argv++ : ""); break;
