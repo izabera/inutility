@@ -12,7 +12,7 @@ static void printwc(struct Wc count, const char *name) {
   putchar('\n');
 }
 
-struct Wc wc(int fd) { /* counts both utf8 chars and bytes, assuming valid utf8 */
+static struct Wc wc(int fd) { /* counts both utf8 chars and bytes, assuming valid utf8 */
   size_t words = 0, chars = 0, bytes = 0, lines = 0;
   int inword = 0;
   unsigned char buffer[bufsize];
@@ -39,7 +39,7 @@ struct Wc wc(int fd) { /* counts both utf8 chars and bytes, assuming valid utf8 
 int main(int argc, char *argv[]) {
   options("wclm");
   int fl = (!!flag('w')) | (!!flag('c'))<<1 | flag('l')<<2 | (!!flag('m'))<<3;
-  int saverrno, file = 0;
+  int saverrno, file = 0, stdinonce = 0;
   FILE *fileptr = stdin;
   if (!fl) {
     fl = 1|2|4;
@@ -57,6 +57,10 @@ int main(int argc, char *argv[]) {
     else fileptr = fdopen(file, "r");
 inner:
     saverrno = errno;
+    if (fileptr == stdin && stdinonce) {
+      count = (struct Wc) { 0 };
+      goto readdone;
+    }
     if (fl == 2) {
       struct stat st;
       if (fstat(file, &st) == -1) goto readit;
@@ -75,7 +79,7 @@ readdone:
       tot.w += count.w;
       printwc(count, argc == 1 ? NULL : *argv);
     }
-    if (fileptr != stdin) close(file);
+    if (fileptr != stdin || !stdinonce++) close(file);
   }
   if (argc > 2) printwc(tot, "total");
   return errno;
