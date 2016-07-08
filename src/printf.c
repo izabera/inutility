@@ -2,9 +2,8 @@
 
 int main(int argc, char *argv[]) {
   options("", .argleast = 1);
-  char *format = argv[1];
+  char *format = argv[1], *ptr, *currformat, doformat = 0;
   argv += 2;
-  char *ptr, *currformat;
   do {
     for (size_t i = 0; format[i]; i++) {
       switch (format[i]) {
@@ -12,6 +11,7 @@ int main(int argc, char *argv[]) {
         case '\\': putchar_unlocked(unescape(format, &i, 0)); break;
         case '%':
           if (format[i+1] == '%') { putchar_unlocked('%'); i++; break; }
+          doformat = 1;
           int begin = i;
           while (strchr("#+-0123456789. ", format[++i])) ;
           currformat = strndup(format+begin, i-begin+1);
@@ -37,6 +37,6 @@ int main(int argc, char *argv[]) {
           break;
       }
     }
-  } while (*argv);
+  } while (*argv && doformat);
   return errno;
 }
