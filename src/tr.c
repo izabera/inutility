@@ -1,5 +1,4 @@
 #include "lib/common.h"
-#include "lib/unescape.h"
 
 #define digit "0123456789"
 #define upper "ABCDEFGHIJKLMNOPQRSTUVWXYZ"
@@ -43,7 +42,7 @@ void makestr(struct str *dest, char *src) {
   };
 
   int character = -1;
-  for (int i = 0; src[i]; i++) {
+  for (size_t i = 0; src[i]; i++) {
     switch (src[i]) {
       case '[': for (size_t j = 0; j < arrsize(classes); j++) {
                   if (!strncmp(classes[j].name, src+i, classes[j].namelen)) {
@@ -58,13 +57,13 @@ void makestr(struct str *dest, char *src) {
       case '-': if (character == -1 || !src[i+1]) fputc(character = '-', stream);
                 else {
                   int from = character+1, to; /* from+1 because we already added that char */
-                  if (src[++i] == '\\') to = unescape(src, &i);
+                  if (src[++i] == '\\') to = unescape(src, &i, 0);
                   else to = src[i];
                   while (from <= to) fputc(from++, stream);
                   character = -1;
                 }
                 break;
-      case '\\': fputc(character = unescape(src, &i), stream);
+      case '\\': fputc(character = unescape(src, &i, 0), stream);
                  break;
       default: fputc(character = src[i], stream);
     }

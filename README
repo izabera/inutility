@@ -14,6 +14,7 @@ head [-n num] [-num] [-c num] [-qvz]                        |
 kill [-sig] [-l] [-s sig] pid [pid...]                      |
 link file1 file2                                            |
 list [-n]                                                   | lists inutilities
+printf format [args...]                                     |
 pwdx pid [pid...]                                           |
 rev                                                         |
 sleep number[suffix]                                        |
