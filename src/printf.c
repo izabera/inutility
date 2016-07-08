@@ -18,20 +18,20 @@ int main(int argc, char *argv[]) {
           switch (format[i]) {
             default: return 1;
             case 'A': case 'a': case 'E': case 'e': case 'F': case 'f': case 'G': case 'g':
-                     printf(currformat, strtod(*argv ? *argv++ : "", NULL)); break;
+              printf(currformat, strtod(*argv ? *argv++ : "", NULL)); break;
             case 'd': case 'i': case 'o': case 'u': case 'x': case 'X':
-                     printf(currformat, *argv && **argv == '\'' ? *++*argv++ : strtoll(*argv++, NULL, 0));
-                     break;
+              printf(currformat, *argv ? **argv == '\'' ? *++*argv++ : strtoll(*argv++, NULL, 0) : 0);
+              break;
             case 's':
-                     printf(currformat, *argv ? *argv++ : ""); break;
+              printf(currformat, *argv ? *argv++ : ""); break;
             case 'b':
-                     ptr = unescapestr(*argv ? *argv++ : "", 1);
-                     currformat[strlen(currformat)-1] = 's';
-                     printf(currformat, ptr);
-                     free(ptr);
-                     break;
+              ptr = unescapestr(*argv ? *argv++ : "", 1);
+              currformat[strlen(currformat)-1] = 's';
+              printf(currformat, ptr);
+              free(ptr);
+              break;
             case 'c':
-                     putchar_unlocked(*argv ? **argv++ : '\0'); break;
+              putchar_unlocked(*argv ? **argv++ : '\0'); break;
           }
           free(currformat);
           break;
