@@ -10,7 +10,7 @@ dirname [-z] [name...]                                      |
 env [-i0] [-u unset...] [-] [VAR=value...] [cmd [args...]]  |
 false                                                       |
 file [-hL] [file...]                                        |
-head [-n num] [-num] [-c num] [-qvz]                        |
+head [-n num] [-num] [-c byte] [-qvz]                       |
 kill [-sig] [-l] [-s sig] pid [pid...]                      |
 link file1 file2                                            |
 list [-n]                                                   | lists inutilities
@@ -22,6 +22,7 @@ tac [file...]                                               | no opts
 tee [-ai] [file...]                                         |
 tr [-cCtds] set1 [set2]                                     | no [=equiv=] [x*n]
 true                                                        |
+truncate [-c] [-r file] [-s byte] file [file...]            |
 unlink file [file...]                                       | allows more than 1 file
 uptime                                                      | no opts
 wc [-wclm] [file...]                                        |
