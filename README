@@ -4,10 +4,10 @@ inutility
 synopsis                                                    | notes
 ------------------------------------------------------------+-----------------
 base64 [-di] [-w num] [file]                                |
-basename [-az] [-s suffix] [name...]                        |
+basename [-az] [-s suffix] name [name...]                   |
 cat [-AeEntTuv] [file...]                                   | todo -b -s
 clear                                                       |
-dirname [-z] [name...]                                      |
+dirname [-z] name [name...]                                 |
 env [-i0] [-u unset...] [-] [VAR=value...] [cmd [args...]]  |
 false                                                       |
 file [-hL] [file...]                                        |
@@ -20,6 +20,7 @@ pwd [-LP]                                                   |
 pwdx pid [pid...]                                           |
 rev [file...]                                               |
 sleep number[suffix]                                        |
+sync [-df] [file...]                                        |
 tac [file...]                                               | no opts
 tee [-ai] [file...]                                         |
 tr [-cCtds] set1 [set2]                                     | no [=equiv=] [x*n]

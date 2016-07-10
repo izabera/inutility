@@ -14,12 +14,20 @@
 #include <signal.h>
 #include <time.h>
 #include <limits.h>
+#include <sys/sysinfo.h>
+#include <utmpx.h>
+#include <time.h>
+#include <stdio.h>
+#include <sys/sysinfo.h>
+#include <utmpx.h>
+#include <time.h>
 
 #include "flags.h"
 #include "parsenumb.h"
 #include "parsemode.h"
 #include "memspn.h"
 #include "unescape.h"
+#include "uptime.h"
 
 #define arrsize(a) (sizeof(a)/sizeof(*a))
 #define min(a,b) ((a) < (b) ? (a) : (b))

@@ -1,9 +1,4 @@
-#include <stdio.h>
-#include <sys/sysinfo.h>
-#include <utmpx.h>
-#include <time.h>
-
-#include "uptime.h"
+#include "common.h"
 
 int print_uptime() {
   struct sysinfo info;
