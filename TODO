@@ -1,3 +1,4 @@
 - improve tac for regular files
 - improve head -c -1234
 - (maybe) improve head -c -1234 for regular files?
+- compile all the files in the same compilation unit

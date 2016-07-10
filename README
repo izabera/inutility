@@ -16,7 +16,7 @@ link file1 file2                                            |
 list [-n]                                                   | lists inutilities
 printf format [args...]                                     |
 pwdx pid [pid...]                                           |
-rev                                                         |
+rev [file...]                                               |
 sleep number[suffix]                                        |
 tac [file...]                                               | no opts
 tee [-ai] [file...]                                         |
