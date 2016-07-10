@@ -7,6 +7,7 @@ int main(int argc, char *argv[]) {
   if (!flag('P')) {
     if (env && *env == '/') {
       do {
+        if (*ptr++ != '/') continue;
         if (*ptr++ == '.' && (*ptr == '/' || *ptr == 0)) goto nope;
         if (*ptr == '.' && (ptr[1] == '/' || ptr[1] == 0)) goto nope;
       } while (*ptr);
