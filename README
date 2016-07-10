@@ -26,6 +26,7 @@ tee [-ai] [file...]                                         |
 tr [-cCtds] set1 [set2]                                     | no [=equiv=] [x*n]
 true                                                        |
 truncate [-c] [-r file] [-s byte] file [file...]            |
+tty [-s]                                                    |
 unlink file [file...]                                       | allows more than 1 file
 uptime                                                      | no opts
 wc [-wclm] [file...]                                        |
