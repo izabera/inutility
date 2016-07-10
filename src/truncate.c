@@ -10,7 +10,7 @@ int main(int argc, char *argv[]) {
     if (stat(lastarg('r'), &st) == -1) return errno;
     siz = st.st_size;
   }
-  else return 1;
+  else return -1;
 
   while (*++argv) {
          if (argv[0][0] == '-' && argv[0][1] == 0) file = 0;

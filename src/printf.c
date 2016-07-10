@@ -16,7 +16,7 @@ int main(int argc, char *argv[]) {
           while (strchr("#+-0123456789. ", format[++i])) ;
           currformat = strndup(format+begin, i-begin+1);
           switch (format[i]) {
-            default: return 1;
+            default: return -1;
             case 'A': case 'a': case 'E': case 'e': case 'F': case 'f': case 'G': case 'g':
               printf(currformat, strtod(*argv ? *argv++ : "", NULL)); break;
             case 'd': case 'i': case 'o': case 'u': case 'x': case 'X':

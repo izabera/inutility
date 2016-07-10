@@ -14,7 +14,7 @@ static void printchar(char c) {
 int main(int argc, char *argv[]) {
   options("diw|", .arglessthan = 2);
   FILE *file = stdin;
-  if (argc == 2) if (!(file = fopen(argv[1], "r"))) return 1;
+  if (argc == 2) if (!(file = fopen(argv[1], "r"))) return errno;
   if (flag('w')) flag('w') = lastnum('w');
   else flag('w') = 76;
 
@@ -29,14 +29,14 @@ int main(int argc, char *argv[]) {
     while ((c = fgetc(file)) != EOF) {
       if (c == '\n') continue;
       if (!decoded[c]) {
-        if (!flag('i')) return 1;
+        if (!flag('i')) return -1;
         else continue;
       }
       if (c == '=') {
         equal++;
-        if (!count) return 1;
+        if (!count) return -1;
       }
-      else if (equal > 0) return 1;
+      else if (equal > 0) return -1;
 
       switch (count++) {
         case 0: old = decoded[c]; break;
@@ -48,7 +48,7 @@ int main(int argc, char *argv[]) {
                 count = old = 0;
       }
     }
-    if (count || old) return 1;
+    if (count || old) return -1;
   }
   else {
     while ((c = fgetc(file)) != EOF) {

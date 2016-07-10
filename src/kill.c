@@ -21,7 +21,7 @@ int main(int argc, char *argv[]) {
     };
     if (flags[opt('l')].args[0]) {
       long int num = strtol(flags[opt('l')].args[0], &end, 10);
-      if (*end || num < 0 || num > (long int)arrsize(signals)) return 1;
+      if (*end || num < 0 || num > (long int)arrsize(signals)) return -1;
       if (signals[num]) puts(signals[num]);
       else printf("%ld\n", num);
     }
@@ -32,12 +32,12 @@ int main(int argc, char *argv[]) {
       }
   }
   else {
-    if (argc == 1 && flag('#') == 0) return 1;
+    if (argc == 1 && flag('#') == 0) return -1;
     for (size_t i = 0; i < flag('#'); i++)
       kill(-flags[opt('#')].nums[i], signal);
     while (*++argv) {
       pid_t pid = strtol(*argv, &end, 10);
-      if (*end) return 1;
+      if (*end) return -1;
       kill(pid, signal);
     }
   }

@@ -1,8 +1,7 @@
 #include "lib/common.h"
 
 int main(int argc, char *argv[]) {
-  options("as:z");
-  if (argc == 1) return 1;
+  options("as:z", .argleast = 1);
   char *suffix = NULL, *ptr;
   size_t baselen, sufflen = 0;
   if (flag('s')) {
@@ -23,5 +22,5 @@ int main(int argc, char *argv[]) {
     }
     printf("%s%c", *argv, !flag('z') * '\n');
   }
-  return 0;
+  return errno;
 }

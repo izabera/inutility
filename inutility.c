@@ -55,5 +55,5 @@ int main(int argc, char *argv[]) {
   for (size_t i = 0; i < arrsize(inutility); i++)
     if (!strcmp(basename(argv[0]), inutility[i].name))
       return inutility[i].func(argc, argv);
-  return 1;
+  return -1;
 }

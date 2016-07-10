@@ -7,7 +7,7 @@
 
 int print_uptime() {
   struct sysinfo info;
-  if (sysinfo(&info) == -1) return 1;
+  if (sysinfo(&info) == -1) return errno;
   time_t timenow = time(NULL);
   struct tm *tmnow = localtime(&timenow);
   printf(" %02d:%02d:%02d up ", tmnow->tm_hour, tmnow->tm_min, tmnow->tm_sec);
@@ -35,5 +35,5 @@ int print_uptime() {
       users, plural(users),
       info.loads[0] / (65536 * 1.0), info.loads[1] / (65536 * 1.0), info.loads[2] / (65536 * 1.0)
   );
-  return 0;
+  return errno;
 }

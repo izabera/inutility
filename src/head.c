@@ -14,10 +14,10 @@ int main(int argc, char **argv) {
   struct linebuffer { char *line; size_t len; } *linebuffer;
   if (number < 0) {
     if (flag('c')) {
-      if (!(bytebuffer = malloc(BUFSIZ +                    -number))) return 1;
+      if (!(bytebuffer = malloc(BUFSIZ +                    -number))) return errno;
     }
     else {
-      if (!(linebuffer = malloc(sizeof(struct linebuffer) * -number))) return 1;
+      if (!(linebuffer = malloc(sizeof(struct linebuffer) * -number))) return errno;
     }
   }
 
