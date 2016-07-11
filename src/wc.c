@@ -37,7 +37,7 @@ static struct Wc wc(int fd) { /* counts both utf8 chars and bytes, assuming vali
 }
 
 int main(int argc, char *argv[]) {
-  options("wclm");
+  options("clmw");
   int fl = (!!flag('w')) | (!!flag('c'))<<1 | flag('l')<<2 | (!!flag('m'))<<3;
   int saverrno, file = 0, stdinonce = 0;
   FILE *fileptr = stdin;

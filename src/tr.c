@@ -73,7 +73,7 @@ void makestr(struct str *dest, char *src) {
 }
 
 int main(int argc, char *argv[]) {
-  options("cCtds", .argleast = 1, .arglessthan = 3);
+  options("cCdst", .argleast = 1, .arglessthan = 3);
   if (argc == 1 || argc > 3) return 1;
   if (argc == 2 && !(flag('d') || flag('s'))) return 1;
   if (argc == 3 && flag('d') && !flag('s')) return 1;

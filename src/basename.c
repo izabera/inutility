@@ -1,7 +1,7 @@
 #include "lib/common.h"
 
 int main(int argc, char *argv[]) {
-  options("as:z", .argleast = 1);
+  options("azs:", .argleast = 1);
   char *suffix = NULL, *ptr;
   size_t baselen, sufflen = 0;
   if (flag('s')) {

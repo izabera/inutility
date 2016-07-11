@@ -1,7 +1,7 @@
 #include "lib/common.h"
 
 int main(int argc, char **argv) {
-  options("#n|c*qvz");
+  options("qvz#c*n|");
   int64_t number = flag('n') ? flags[opt('n')].nums[flag('n')-1] :
                    flag('#') ? flags[opt('#')].nums[flag('#')-1] :
                    flag('c') ? flags[opt('c')].nums[flag('c')-1] : 10;

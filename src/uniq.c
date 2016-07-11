@@ -9,7 +9,7 @@
                       }                                                             \
                     } while (0)
 int main(int argc, char *argv[]) {
-  options("icdus|w|z", .arglessthan = 3);
+  options("cdiuzs|w|", .arglessthan = 3);
   if (argc >= 2) if (!(stdin = fopen(argv[1], "r"))) return errno;
   if (argc == 3) if (!(stdout = fopen(argv[2], "w"))) return errno;
   if (flag('s')) flag('s') = lastnum('s');
