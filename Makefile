@@ -8,7 +8,7 @@ objlib = $(addsuffix .o,$(basename $(libheaders)))
 src = $(addprefix $(srcdir)/,$(addsuffix .c,$(programs)))
 obj = $(addprefix $(objdir)/,$(addsuffix .o,$(programs))) $(objlib)
 
-CFLAGS = -std=c11 -Wall -Wextra -pedantic -O2 -g -march=native
+CFLAGS = -std=c11 -Wall -Wextra -Wshadow -pedantic -O2 -g -march=native
 LDFLAGS = -flto
 override CFLAGS += -DVERSION='"$(shell git describe --always --dirty || echo xxxxxxx)"' -D_GNU_SOURCE
 

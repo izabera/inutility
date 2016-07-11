@@ -10,8 +10,8 @@
                     } while (0)
 int main(int argc, char *argv[]) {
   options("cdiuzs|w|", .arglessthan = 3);
-  if (argc >= 2) if (!(stdin = fopen(argv[1], "r"))) return errno;
-  if (argc == 3) if (!(stdout = fopen(argv[2], "w"))) return errno;
+  if (argc >= 2) if (!(freopen(argv[1], "r", stdin))) return errno;
+  if (argc == 3) if (!(freopen(argv[2], "w", stdout))) return errno;
   if (flag('s')) flag('s') = lastnum('s');
   if (flag('w')) flag('w') = lastnum('w');
 

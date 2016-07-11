@@ -73,7 +73,7 @@ inner:
         }
       }
       else {
-        for (int64_t i = 0; i < number; i++) {
+        for (int64_t q = 0; q < number; q++) {
           if ((read = getdelim(&line, &len, !flag('z') * '\n', fileptr)) > 0)
             fwrite(line, 1, read, stdout);
           else break;
