@@ -7,6 +7,7 @@ base64 [-di] [-w num] [file]                                |
 basename [-az] [-s suffix] name [name...]                   |
 cat [-AeEntTuv] [file...]                                   | todo -b -s
 clear                                                       |
+date [-Ru] [-D format] [-d time] [-r file] [time]           |
 dirname [-z] name [name...]                                 |
 env [-i0] [-u unset...] [-] [VAR=value...] [cmd [args...]]  |
 false                                                       |
