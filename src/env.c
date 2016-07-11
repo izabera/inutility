@@ -9,10 +9,8 @@ int main(int argc, char *argv[]) {
     flag('i') = 1;
     argv++;
   }
-  if (flag('i'))
-    *environ = NULL;
-  while (flag('u')--)
-    unsetenv(flags[opt('u')].args[flag('u')]);
+  if (flag('i')) *environ = NULL;
+  while (flag('u')--) unsetenv(flags[opt('u')].args[flag('u')]);
 
   char *var;
   while (*++argv) {
@@ -26,8 +24,7 @@ int main(int argc, char *argv[]) {
     }
   }
 
-  while (*environ)
-    printf("%s%c", *environ++, flag('0') ? 0 : '\n');
+  while (*environ) printf("%s%c", *environ++, flag('0') ? 0 : '\n');
 
   return 0;
 }
