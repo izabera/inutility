@@ -19,7 +19,7 @@ int main(int argc, char *argv[]) {
   char *informat, *outformat = flag('R') ? "%a, %d %b %Y %T %z" : "%a %b %e %H:%M:%S %Z %Y", outbuf[4096];
   struct tm tmp, *tm = &tmp;
   struct tm *(*func)(const time_t *) = flag('u') ? gmtime : localtime;
-  if (flag('d')) parsedate(lastarg('d'));
+  if (flag('d')) { parsedate(lastarg('d')); tm = func(&(time_t) { mktime(tm) }); }
   else if (flag('r')) {
     struct stat st;
     if (stat(lastarg('r'), &st) == -1) return errno;
