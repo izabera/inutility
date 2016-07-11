@@ -27,7 +27,7 @@ tr [-cCtds] set1 [set2]                                     | no [=equiv=] [x*n]
 true                                                        |
 truncate [-c] [-r file] [-s byte] file [file...]            |
 tty [-s]                                                    |
-uniq [-icdu] [-s num] [-w num] [-z] [infile [outfile]]      | todo -f
+uniq [-icdDu] [-s num] [-w num] [-z] [infile [outfile]]     | todo -f
 unlink file [file...]                                       | allows more than 1 file
 uptime                                                      | no opts
 wc [-wclm] [file...]                                        |
