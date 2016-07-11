@@ -31,9 +31,7 @@ int main(int argc, char *argv[]) {
   if (argc > 1 && argv[1][0] == '+') {
     outformat = &argv[1][1];
 dodate:
-    errno = 0;
     strftime(outbuf, sizeof(outbuf), outformat, tm);
-    printf("format was: <%s>      errno %d: %s\n", outformat, errno, strerror(errno));
   }
   else {
     parsedate(argv[1]);
