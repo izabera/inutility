@@ -7,7 +7,7 @@ int main(int argc, char *argv[]) {
       if (flag('v')) printf("removing directory '%s'\n", *argv);
       rmdir(*argv);
       *argv = dirname(*argv);
-    } while (flag('p') && argv[0][1]);
+    } while (flag('p') && strcmp(*argv, ".") && strcmp(*argv, "/"));
   }
   return errno;
 }
