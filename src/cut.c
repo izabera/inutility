@@ -71,11 +71,30 @@ int main(int argc, char *argv[]) {
     else if (!(fileptr = fopen(argv[0], "r"))) continue;
 inner:
     while ((read = getdelim(&line, &len, ldelim, fileptr)) > 0) {
-      if (flag('b') || flag('c')) {   // temporary -c
+      if (flag('b')) {
         for (tmprange = &ranges; tmprange->next && tmprange->first < (size_t) read; tmprange = tmprange->next)
           fwrite(line+tmprange->first-1, 1, tmprange->last-tmprange->first+1, stdout);
         if (line[read-1] == ldelim) putchar(line[read-1]);
       }
+      else if (flag('c')) {
+        char *tmp = line;
+        size_t pos = 1;
+        tmprange = &ranges;
+        while (*tmp && tmprange->next) {
+          if (pos < tmprange->first) {
+            pos++;
+            do { tmp++; } while ((*tmp & 0xC0) == 0x80);  // skip a full utf8 char
+          }
+          else if (pos == tmprange->first) {
+            do {
+              pos++;
+              do { putchar(*tmp++); } while ((*tmp & 0xC0) == 0x80); // print a char
+            } while (pos <= tmprange->last);
+            tmprange = tmprange->next;
+          }
+        }
+        if (line[read-1] == ldelim) putchar(line[read-1]);
+      } // this was relatively easy
       else {
         char *next = memchr(line, fdelim, read), *current = line;
         if (!next) {
