@@ -24,7 +24,7 @@ int main(int argc, char *argv[]) {
               break;
             case 's':
               printf(currformat, *argv ? *argv++ : ""); break;
-            case 'b':
+            case 'b': // fixme:  breaks on \0
               ptr = unescapestr(*argv ? *argv++ : "", 1);
               currformat[strlen(currformat)-1] = 's';
               printf(currformat, ptr);
