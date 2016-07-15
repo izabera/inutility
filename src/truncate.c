@@ -15,7 +15,7 @@ int main(int argc, char *argv[]) {
   while (*++argv) {
          if (argv[0][0] == '-' && argv[0][1] == 0) file = 0;
     else if ((file = open(argv[0], O_WRONLY|((!flag('c'))*O_CREAT), 0666)) == -1) continue;
-    ftruncate(file, siz);
+    UNUSED(ftruncate(file, siz));
     if (file) close(file);
   }
   return errno;

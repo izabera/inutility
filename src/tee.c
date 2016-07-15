@@ -19,7 +19,7 @@ int main(int argc, char *argv[]) {
   while ((size = read(0, buf, BUFSIZ)) > 0)
     for (i = 0; i < argc; i++)
       if (files[i] > 0)
-        write(files[i], buf, size);
+        UNUSED(write(files[i], buf, size));
 
   return errno;
 }

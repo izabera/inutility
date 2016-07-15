@@ -34,7 +34,7 @@ int main(int argc, char **argv) {
       if (flag('h') || !flag('L')) {
         if (lstat(argv[0], &st) == -1) { printf("%s: cannot stat\n", argv[0]); continue; }
         if (S_ISLNK(st.st_mode)) {
-          readlink(argv[0], pathbuf, sizeof(pathbuf));
+          UNUSED(readlink(argv[0], pathbuf, sizeof(pathbuf)));
           printf("%s: symbolic link to %s\n", argv[0], pathbuf);
           continue;
         }

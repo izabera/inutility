@@ -51,3 +51,11 @@ mode_t getumask();
 #define caselhex casedec : case 'a': case 'b': case 'c': case 'd': case 'e': case 'f'
 #define caseuhex casedec : case 'A': case 'B': case 'C': case 'D': case 'E': case 'F'
 #define casehex  caselhex: case 'A': case 'B': case 'C': case 'D': case 'E': case 'F'
+
+
+// for _FORTIFY_SOURCE
+#if __GNUC__ && ! __clang__
+#define UNUSED(x) do { __auto_type __unused __attribute__((unused)) = (x); } while (0)
+#else
+#define UNUSED(x) (void) (x)
+#endif

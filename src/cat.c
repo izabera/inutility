@@ -39,10 +39,11 @@ inner:
         else if (himeta(c))   printf(flag('v') ? "M-%c"  : "%c", c - 128);
         else                  putchar(c);
       }
+      fflush(stdout);
     }
     else {
       while ((size = read(file, buf, BUFSIZ)) > 0)
-        write(1, buf, size);
+        UNUSED(write(1, buf, size));
     }
     if (fileptr != stdin) fclose(fileptr);
   }
