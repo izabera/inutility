@@ -39,10 +39,10 @@ int main(int argc, char *argv[]) {
     char *tmp = list;
     if (*list != '-') first = strtoull(list, &tmp, 10);
     list = tmp;
-    if (*list == 0) { insertlist(first, first); break; }
+    if (*list == 0)   { insertlist(first, first); break;    }
     if (*list == ',') { insertlist(first, first); continue; }
     list++; // *list == '-'
-    if (*list == 0) { insertlist(first, -1); break; }
+    if (*list == 0)   { insertlist(first, -1); break;    }
     if (*list == ',') { insertlist(first, -1); continue; }
     last = strtoull(list, &tmp, 10);
     insertlist(first, last);
@@ -77,16 +77,36 @@ inner:
         if (line[read-1] == ldelim) putchar(line[read-1]);
       }
       else {
-        char *ptr = memchr(line, fdelim, read);
-        if (!ptr) {
+        char *next = memchr(line, fdelim, read), *current = line;
+        if (!next) {
           if (!flag('s')) fwrite(line, 1, read, stdout);
           continue;
         }
-        /*size_t field = 1, firstfield = 0;*/
-        /*for (tmprange = &ranges; tmprange->next; tmprange = tmprange->next)*/
-          /*while (field++ < tmprange->first) {*/
-            /*ptr = memchr(ptr+1, */
-          /*}*/
+        size_t field = 1, printdelim = 0;
+        for (tmprange = &ranges; tmprange->next; tmprange = tmprange->next) {
+          while (field < tmprange->first) {
+            field++;
+            if (!(current = next)) goto nextline;
+            current++;
+            next = memchr(next+1, fdelim, read-1-(next-line));   // check if off by 1
+          }
+          while (field <= tmprange->last) {
+            if (printdelim++) putchar(fdelim);
+            if (next) {
+              fwrite(current, 1, next-current, stdout);
+              current = next+1;
+              next = memchr(next+1, fdelim, read-1-(next-line));
+              field++;
+            }
+            else {
+              fwrite(current, 1, read-(current-line)-(line[read-1] == ldelim), stdout);
+              goto nextline;
+            }
+          }
+        } // this ended up being more complex than i thought
+
+nextline:
+        if (line[read-1] == ldelim) putchar(line[read-1]);
       }
     }
     if (fileptr != stdin) fclose(fileptr);
