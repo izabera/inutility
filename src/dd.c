@@ -67,49 +67,49 @@ int64_t parseflag(const char *string) {
 }
 
 int64_t parsestat(const char *string) {
-  if (!strcmp("none", string)) return 0;
-  if (!strcmp("noxfer", string)) return 1;
-//if (!strcmp("progress", string)) return 2;  naaaah...
-  return -1;
+  if (!strcmp("none", string)) return 1;
+  if (!strcmp("noxfer", string)) return 2;
+//if (!strcmp("progress", string)) return 3;  naaaah...
+  exit(-1);
 }
 
 volatile int sig;
-
-void sighandler(int s) {
-  sig = s;
-}
+void sighandler(int s) { sig = s; }
 
 struct timeval begintime, endtime;
 size_t rpart = 0, rfull = 0, wpart = 0, wfull = 0, bytes = 0;
 
+struct {
+  const char *name;
+  int64_t (*func)(const char *); // function that parses this option
+  int64_t value; // bitmask or number returned from that function
+} options[] = { [optbs    ] = {     "bs=", parsebyte, 0 },
+                [optcbs   ] = {    "cbs=", parsebyte, 0 },
+                [optconv  ] = {   "conv=", parseconv, 0 },
+                [optcount ] = {  "count=", parsebyte, 0 },
+                [optibs   ] = {    "ibs=", parsebyte, 0 },
+                [optiflag ] = {  "iflag=", parseflag, 0 },
+                [optobs   ] = {    "obs=", parsebyte, 0 },
+                [optoflag ] = {  "oflag=", parseflag, 0 },
+                [optseek  ] = {   "seek=", parsebyte, 0 },
+                [optskip  ] = {   "skip=", parsebyte, 0 },
+                [optstatus] = { "status=", parsestat, 0 }  };
+
 void printstat() {
+  if (options[optstatus].value == 1) return;
   gettimeofday(&endtime, NULL);
   double seconds = ((endtime.tv_sec * 1000000 + endtime.tv_usec) -
                     (begintime.tv_sec * 1000000 + begintime.tv_usec)) / 1000000.0;
 
   printf("%zu+%zu records in\n", rfull, rpart);
   printf("%zu+%zu records out\n", wfull, wpart);
+  if (options[optstatus].value == 2) return;
   printf("%zu bytes (%.1f%c) copied, %fs, %.1f%c/s\n", bytes, scale(bytes), seconds, scale(bytes/seconds));
 }
 
 int main(int argc, char *argv[]) {
   options("", .help = "dd [bs=num] [cbs=num] [conv=conv] [count=num] [ibs=num] [if=file] [iflag=flag]\n"
                       "[obs=num] [of=file] [oflag=flag] [seek=num] [skip=num] [status=stat]");
-  struct {
-    const char *name;
-    int64_t (*func)(const char *); // function that parses this option
-    int64_t value; // bitmask or number returned from that function
-  } options[] = { [optbs    ] = {     "bs=", parsebyte, 0 },
-                  [optcbs   ] = {    "cbs=", parsebyte, 0 },
-                  [optconv  ] = {   "conv=", parseconv, 0 },
-                  [optcount ] = {  "count=", parsebyte, 0 },
-                  [optibs   ] = {    "ibs=", parsebyte, 0 },
-                  [optiflag ] = {  "iflag=", parseflag, 0 },
-                  [optobs   ] = {    "obs=", parsebyte, 0 },
-                  [optoflag ] = {  "oflag=", parseflag, 0 },
-                  [optseek  ] = {   "seek=", parsebyte, 0 },
-                  [optskip  ] = {   "skip=", parsebyte, 0 },
-                  [optstatus] = { "status=", parsestat, 0 }  };
 
   int ifd = 0, iflag = O_RDONLY, ofd = 1, oflag = O_WRONLY|O_CREAT|O_TRUNC;
   char *ifile = NULL, *ofile = NULL;
@@ -213,10 +213,11 @@ nextwhile: ;
   /* do the thing */
   while (1) {
     if (sig == SIGUSR1) {
+      sigaction(SIGINT, &sa, NULL);
       sig = 0;
       printstat();
     }
-    else if (sig == SIGINT) printstat();
+    else if (sig == SIGINT) return (SIGINT+128) | errno;
 
     if (wbuf->len == obs) {
       if ((ret = write(ofd, wbuf->buf, obs)) == -1) break;
@@ -236,7 +237,7 @@ nextwhile: ;
       rbuf->len -= len;
     }
     else if (canread && count < (size_t) options[optcount].value) {
-      if ((ret = read(ifd, rbuf->buf, ibs)) <= 0) canread = 0;
+      if ((ret = read(ifd, rbuf->buf, ibs)) <= 0 && errno != EINTR) canread = 0;
       if (ret != -1) rbuf->len = ret;
       if (options[optiflag].value & 1 << flagcount_bytes) count += ret;
       else count++;
@@ -259,5 +260,5 @@ nextwhile: ;
   if (options[optiflag].value & 1 << flagnocache  ) posix_fadvise(ifd, 0, 0, POSIX_FADV_DONTNEED);
   if (options[optoflag].value & 1 << flagnocache  ) posix_fadvise(ofd, 0, 0, POSIX_FADV_DONTNEED);
   
-  return (sig == SIGINT ? SIGINT + 128 : 0) | errno;
+  return errno;
 }
