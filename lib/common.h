@@ -23,6 +23,7 @@
 #include <time.h>
 #include <sys/time.h>
 #include <alloca.h>
+#include <sys/wait.h>
 
 #include "flags.h"
 #include "parsenumb.h"
@@ -59,3 +60,12 @@ mode_t getumask();
 #else
 #define UNUSED(x) (void) (x)
 #endif
+
+
+#define scalenum(x) ((x) > (1<<30) ? (x) / (1.0 * (1<<30)) : \
+                     (x) > (1<<20) ? (x) / (1.0 * (1<<20)) : \
+                     (x) > (1<<10) ? (x) / (1.0 * (1<<10)) : (x))
+#define unit(x)     ((x) > (1<<30) ? 'G' : \
+                     (x) > (1<<20) ? 'M' : \
+                     (x) > (1<<10) ? 'K' : 'B')
+#define scale(x) scalenum(x), unit(x)

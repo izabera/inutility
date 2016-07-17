@@ -49,21 +49,21 @@ int64_t parseconv(const char *string) {
 }
 
 int64_t parseflag(const char *string) {
-  const char *flags[] = { [flagappend     ] = "append",
-                          [flagdirect     ] = "direct",
-                          [flagdirectory  ] = "directory",
-                          [flagdsync      ] = "dsync",
-                          [flagsync       ] = "sync",
-                       /* [flagfullblock  ] = "fullblock", */
-                          [flagnonblock   ] = "nonblock",
-                          [flagnoatime    ] = "noatime",
-                          [flagnocache    ] = "nocache",
-                          [flagnoctty     ] = "noctty",
-                          [flagnofollow   ] = "nofollow",
-                          [flagcount_bytes] = "count_bytes",
-                          [flagskip_bytes ] = "skip_bytes",
-                          [flagseek_bytes ] = "seek_bytes" };
-  return parsecomma(string, flags, arrsize(flags));
+  const char *ddflags[] = { [flagappend     ] = "append",
+                            [flagdirect     ] = "direct",
+                            [flagdirectory  ] = "directory",
+                            [flagdsync      ] = "dsync",
+                            [flagsync       ] = "sync",
+                         /* [flagfullblock  ] = "fullblock", */
+                            [flagnonblock   ] = "nonblock",
+                            [flagnoatime    ] = "noatime",
+                            [flagnocache    ] = "nocache",
+                            [flagnoctty     ] = "noctty",
+                            [flagnofollow   ] = "nofollow",
+                            [flagcount_bytes] = "count_bytes",
+                            [flagskip_bytes ] = "skip_bytes",
+                            [flagseek_bytes ] = "seek_bytes" };
+  return parsecomma(string, ddflags, arrsize(ddflags));
 }
 
 int64_t parsestat(const char *string) {
@@ -73,7 +73,18 @@ int64_t parsestat(const char *string) {
   return -1;
 }
 
+volatile int sig;
+
+void sighandler(int s) {
+  sig = s;
+}
+
+void printstat() {
+}
+
 int main(int argc, char *argv[]) {
+  options("", .help = "dd [bs=num] [cbs=num] [conv=conv] [count=num] [ibs=num] [if=file] [iflag=flag]\n"
+                      "[obs=num] [of=file] [oflag=flag] [seek=num] [skip=num] [status=stat]");
   struct {
     const char *name;
     int64_t (*func)(const char *); // function that parses this option
@@ -90,15 +101,8 @@ int main(int argc, char *argv[]) {
                   [optskip  ] = {   "skip=", parsebyte, 0 },
                   [optstatus] = { "status=", parsestat, 0 }  };
 
-  /*int optvalues[arrsize(options)] = { 0 };*/
   int ifd = 0, iflag = O_RDONLY, ofd = 1, oflag = O_WRONLY|O_CREAT|O_TRUNC;
   char *ifile = NULL, *ofile = NULL;
-  if (!strcmp("--help", argv[0])) {
-    puts("dd [bs=num] [cbs=num] [conv=conv] [count=num] [ibs=num] [if=file] [iflag=flag] "
-         "[obs=num] [of=file] [oflag=flag] [seek=num] [skip=num] [status=stat]");
-    return 0;
-  }
-  if (!strcmp("--", argv[0])) argv++;
   while (*++argv) {
          if (!strncmp("if=", argv[0], 3)) ifile = argv[0]+3; 
     else if (!strncmp("of=", argv[0], 3)) ofile = argv[0]+3;
@@ -109,8 +113,8 @@ int main(int argc, char *argv[]) {
           goto nextwhile;
         }
       }
+      return -1;
     }
-    return 1;
 nextwhile: ;
   }
 
@@ -137,60 +141,125 @@ nextwhile: ;
   if (options[optconv ].value & 1 << convnotrunc  ) oflag &= ~O_TRUNC;
   if (options[optconv ].value & 1 << convnocreat  ) oflag &= ~O_CREAT;
 
-  if (ifile) if (!(ifd = open(ifile, iflag))) return errno;
-  if (ofile) if (!(ofd = open(ofile, oflag))) return errno;
+  size_t ibs = 512, obs = 512, cbs = 512;
+  if (options[optbs   ].value) cbs = ibs = obs = options[optbs ].value;
+  if (options[optcbs  ].value) cbs =             options[optcbs].value;
+  if (options[optibs  ].value)       ibs =       options[optibs].value;
+  if (options[optobs  ].value)             obs = options[optobs].value;
 
-  size_t ibs = 512, obs = 512;
-  if (options[optbs   ].value) ibs = obs = options[optbs].value;
-  if (options[optibs  ].value) ibs =       options[optibs].value;
-  if (options[optobs  ].value)       obs = options[optobs].value;
-  if (options[optobs  ].value)       obs = options[optobs].value;
+  struct sigaction sa = { 0 };
+  sa.sa_handler = sighandler;
+  sigaction(SIGINT, &sa, NULL);
+  sigaction(SIGUSR1, &sa, NULL);
+  atexit(printstat);
+
+  struct timeval begintime, endtime;
+  gettimeofday(&begintime, NULL);
+
+  if (ifile) { if (!(ifd = open(ifile, iflag, 0666))) return errno; }
+  else fcntl(0, F_SETFL, fcntl(0, F_GETFL) | iflag);
+  if (ofile) { if (!(ofd = open(ofile, oflag, 0666))) return errno; }
+  else fcntl(1, F_SETFL, fcntl(1, F_GETFL) | oflag);
+
+  struct {
+    size_t len;
+    char buf[];
+  } *rbuf = malloc(sizeof(rbuf)+ibs),
+    *cbuf = malloc(sizeof(cbuf)+cbs),
+    *wbuf = malloc(sizeof(wbuf)+obs); // todo: swab
+  if (!rbuf || !cbuf || !wbuf) return errno;
+
   if (options[optseek ].value) {
     if (options[optoflag].value & 1 << flagskip_bytes)
       lseek(ofd,       options[optseek].value, SEEK_CUR);
     else
       lseek(ofd, obs * options[optseek].value, SEEK_CUR);
   }
+
+  errno = 0;
+  char tmpbuf[4096];
   if (options[optskip ].value) {
     if (options[optiflag].value & 1 << flagskip_bytes)
       lseek(ifd,       options[optskip].value, SEEK_CUR);
     else
       lseek(ifd, ibs * options[optskip].value, SEEK_CUR);
-    /* TODO: fallback */
+    if (errno == ESPIPE) {
+      size_t total = options[optskip].value * (options[optiflag].value & 1 << flagskip_bytes ? ibs : 1);
+      ssize_t res;
+      while (total > 4096) {
+        res = read(ifd, tmpbuf, 4096);
+        total -= res;
+      }
+      while (total) {
+        res = read(ifd, tmpbuf, total);
+        total -= res;
+      }
+    }
   }
+  errno = 0;
 
-  struct buffer { off_t begin, end; } writebuf = { 0 }, readbuf = { 0 };
+  if (!options[optcount].value) options[optcount].value = -1;
+  ssize_t ret;
+  size_t canread = 1, count = 0, rpart = 0, rfull = 0, wpart = 0, wfull = 0, bytes = 0;
   /* do the thing */
-  char *buf = malloc(ibs + obs + 1); /* +1 for stuff like conv=swab */
-  ssize_t readsiz, writesiz;
-  if (!buf) return errno;
-
-  enum { canread, canwrite, canconv, done } loopstate;
   while (1) {
-    errno = 0;
-    if (writebuf.end - writebuf.begin >= writesize) {
-      if (write(ofd, writebuf.buf + writebuf.begin, obs) == -1) goto out;
+    if (sig == SIGUSR1) {
+      sig = 0;
+      goto printstat;
     }
-    /*else if (readsiz = read*/
-    switch (loopstate) {
-      case     done: goto out;
-      case  canread: readsiz = read(file, buf, ibs);
-                          if (readsiz == 0) readstate = eof;
-                     else if (readsiz  < 0) readstate = err;
-                     else 
-                     break;
-      case canwrite: if (write(ofd, buf, obs) == -1) goto out; /* todo: eagain */
-                     foo;
-                     break;
-      case  canconv: 
+    else if (sig == SIGINT) {
+      goto printstat;
     }
+
+    if (wbuf->len == obs) {
+      if ((ret = write(ofd, wbuf->buf, obs)) == -1) break;
+      if ((size_t) ret == obs) wfull++;
+      else {
+        memmove(wbuf->buf, wbuf->buf+ret, obs-ret);
+        wpart++;
+      }
+      wbuf->len -= ret;
+      bytes += ret;
+    }
+    else if (rbuf->len) {
+      size_t len = min(obs-wbuf->len, rbuf->len);
+      memmove(wbuf->buf+wbuf->len, rbuf->buf, len);
+      wbuf->len += len;
+      memmove(rbuf->buf, rbuf->buf+len, rbuf->len-len);
+      rbuf->len -= len;
+    }
+    else if (canread && count < (size_t) options[optcount].value) {
+      if ((ret = read(ifd, rbuf->buf, ibs)) <= 0) canread = 0;
+      rbuf->len = ret;
+      if (options[optiflag].value & 1 << flagcount_bytes) count += ret;
+      else count++;
+      if ((size_t) ret == ibs) rfull++;
+      else if (ret > 0) rpart++;
+    }
+    else break;
   }
 
-out:
+  if (wbuf->len) wpart++;
+  while (wbuf->len) { // leftovers
+    if ((ret = write(ofd, wbuf->buf, wbuf->len)) == -1) break;
+    if ((size_t) ret != wbuf->len) memmove(wbuf->buf, wbuf->buf+ret, wbuf->len-ret);
+    wbuf->len -= ret;
+    bytes += ret;
+  }
+
   if (options[optconv ].value & 1 << convfdatasync) fdatasync(ofd);
   if (options[optconv ].value & 1 << convfsync    ) fsync(ofd);
-  if (options[optiflag].value & 1 << flagnocache  ) posix_fadvise(ifd, isoffset, ieoffset, POSIX_FADV_DONTNEED);
-  if (options[optoflag].value & 1 << flagnocache  ) posix_fadvise(ofd, osoffset, oeoffset, POSIX_FADV_DONTNEED);
+  if (options[optiflag].value & 1 << flagnocache  ) posix_fadvise(ifd, 0, 0, POSIX_FADV_DONTNEED);
+  if (options[optoflag].value & 1 << flagnocache  ) posix_fadvise(ofd, 0, 0, POSIX_FADV_DONTNEED);
   
-  return errno;
+printstat:
+  gettimeofday(&endtime, NULL);
+  double seconds = ((endtime.tv_sec * 1000000 + endtime.tv_usec) -
+                    (begintime.tv_sec * 1000000 + begintime.tv_usec)) / 1000000.0;
+
+  printf("%zu+%zu records in\n", rfull, rpart);
+  printf("%zu+%zu records out\n", wfull, wpart);
+  printf("%zu bytes (%.1f%c) copied, %fs, %.1f%c/s\n", bytes, scale(bytes), seconds, scale(bytes/seconds));
+
+  return (sig == SIGINT ? SIGINT + 128 : 0) | errno;
 }

@@ -74,7 +74,7 @@ inner:
       if (flag('b')) {
         for (tmprange = &ranges; tmprange->next && tmprange->first < (size_t) read; tmprange = tmprange->next)
           fwrite(line+tmprange->first-1, 1, tmprange->last-tmprange->first+1, stdout);
-        if (line[read-1] == ldelim) putchar(line[read-1]);
+        if (line[read-1] == ldelim) putchar_unlocked(line[read-1]);
       }
       else if (flag('c')) {
         char *tmp = line;
@@ -88,12 +88,12 @@ inner:
           else if (pos == tmprange->first) {
             do {
               pos++;
-              do { putchar(*tmp++); } while ((*tmp & 0xC0) == 0x80); // print a char
+              do { putchar_unlocked(*tmp++); } while ((*tmp & 0xC0) == 0x80); // print a char
             } while (pos <= tmprange->last);
             tmprange = tmprange->next;
           }
         }
-        if (line[read-1] == ldelim) putchar(line[read-1]);
+        if (line[read-1] == ldelim) putchar_unlocked(line[read-1]);
       } // this was relatively easy
       else {
         char *next = memchr(line, fdelim, read), *current = line;
@@ -110,7 +110,7 @@ inner:
             next = memchr(next+1, fdelim, read-1-(next-line));   // check if off by 1
           }
           while (field <= tmprange->last) {
-            if (printdelim++) putchar(fdelim);
+            if (printdelim++) putchar_unlocked(fdelim);
             if (next) {
               fwrite(current, 1, next-current, stdout);
               current = next+1;
@@ -125,7 +125,7 @@ inner:
         } // this ended up being more complex than i thought
 
 nextline:
-        if (line[read-1] == ldelim) putchar(line[read-1]);
+        if (line[read-1] == ldelim) putchar_unlocked(line[read-1]);
       }
     }
     if (fileptr != stdin) fclose(fileptr);
