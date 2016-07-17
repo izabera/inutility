@@ -79,7 +79,17 @@ void sighandler(int s) {
   sig = s;
 }
 
+struct timeval begintime, endtime;
+size_t rpart = 0, rfull = 0, wpart = 0, wfull = 0, bytes = 0;
+
 void printstat() {
+  gettimeofday(&endtime, NULL);
+  double seconds = ((endtime.tv_sec * 1000000 + endtime.tv_usec) -
+                    (begintime.tv_sec * 1000000 + begintime.tv_usec)) / 1000000.0;
+
+  printf("%zu+%zu records in\n", rfull, rpart);
+  printf("%zu+%zu records out\n", wfull, wpart);
+  printf("%zu bytes (%.1f%c) copied, %fs, %.1f%c/s\n", bytes, scale(bytes), seconds, scale(bytes/seconds));
 }
 
 int main(int argc, char *argv[]) {
@@ -153,7 +163,6 @@ nextwhile: ;
   sigaction(SIGUSR1, &sa, NULL);
   atexit(printstat);
 
-  struct timeval begintime, endtime;
   gettimeofday(&begintime, NULL);
 
   if (ifile) { if (!(ifd = open(ifile, iflag, 0666))) return errno; }
@@ -200,16 +209,14 @@ nextwhile: ;
 
   if (!options[optcount].value) options[optcount].value = -1;
   ssize_t ret;
-  size_t canread = 1, count = 0, rpart = 0, rfull = 0, wpart = 0, wfull = 0, bytes = 0;
+  size_t canread = 1, count = 0;
   /* do the thing */
   while (1) {
     if (sig == SIGUSR1) {
       sig = 0;
-      goto printstat;
+      printstat();
     }
-    else if (sig == SIGINT) {
-      goto printstat;
-    }
+    else if (sig == SIGINT) printstat();
 
     if (wbuf->len == obs) {
       if ((ret = write(ofd, wbuf->buf, obs)) == -1) break;
@@ -230,7 +237,7 @@ nextwhile: ;
     }
     else if (canread && count < (size_t) options[optcount].value) {
       if ((ret = read(ifd, rbuf->buf, ibs)) <= 0) canread = 0;
-      rbuf->len = ret;
+      if (ret != -1) rbuf->len = ret;
       if (options[optiflag].value & 1 << flagcount_bytes) count += ret;
       else count++;
       if ((size_t) ret == ibs) rfull++;
@@ -252,14 +259,5 @@ nextwhile: ;
   if (options[optiflag].value & 1 << flagnocache  ) posix_fadvise(ifd, 0, 0, POSIX_FADV_DONTNEED);
   if (options[optoflag].value & 1 << flagnocache  ) posix_fadvise(ofd, 0, 0, POSIX_FADV_DONTNEED);
   
-printstat:
-  gettimeofday(&endtime, NULL);
-  double seconds = ((endtime.tv_sec * 1000000 + endtime.tv_usec) -
-                    (begintime.tv_sec * 1000000 + begintime.tv_usec)) / 1000000.0;
-
-  printf("%zu+%zu records in\n", rfull, rpart);
-  printf("%zu+%zu records out\n", wfull, wpart);
-  printf("%zu bytes (%.1f%c) copied, %fs, %.1f%c/s\n", bytes, scale(bytes), seconds, scale(bytes/seconds));
-
   return (sig == SIGINT ? SIGINT + 128 : 0) | errno;
 }

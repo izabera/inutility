@@ -1,6 +1,6 @@
 #include "common.h"
 
-struct {
+static struct {
   char *name;
   int64_t value;
 } numbers[] = {
