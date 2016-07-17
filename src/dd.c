@@ -101,14 +101,14 @@ void printstat() {
   double seconds = ((endtime.tv_sec * 1000000 + endtime.tv_usec) -
                     (begintime.tv_sec * 1000000 + begintime.tv_usec)) / 1000000.0;
 
-  printf("%zu+%zu records in\n", rfull, rpart);
-  printf("%zu+%zu records out\n", wfull, wpart);
+  fprintf(stderr, "%zu+%zu records in\n", rfull, rpart);
+  fprintf(stderr, "%zu+%zu records out\n", wfull, wpart);
   if (options[optstatus].value == 2) return;
-  printf("%zu bytes (%.1f%c) copied, %fs, %.1f%c/s\n", bytes, scale(bytes), seconds, scale(bytes/seconds));
+  fprintf(stderr, "%zu bytes (%.1f%c) copied, %fs, %.1f%c/s\n", bytes, scale(bytes), seconds, scale(bytes/seconds));
 }
 
 int main(int argc, char *argv[]) {
-  options("", .help = "dd [bs=num] [cbs=num] [conv=conv] [count=num] [ibs=num] [if=file] [iflag=flag]\n"
+  options("", .help = "[bs=num] [cbs=num] [conv=conv] [count=num] [ibs=num] [if=file] [iflag=flag]\n"
                       "[obs=num] [of=file] [oflag=flag] [seek=num] [skip=num] [status=stat]");
 
   int ifd = 0, iflag = O_RDONLY, ofd = 1, oflag = O_WRONLY|O_CREAT|O_TRUNC;
