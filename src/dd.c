@@ -262,7 +262,8 @@ nextwhile: ;
   if (options[optibs  ].value)       ibs =       options[optibs].value;
   if (options[optobs  ].value)             obs = options[optobs].value;
 
-  struct sigaction sa = { 0 };
+  struct sigaction sa;
+  memset(&sa, 0, sizeof(sa));
   sa.sa_handler = sighandler;
   sigaction(SIGINT, &sa, NULL);
   sigaction(SIGUSR1, &sa, NULL);

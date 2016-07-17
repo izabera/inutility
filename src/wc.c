@@ -47,7 +47,7 @@ int main(int argc, char *argv[]) {
     flag('l') = 1;
     flag('w') = 1;
   }
-  struct Wc count = { 0 }, tot = { 0 };
+  struct Wc count = { 0, 0, 0, 0 }, tot = { 0, 0, 0, 0 };
 
   if (argc == 1)
     goto inner;
@@ -58,7 +58,7 @@ int main(int argc, char *argv[]) {
 inner:
     saverrno = errno;
     if (fileptr == stdin && stdinonce++) {
-      count = (struct Wc) { 0 };
+      count = (struct Wc) { 0, 0, 0, 0 };
       goto readdone;
     }
     if (fl == 2) {
