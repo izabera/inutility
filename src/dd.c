@@ -231,6 +231,14 @@ nextwhile: ;
     }
     else if (rbuf->len) {
       size_t len = min(obs-wbuf->len, rbuf->len);
+      if (options[optconv].value & 1 << convucase) { // todo: only works with ascii
+        for (size_t q = 0; q < rbuf->len; q++)
+          if (rbuf->buf[q] >= 97 && rbuf->buf[q] <= 122) rbuf->buf[q] &= ~32;
+      }
+      else if (options[optconv].value & 1 << convlcase) {
+        for (size_t q = 0; q < rbuf->len; q++)
+          if (rbuf->buf[q] >= 65 && rbuf->buf[q] <=  90) rbuf->buf[q] |=  32;
+      }
       memmove(wbuf->buf+wbuf->len, rbuf->buf, len);
       wbuf->len += len;
       memmove(rbuf->buf, rbuf->buf+len, rbuf->len-len);
