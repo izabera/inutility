@@ -281,9 +281,19 @@ nextwhile: ;
     char buf[];
   } *rbuf = malloc(sizeof(rbuf)+ibs),
     *cbuf = malloc(sizeof(cbuf)+cbs),
-    *wbuf = malloc(sizeof(wbuf)+obs); // todo: swab
+    *wbuf = malloc(sizeof(wbuf)+obs);
+
+  struct { // 4096 byte buffer for swab
+    union {
+      uint64_t u64buf[512];
+      uint16_t u16buf[2048];
+      char buf[4096];
+    };
+    size_t len;
+  } swab, *sbuf = &swab; // this is to get a similar interface with the other buffers
+
   if (!rbuf || !cbuf || !wbuf) return errno;
-  rbuf->len = cbuf->len = wbuf->len = 0;
+  rbuf->len = cbuf->len = wbuf->len = sbuf->len = 0;
 
   if (options[optseek ].value) {
     if (options[optoflag].value & 1 << flagskip_bytes)
@@ -327,6 +337,7 @@ nextwhile: ;
     else if (sig == SIGINT) return (SIGINT+128) | errno;
 
     if (wbuf->len == obs) {
+      puts("here");
       if ((ret = write(ofd, wbuf->buf, obs)) == -1) break;
       if ((size_t) ret == obs) wfull++;
       else {
@@ -337,7 +348,7 @@ nextwhile: ;
       bytes += ret;
     }
     else if (rbuf->len) {
-      size_t len = min(obs-wbuf->len, rbuf->len);
+      size_t len = min(4096-sbuf->len, rbuf->len);
       if (options[optconv].value & 1 << convascii)
         for (size_t q = 0; q < rbuf->len; q++)
           rbuf->buf[q] = ebcdicascii[(size_t) (unsigned char) rbuf->buf[q]];
@@ -357,10 +368,23 @@ nextwhile: ;
         for (size_t q = 0; q < rbuf->len; q++)
           rbuf->buf[q] = asciiibm[(size_t) (unsigned char) rbuf->buf[q]];
 
-      memmove(wbuf->buf+wbuf->len, rbuf->buf, len);
-      wbuf->len += len;
+      memmove(sbuf->buf+sbuf->len, rbuf->buf, len);
+      sbuf->len += len;
       memmove(rbuf->buf, rbuf->buf+len, rbuf->len-len);
       rbuf->len -= len;
+    }
+    else if (sbuf->len == 4096) {
+      if (options[optconv].value & 1 << convswab) {
+        for (size_t q = 0; q < 512; q++)
+          sbuf->u64buf[q] = ((0x00ff00ff00ff00ffULL & sbuf->u64buf[q]) << 8) |
+            ((0xff00ff00ff00ff00ULL & sbuf->u64buf[q]) >> 8);
+      }
+
+      size_t len = min(obs-wbuf->len, 4096);
+      memmove(wbuf->buf+wbuf->len, sbuf->buf, len);
+      wbuf->len += len;
+      memmove(sbuf->buf, sbuf->buf+len, sbuf->len-len);
+      sbuf->len -= len;
     }
     else if (canread && count < (size_t) options[optcount].value) {
       if ((ret = read(ifd, rbuf->buf, ibs)) <= 0 && errno != EINTR) canread = 0;
@@ -373,12 +397,31 @@ nextwhile: ;
     else break;
   }
 
-  if (wbuf->len) wpart++;
-  while (wbuf->len) { // leftovers
-    if ((ret = write(ofd, wbuf->buf, wbuf->len)) == -1) break;
-    if ((size_t) ret != wbuf->len) memmove(wbuf->buf, wbuf->buf+ret, wbuf->len-ret);
-    wbuf->len -= ret;
-    bytes += ret;
+  if (sbuf->len) {
+    if (options[optconv].value & 1 << convswab) {
+      for (size_t q = 0; q < sbuf->len/2; q++) // rounded down, don't swab the last byte
+        sbuf->u16buf[q] = ((0x00ff & sbuf->u16buf[q]) << 8) |
+                          ((0xff00 & sbuf->u16buf[q]) >> 8);
+    }
+  }
+
+  while (wbuf->len || sbuf->len) { // leftovers
+    if (sbuf->len) {
+      size_t len = min(obs-wbuf->len, sbuf->len);
+      memmove(wbuf->buf+wbuf->len, sbuf->buf, len);
+      wbuf->len += len;
+      memmove(sbuf->buf, sbuf->buf+len, sbuf->len-len);
+      sbuf->len -= len;
+    }
+    if (wbuf->len) {
+      size_t len = min(obs, wbuf->len);
+      if ((ret = write(ofd, wbuf->buf, len)) == -1) break;
+      if ((size_t) ret == obs) wfull++;
+      else wpart++;
+      if ((size_t) ret != wbuf->len) memmove(wbuf->buf, wbuf->buf+ret, wbuf->len-ret);
+      wbuf->len -= ret;
+      bytes += ret;
+    }
   }
 
   if (options[optconv ].value & 1 << convfdatasync) fdatasync(ofd);
