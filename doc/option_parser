@@ -1,0 +1,77 @@
+the option parser used in inutility is probably the best option parser EVUR.
+
+- super easy to set up
+- parses options with string/number/byte parameters
+- querying which options have been passed is trivial
+- takes care of printing help and version
+- stops at the first non option, or when -- is found
+- sets argv and argc
+
+
+
+possible suffixes after a letter:
+- : == needs string arg
+- | == needs num arg
+- * == needs byte arg
+- # == -num for things like head
+
+
+
+example usage
+-------------
+
+code                                            | command line
+------------------------------------------------+---------------------------------------------
+options("abc:d:");                              | myprogram -b -a -b -cfoo -d bar -c baz bat
+
+how to...
+- ...check if we got -a ?
+  if (flag('a')) { ... }
+- ...get the last argument to -c?
+  char *argument = lastarg('c');   // NULL if no -c
+- ...get all the arguments to -c?
+  for (size_t i = 0; i < flag('c'); i++) puts(flag[opt('c')].args[i]);
+- ...check if -c came before -d?
+  char *flaglist is "babcdc", all the options in the order they've been found
+
+
+
+code                                            | command line
+------------------------------------------------+---------------------------------------------
+options("qvz#c*n|");                            | head -55 -n 27 -c47MiB
+
+how to...
+- ...check if we got a -num and get its value?
+  int64_t num = flag('#') ? lastnum('#') : 10;
+- ...get the last argument to -c?
+  int64_t num = flag('c') ? lastnum('c') : 737;
+
+
+
+code                                            | command line
+------------------------------------------------+---------------------------------------------
+options("", .argleast = 2, .arglessthan = 4);   | foo bar baz bat
+
+how to...
+- ...check if we got at least 2 arguments?
+  no need to do it: if <2 or >=4 args, the program will error out and exit
+- ...get the arguments to process?
+  they're in argv, starting from argv[1].
+  argv[0] may be a previous option and not the program's name
+
+
+
+other features
+---------------
+
+- help
+  options("abcd");
+     cmd --help       ->  cmd [-abcd] [arg...]
+  options("xyz:", .argleast = 1, .arglessthan = 3);
+     cmd --help       ->  cmd [-xy] [-z arg] arg1 [arg2] [arg3]
+  options("", .help = "number[suffix]");
+     cmd --help       ->  cmd number[suffix]
+
+- version
+  options("");
+     cmd --version    -> inutility v 0.3-17-g23a7dd1 built on Jul 18 2016 05:20:23

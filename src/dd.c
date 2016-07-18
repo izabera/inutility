@@ -283,6 +283,7 @@ nextwhile: ;
     *cbuf = malloc(sizeof(cbuf)+cbs),
     *wbuf = malloc(sizeof(wbuf)+obs); // todo: swab
   if (!rbuf || !cbuf || !wbuf) return errno;
+  rbuf->len = cbuf->len = wbuf->len = 0;
 
   if (options[optseek ].value) {
     if (options[optoflag].value & 1 << flagskip_bytes)
