@@ -9,6 +9,7 @@ struct flags {
   };
 };
 extern struct flags flags[64];
+extern char *flaglist;
 
 #define opt(x) ((x >= 48 && x <= 57) ? x - 48 :   \
                 (x >= 64 && x <= 90) ? x - 55 :   \

@@ -5,14 +5,19 @@
 
 #include "common.h"
 
-#define argpush(opt, arg, target) do {                                          \
-  opt.count++;                                                                  \
-  if (!(opt.target = realloc(opt.target, sizeof(arg) * opt.count))) return '@'; \
-  opt.target[opt.count-1] = arg;                                                \
+#define argpush(o, arg, target) do {                                                    \
+  flags[opt(o)].count++;                                                                \
+  if (!(flags[opt(o)].target =                                                          \
+        realloc(flags[opt(o)].target, sizeof(arg) * flags[opt(o)].count))) return '@';  \
+  flags[opt(o)].target[flags[opt(o)].count-1] = arg;                                    \
+  putc(o, optfile);                                                                     \
 } while (0)
 
 int parseoptind, parseopterr = 1;
 struct flags flags[64];
+char *flaglist; // flags in the order we got them for sed -e s/a/1/ -f <(echo s/a/2/) -e s/a/3/ <<< aaa
+
+static inline void closefile(FILE **fp) { if (*fp) fclose(*fp); }
 
 int parseopts(int argc, char *argv[], const char *program, struct opts options) {
   char *valid = ":|*?ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789#",
@@ -40,6 +45,8 @@ int parseopts(int argc, char *argv[], const char *program, struct opts options) 
     else if (opts[i+1] == '*') needbyt |= 1LL << opt(opts[i]);
     else if (opts[i+1] == '?') maybarg |= 1LL << opt(opts[i]);
 
+  size_t flaglen;
+  __attribute__((cleanup(closefile))) FILE *optfile = open_memstream(&flaglist, &flaglen);
   char c;
   for (i = 0; i < argc && argv[i][0] == '-' && argv[i][1]; i++) {
     if (argv[i][1] == '-' && !argv[i][2]) {
@@ -95,37 +102,40 @@ int parseopts(int argc, char *argv[], const char *program, struct opts options) 
      * todo: floats? */
     if (strchr(opts, '#') &&
         (num = parsenumb(argv[i]+1+(argv[i][1] == '-'))) != INT64_MIN) {
-      argpush(flags[opt('#')], num, nums);
+      argpush('#', num, nums);
       continue;
     }
     for (j = 1; (c = argv[i][j]); j++) {
       if (strchr(":#?|", c)) goto unknown; /* these can be in opts */
       if (strchr(opts, c)) {
         if (needarg & 1LL << opt(c)) {
-               if (argv[i][j+1]) argpush(flags[opt(c)], &argv[i][j+1], args);
-          else if (++i < argc)   argpush(flags[opt(c)], &argv[i][0], args);
+               if (argv[i][j+1]) argpush(c, &argv[i][j+1], args);
+          else if (++i < argc)   argpush(c, &argv[i][0], args);
           else goto missing;
           break;
         }
         else if (neednum & 1LL << opt(c)) {
-               if (argv[i][j+1]) argpush(flags[opt(c)], parsenumb(&argv[i][j+1]), nums);
-          else if (++i < argc)   argpush(flags[opt(c)], parsenumb(&argv[i][0]), nums);
+               if (argv[i][j+1]) argpush(c, parsenumb(&argv[i][j+1]), nums);
+          else if (++i < argc)   argpush(c, parsenumb(&argv[i][0]), nums);
           else goto missing;
           break;
         }
         else if (needbyt & 1LL << opt(c)) {
-               if (argv[i][j+1]) argpush(flags[opt(c)], parsebyte(&argv[i][j+1]), nums);
-          else if (++i < argc)   argpush(flags[opt(c)], parsebyte(&argv[i][0]), nums);
+               if (argv[i][j+1]) argpush(c, parsebyte(&argv[i][j+1]), nums);
+          else if (++i < argc)   argpush(c, parsebyte(&argv[i][0]), nums);
           else goto missing;
           break;
         }
         else if (maybarg & 1LL << opt(c)) {
-               if (argv[i][j+1]) argpush(flags[opt(c)], &argv[i][j+1], args);
-          else if (++i < argc)   argpush(flags[opt(c)], &argv[i][0], args);
-          else                   argpush(flags[opt(c)], NULL, args);
+               if (argv[i][j+1]) argpush(c, &argv[i][j+1], args);
+          else if (++i < argc)   argpush(c, &argv[i][0], args);
+          else                   argpush(c, NULL, args);
           break;
         }
-        else flags[opt(c)].count++;
+        else {
+          flags[opt(c)].count++;
+          putc(c, optfile);
+        }
       }
       else {
 unknown:

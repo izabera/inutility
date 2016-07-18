@@ -39,3 +39,6 @@ yes [args...]                                               |
 
 
 all byte arguments accept {k,m,g,t,p}{,b,ib} suffixes
+
+
+license: isc
