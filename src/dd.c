@@ -215,7 +215,7 @@ nextwhile: ;
   }
   errno = 0;
 
-  if (!options[optcount].value) { // this is totally non obvious
+  if (!options[optcount].value && options[optseek].value) { // this is totally non obvious
     ftruncate(ofd, options[optseek].value * (options[optoflag].value & 1 << flagseek_bytes ? 1 : obs));
     return errno;
   }
