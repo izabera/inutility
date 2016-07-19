@@ -115,6 +115,8 @@ int main(int argc, char *argv[]) {
 
   int ifd = 0, iflag = O_RDONLY, ofd = 1, oflag = O_WRONLY|O_CREAT|O_TRUNC;
   char *ifile = NULL, *ofile = NULL;
+
+  options[optcount].value = -1;
   while (*++argv) {
          if (!strncmp("if=", argv[0], 3)) ifile = argv[0]+3; 
     else if (!strncmp("of=", argv[0], 3)) ofile = argv[0]+3;
@@ -192,14 +194,6 @@ nextwhile: ;
   if (!rbuf || /* !cbuf || */ !wbuf) return errno;
   rbuf->len /* = cbuf->len */ = wbuf->len = sbuf->len = 0;
 
-  if (options[optseek ].value) {
-    if (options[optoflag].value & 1 << flagskip_bytes)
-      lseek(ofd,       options[optseek].value, SEEK_CUR);
-    else
-      lseek(ofd, obs * options[optseek].value, SEEK_CUR);
-  }
-
-  errno = 0;
   char tmpbuf[4096];
   if (options[optskip ].value) {
     if (options[optiflag].value & 1 << flagskip_bytes)
@@ -207,7 +201,7 @@ nextwhile: ;
     else
       lseek(ifd, ibs * options[optskip].value, SEEK_CUR);
     if (errno == ESPIPE) {
-      size_t total = options[optskip].value * (options[optiflag].value & 1 << flagskip_bytes ? ibs : 1);
+      size_t total = options[optskip].value * (options[optiflag].value & 1 << flagskip_bytes ? 1 : ibs);
       ssize_t res;
       while (total > 4096) {
         res = read(ifd, tmpbuf, 4096);
@@ -221,7 +215,19 @@ nextwhile: ;
   }
   errno = 0;
 
-  if (!options[optcount].value) options[optcount].value = -1;
+  if (!options[optcount].value) { // this is totally non obvious
+    ftruncate(ofd, options[optseek].value * (options[optoflag].value & 1 << flagseek_bytes ? 1 : obs));
+    return errno;
+  }
+
+  if (options[optseek ].value) {
+    if (options[optoflag].value & 1 << flagseek_bytes)
+      lseek(ofd,       options[optseek].value, SEEK_CUR);
+    else
+      lseek(ofd, obs * options[optseek].value, SEEK_CUR);
+  }
+  errno = 0;
+
   ssize_t ret;
   size_t canread = 1, count = 0, swapped = 0;
   /* do the thing */
@@ -302,7 +308,10 @@ nextwhile: ;
           rbuf->len = ibs;
         }
       }
-      if (options[optiflag].value & 1 << flagcount_bytes) count += ret;
+      if (options[optiflag].value & 1 << flagcount_bytes) {
+        count += ret;
+        if (count > (size_t) options[optcount].value) rbuf->len -= count - options[optcount].value;
+      }
       else count++;
       if ((size_t) ret == ibs) rfull++;
       else if (ret > 0) rpart++;
