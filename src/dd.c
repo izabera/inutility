@@ -38,7 +38,7 @@ int64_t parseconv(const char *string) {
                           [convucase    ] = "ucase",
                        // [convsparse   ] = "sparse",
                           [convswab     ] = "swab",
-                       // [convsync     ] = "sync",
+                          [convsync     ] = "sync",
                           [convexcl     ] = "excl",
                           [convnocreat  ] = "nocreat",
                           [convnotrunc  ] = "notrunc",
@@ -296,6 +296,12 @@ nextwhile: ;
       if (ret == 0 || (ret == -1 && errno != EINTR &&
             !(options[optconv].value & 1 << convnoerror))) canread = 0;
       if (ret != -1) rbuf->len = ret;
+      if (ret > 0) {
+        if ((size_t) ret != ibs && options[optconv].value & 1 << convsync) {
+          memset(rbuf->buf+ret, 0, ibs-ret); // posix recommends to do this *before* reading??
+          rbuf->len = ibs;
+        }
+      }
       if (options[optiflag].value & 1 << flagcount_bytes) count += ret;
       else count++;
       if ((size_t) ret == ibs) rfull++;
