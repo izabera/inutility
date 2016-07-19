@@ -27,7 +27,7 @@ inner:
             posright--; posleft++;
           }
         }
-        fwrite(line, 1, read, stdout);
+        fwrite_unlocked(line, 1, read, stdout);
       }
     if (fileptr != stdin) fclose(fileptr);
   }

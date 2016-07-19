@@ -73,7 +73,7 @@ inner:
     while ((read = getdelim(&line, &len, ldelim, fileptr)) > 0) {
       if (flag('b')) {
         for (tmprange = &ranges; tmprange->next && tmprange->first < (size_t) read; tmprange = tmprange->next)
-          fwrite(line+tmprange->first-1, 1, tmprange->last-tmprange->first+1, stdout);
+          fwrite_unlocked(line+tmprange->first-1, 1, tmprange->last-tmprange->first+1, stdout);
         if (line[read-1] == ldelim) putchar_unlocked(line[read-1]);
       }
       else if (flag('c')) {
@@ -98,7 +98,7 @@ inner:
       else {
         char *next = memchr(line, fdelim, read), *current = line;
         if (!next) {
-          if (!flag('s')) fwrite(line, 1, read, stdout);
+          if (!flag('s')) fwrite_unlocked(line, 1, read, stdout);
           continue;
         }
         size_t field = 1, printdelim = 0;
@@ -112,13 +112,13 @@ inner:
           while (field <= tmprange->last) {
             if (printdelim++) putchar_unlocked(fdelim);
             if (next) {
-              fwrite(current, 1, next-current, stdout);
+              fwrite_unlocked(current, 1, next-current, stdout);
               current = next+1;
               next = memchr(next+1, fdelim, read-1-(next-line));
               field++;
             }
             else {
-              fwrite(current, 1, read-(current-line)-(line[read-1] == ldelim), stdout);
+              fwrite_unlocked(current, 1, read-(current-line)-(line[read-1] == ldelim), stdout);
               goto nextline;
             }
           }

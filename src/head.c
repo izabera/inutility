@@ -48,13 +48,13 @@ inner:
         char buf[BUFSIZ];
         i = number;
         while (i > BUFSIZ) {
-          if ((read = fread(buf, 1, BUFSIZ, fileptr)) > 0)
-            fwrite(buf, 1, read, stdout);
+          if ((read = fread_unlocked(buf, 1, BUFSIZ, fileptr)) > 0)
+            fwrite_unlocked(buf, 1, read, stdout);
           else break;
           i -= read;
         }
-        if ((read = fread(buf, 1, i, fileptr)) > 0)
-          fwrite(buf, 1, read, stdout);
+        if ((read = fread_unlocked(buf, 1, i, fileptr)) > 0)
+          fwrite_unlocked(buf, 1, read, stdout);
       }
     }
     else {
@@ -65,7 +65,7 @@ inner:
           linebuffer[-i].len = read;
         }
         while ((read = getdelim(&line, &len, !flag('z') * '\n', fileptr)) > 0) {
-          fwrite(linebuffer[-i%number].line, 1, linebuffer[-i%number].len, stdout);
+          fwrite_unlocked(linebuffer[-i%number].line, 1, linebuffer[-i%number].len, stdout);
           free(linebuffer[-i%number].line);
           linebuffer[-i%number].line = memdup(line, read);
           linebuffer[-i%number].len = read;
@@ -75,7 +75,7 @@ inner:
       else {
         for (int64_t q = 0; q < number; q++) {
           if ((read = getdelim(&line, &len, !flag('z') * '\n', fileptr)) > 0)
-            fwrite(line, 1, read, stdout);
+            fwrite_unlocked(line, 1, read, stdout);
           else break;
         }
       }

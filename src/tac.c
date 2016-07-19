@@ -38,7 +38,7 @@ inner:
         memcpy(lines.line[lines.used++].str, line, read);
       }
       while (lines.used--) {
-        fwrite(lines.line[lines.used].str, 1, lines.line[lines.used].size, stdout);
+        fwrite_unlocked(lines.line[lines.used].str, 1, lines.line[lines.used].size, stdout);
         free(lines.line[lines.used].str);
       }
     if (fileptr != stdin) fclose(fileptr);

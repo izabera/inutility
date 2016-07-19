@@ -46,7 +46,7 @@ void makestr(struct str *dest, char *src) {
     switch (src[i]) {
       case '[': for (size_t j = 0; j < arrsize(classes); j++) {
                   if (!strncmp(classes[j].name, src+i, classes[j].namelen)) {
-                    fwrite(classes[j].characters, 1, classes[j].charlen, stream);
+                    fwrite_unlocked(classes[j].characters, 1, classes[j].charlen, stream);
                     i += classes[j].namelen - 1;
                     character = -1;
                     goto outfor;
@@ -118,14 +118,14 @@ int main(int argc, char *argv[]) {
   size_t read;
   unsigned char inbuf[BUFSIZ], outbuf[BUFSIZ];
   int prev = -1;
-  while ((read = fread(inbuf, 1, BUFSIZ, stdin)) > 0) {
+  while ((read = fread_unlocked(inbuf, 1, BUFSIZ, stdin)) > 0) {
     for (i = j = 0; i < read; i++) {
       if (!delete[inbuf[i]]) {
         if (!squeeze[inbuf[i]] || prev != map[inbuf[i]])
           outbuf[j++] = prev = map[inbuf[i]];
       }
     }
-    fwrite(outbuf, 1, j, stdout);
+    fwrite_unlocked(outbuf, 1, j, stdout);
   }
 
   return 0;
