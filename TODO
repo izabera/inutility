@@ -2,4 +2,5 @@
 - improve head -c -1234
 - (maybe) improve head -c -1234 for regular files?
 - compile all the files in the same compilation unit
-- dd cbs and related covnersions
+- dd cbs and related conversions
+- utf8 aware rev
