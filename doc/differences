@@ -1,0 +1,13 @@
+date
+- no magic date parsing for -d, but it supports a -D argument like busybox
+  inutility date -d 10:20:30 -D %H:%M:%S     -> Tue Jul 19 10:20:30 CEST 2016
+
+dd
+- doesn't implement cbs yet
+  maybe one day it will, maybe not
+- posix requires this idiocy:  dd bs=2x3x4
+- posix also requires this to mean 512 byte:  dd bs=1b
+
+printf
+- printf "%*s" "$width" foo  doesn't work yet
+  you can use printf "%${width}s" foo

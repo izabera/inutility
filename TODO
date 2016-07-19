@@ -4,3 +4,4 @@
 - compile all the files in the same compilation unit
 - dd cbs and related conversions
 - utf8 aware rev
+- fix printf %b with \0

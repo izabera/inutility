@@ -18,15 +18,14 @@
 int main(int argc, char *argv[]) {
   options("RuD:d:r:", .arglessthan = 2); // D like toybox and busybox
   char *informat, *outformat = flag('R') ? "%a, %d %b %Y %T %z" : "%a %b %e %H:%M:%S %Z %Y", outbuf[4096];
-  struct tm tmp, *tm = &tmp;
   struct tm *(*func)(const time_t *) = flag('u') ? gmtime : localtime;
+  struct tm *tm = func(&(time_t) { time(NULL) });
   if (flag('d')) parsedate(lastarg('d'));
   else if (flag('r')) {
     struct stat st;
     if (stat(lastarg('r'), &st) == -1) return errno;
     tm = func(&st.st_mtim.tv_sec);
   }
-  else tm = func(&(time_t) { time(NULL) });
   if (argc == 1) goto dodate;
   if (argc > 1 && argv[1][0] == '+') {
     outformat = &argv[1][1];
@@ -36,6 +35,7 @@ dodate:
   else {
     parsedate(argv[1]);
     settimeofday(&(struct timeval) { mktime(tm), 0 }, NULL);
+    strftime(outbuf, sizeof(outbuf), outformat, func(&(time_t) { time(NULL) }));
   }
   puts(outbuf);
   return errno;

@@ -9,7 +9,7 @@ cat [-AeEntTuv] [file...]                                   | todo -b -s
 clear                                                       |
 cut [-nsz] [-b list] [-c list] [-f list] [-d sep] [file...] |
 date [-Ru] [-D format] [-d time] [-r file] [time]           |
-dd [various=options]                                        | todo conversions
+dd [various=options]                                        |
 dirname [-z] name [name...]                                 |
 env [-i0] [-u unset...] [-] [VAR=value...] [cmd [args...]]  |
 false                                                       |
