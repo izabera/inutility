@@ -326,7 +326,7 @@ nextwhile: ;
 
   if (!options[optcount].value) options[optcount].value = -1;
   ssize_t ret;
-  size_t canread = 1, count = 0;
+  size_t canread = 1, count = 0, swapped = 0;
   /* do the thing */
   while (1) {
     if (sig == SIGUSR1) {
@@ -337,7 +337,6 @@ nextwhile: ;
     else if (sig == SIGINT) return (SIGINT+128) | errno;
 
     if (wbuf->len == obs) {
-      puts("here");
       if ((ret = write(ofd, wbuf->buf, obs)) == -1) break;
       if ((size_t) ret == obs) wfull++;
       else {
@@ -347,12 +346,33 @@ nextwhile: ;
       wbuf->len -= ret;
       bytes += ret;
     }
+    else if (sbuf->len == 4096) {
+      if (options[optconv].value & 1 << convswab) {
+        for (size_t q = 0; q < 512; q++)
+          sbuf->u64buf[q] = ((0x00ff00ff00ff00ffULL & sbuf->u64buf[q]) << 8) |
+            ((0xff00ff00ff00ff00ULL & sbuf->u64buf[q]) >> 8);
+      }
+      swapped = 1;
+
+      size_t len = min(obs-wbuf->len, 4096);
+      memmove(wbuf->buf+wbuf->len, sbuf->buf, len);
+      wbuf->len += len;
+      memmove(sbuf->buf, sbuf->buf+len, sbuf->len-len);
+      sbuf->len -= len;
+    }
+    else if (swapped && sbuf->len) {
+      size_t len = min(obs-wbuf->len, 4096);
+      memmove(wbuf->buf+wbuf->len, sbuf->buf, len);
+      wbuf->len += len;
+      memmove(sbuf->buf, sbuf->buf+len, sbuf->len-len);
+      sbuf->len -= len;
+    }
     else if (rbuf->len) {
       size_t len = min(4096-sbuf->len, rbuf->len);
       if (options[optconv].value & 1 << convascii)
         for (size_t q = 0; q < rbuf->len; q++)
           rbuf->buf[q] = ebcdicascii[(size_t) (unsigned char) rbuf->buf[q]];
-      if (options[optconv].value & 1 << convucase) { // todo: only works with ascii
+      if (options[optconv].value & 1 << convucase) {
         for (size_t q = 0; q < rbuf->len; q++)
           if (rbuf->buf[q] >= 97 && rbuf->buf[q] <= 122) rbuf->buf[q] &= ~32;
       }
@@ -372,19 +392,7 @@ nextwhile: ;
       sbuf->len += len;
       memmove(rbuf->buf, rbuf->buf+len, rbuf->len-len);
       rbuf->len -= len;
-    }
-    else if (sbuf->len == 4096) {
-      if (options[optconv].value & 1 << convswab) {
-        for (size_t q = 0; q < 512; q++)
-          sbuf->u64buf[q] = ((0x00ff00ff00ff00ffULL & sbuf->u64buf[q]) << 8) |
-            ((0xff00ff00ff00ff00ULL & sbuf->u64buf[q]) >> 8);
-      }
-
-      size_t len = min(obs-wbuf->len, 4096);
-      memmove(wbuf->buf+wbuf->len, sbuf->buf, len);
-      wbuf->len += len;
-      memmove(sbuf->buf, sbuf->buf+len, sbuf->len-len);
-      sbuf->len -= len;
+      swapped = 0;
     }
     else if (canread && count < (size_t) options[optcount].value) {
       if ((ret = read(ifd, rbuf->buf, ibs)) <= 0 && errno != EINTR) canread = 0;
