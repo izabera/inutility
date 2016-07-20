@@ -200,7 +200,9 @@ nextwhile: ;
       lseek(ifd,       options[optskip].value, SEEK_CUR);
     else
       lseek(ifd, ibs * options[optskip].value, SEEK_CUR);
-    if (errno == ESPIPE) {
+    if (errno == EINVAL && options[optskip].value < 0)
+      lseek(ifd, 0, SEEK_SET); // this is really useful and it's a shame that it doesn't work in gnu dd
+    else if (errno == ESPIPE) {
       size_t total = options[optskip].value * (options[optiflag].value & 1 << flagskip_bytes ? 1 : ibs);
       ssize_t res;
       while (total > 4096) {
