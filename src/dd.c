@@ -206,16 +206,16 @@ nextwhile: ;
       size_t total = options[optskip].value * (options[optiflag].value & 1 << flagskip_bytes ? 1 : ibs);
       ssize_t res;
       while (total > 4096) {
-        res = read(ifd, tmpbuf, 4096);
+        if ((res = read(ifd, tmpbuf, 4096)) <= 0) goto skipped;
         total -= res;
       }
       while (total) {
-        res = read(ifd, tmpbuf, total);
+        if ((res = read(ifd, tmpbuf, total)) <= 0) goto skipped;
         total -= res;
       }
     }
   }
-  errno = 0;
+skipped: errno = 0;
 
   if (!options[optcount].value && options[optseek].value) { // this is totally non obvious
     ftruncate(ofd, options[optseek].value * (options[optoflag].value & 1 << flagseek_bytes ? 1 : obs));
