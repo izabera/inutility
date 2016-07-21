@@ -241,7 +241,11 @@ skipped: errno = 0;
     }
     else if (canread && count < (size_t) options[optcount].value) {
       size_t oldlen = buflen;
-      ret = read(ifd, buf+buflen, ibs);
+      if (options[optiflag].value & 1 << flagcount_bytes &&
+          count+ibs > (size_t) options[optcount].value)
+          ret = read(ifd, buf+buflen, options[optcount].value-count);
+      else
+        ret = read(ifd, buf+buflen, ibs);
       if (ret == 0 || (ret == -1 && errno != EINTR &&
             !(options[optconv].value & 1 << convnoerror))) canread = 0;
       if (ret != -1) buflen += ret;
@@ -251,12 +255,7 @@ skipped: errno = 0;
           buflen += ibs - ret;
         }
       }
-      if (options[optiflag].value & 1 << flagcount_bytes) {
-        count += ret;
-        if (count > (size_t) options[optcount].value) buflen -= count - options[optcount].value;
-        // fixme: check it before reading
-        // (dd count=3 iflag=count_bytes >/dev/null 2>&1; cat) < <(echo 1234567890)
-      }
+      if (options[optiflag].value & 1 << flagcount_bytes) count += ret;
       else count++;
       if ((size_t) ret == ibs) rfull++;
       else if (ret > 0) rpart++;
@@ -299,7 +298,6 @@ skipped: errno = 0;
     for (; u16buf < end; u16buf++) *u16buf = swap(*u16buf);
     swablen += incr * 2;
   }
-  else swablen = buflen;
 
   while (buflen) { // leftovers
     size_t len = min(obs, buflen);
