@@ -233,9 +233,10 @@ skipped: errno = 0;
       if ((ret = write(ofd, buf, obs)) == -1) break;
       if ((size_t) ret == obs) wfull++;
       else wpart++;
-      memmove(buf, buf+ret, bufsize-ret);
+      memmove(buf, buf+ret, buflen-ret);
       buflen -= ret;
-      swablen -= ret&~1;
+      if (options[optconv].value & 1 << convswab) swablen -= ret&~1;
+      else swablen -= ret;
       bytes += ret;
     }
     else if (canread && count < (size_t) options[optcount].value) {
