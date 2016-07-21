@@ -2,7 +2,7 @@
 
 #define parsedate(d) do {                                                         \
                        char *_d = d;                                              \
-                       if (*_d == '@') tm = func(&(time_t){ atoi(_d+1) });        \
+                       if (*_d == '@') tm = localtime(&(time_t){ atoi(_d+1) });   \
                        else {                                                     \
                          switch (strlen(_d)) {                                    \
                            case  8: informat = "%m%d%H%M"    ; break;             \
@@ -11,20 +11,20 @@
                            default: return -1;                                    \
                          }                                                        \
                          strptime(_d, flag('D') ? lastarg('D') : informat, tm);   \
-                         tm = func(&(time_t) { mktime(tm) });                     \
+                         tm = localtime(&(time_t) { mktime(tm) });                \
                        }                                                          \
                      } while (0)
 
 int main(int argc, char *argv[]) {
   options("RuD:d:r:", .arglessthan = 2); // D like toybox and busybox
   char *informat, *outformat = flag('R') ? "%a, %d %b %Y %T %z" : "%a %b %e %H:%M:%S %Z %Y", outbuf[4096];
-  struct tm *(*func)(const time_t *) = flag('u') ? gmtime : localtime;
-  struct tm *tm = func(&(time_t) { time(NULL) });
+  if (flag('u')) putenv("TZ=UTC");
+  struct tm *tm = localtime(&(time_t) { time(NULL) });
   if (flag('d')) parsedate(lastarg('d'));
   else if (flag('r')) {
     struct stat st;
     if (stat(lastarg('r'), &st) == -1) return errno;
-    tm = func(&st.st_mtim.tv_sec);
+    tm = localtime(&st.st_mtim.tv_sec);
   }
   if (argc == 1) goto dodate;
   if (argc > 1 && argv[1][0] == '+') {
@@ -35,7 +35,7 @@ dodate:
   else {
     parsedate(argv[1]);
     settimeofday(&(struct timeval) { mktime(tm), 0 }, NULL);
-    strftime(outbuf, sizeof(outbuf), outformat, func(&(time_t) { time(NULL) }));
+    strftime(outbuf, sizeof(outbuf), outformat, localtime(&(time_t) { time(NULL) }));
   }
   puts(outbuf);
   return errno;

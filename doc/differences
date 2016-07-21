@@ -7,6 +7,8 @@ dd
   maybe one day it will, maybe not
 - posix requires this idiocy:  dd bs=2x3x4
 - posix also requires this to mean 512 byte:  dd bs=1b
+- supports negative skip to seek backwards in a file
+  { cat; inutility dd skip=-3 iflag=skip_bytes count=0 status=none; cat; } <<< 12345678
 
 printf
 - printf "%*s" "$width" foo  doesn't work yet
