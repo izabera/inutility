@@ -175,34 +175,11 @@ nextwhile: ;
   if (ofile) { if ((ofd = open(ofile, oflag, 0666)) == -1) return errno; }
   else fcntl(1, F_SETFL, fcntl(1, F_GETFL) | oflag);
 
-#if 0
-  struct {
-    size_t len;
-    char buf[];
-  } *rbuf = malloc(sizeof(*rbuf)+ibs),
- // *cbuf = malloc(sizeof(*cbuf)+cbs),
-    *wbuf = malloc(sizeof(*wbuf)+obs);
-#endif
-
   size_t buflen = 0,                 // how many bytes in the buffer
-         swaplen = 0,                // how many have been swapped
-         bufsize = (ibs+obs+7) & ~7; // smallest multiple of 8 >= ibs+obs
+         swablen = 0,                // how many have been swapped
+         bufsize = ibs+obs+1;
   char *buf = malloc(bufsize);
   if (!buf) return errno;
-
-#if 0
-  struct { // 4096 byte buffer for swab
-    union {
-      uint64_t u64buf[512];
-      uint16_t u16buf[2048];
-      char buf[4096];
-    };
-    size_t len;
-  } swab, *sbuf = &swab; // this is to get a similar interface with the other buffers
-
-  if (!rbuf || /* !cbuf || */ !wbuf) return errno;
-  rbuf->len /* = cbuf->len */ = wbuf->len = sbuf->len = buf->len = 0;
-#endif
 
   char tmpbuf[4096];
   if (options[optskip ].value) {
@@ -241,7 +218,8 @@ skipped: errno = 0;
   errno = 0;
 
   ssize_t ret;
-  size_t canread = 1, count = 0, swapped = 0;
+  size_t canread = 1, count = 0;
+#define swap(x) ((0x00ff & (x)) << 8) | ((0xff00 & (x)) >> 8)
   /* do the thing */
   while (1) {
     if (sig == SIGUSR1) {
@@ -250,12 +228,14 @@ skipped: errno = 0;
       printstat();
     }
     else if (sig == SIGINT) return (SIGINT+128) | errno;
-    if (buflen >= obs) {
+
+    if (swablen >= obs) {
       if ((ret = write(ofd, buf, obs)) == -1) break;
       if ((size_t) ret == obs) wfull++;
       else wpart++;
       memmove(buf, buf+ret, bufsize-ret);
       buflen -= ret;
+      swablen -= ret&~1;
       bytes += ret;
     }
     else if (canread && count < (size_t) options[optcount].value) {
@@ -300,134 +280,25 @@ skipped: errno = 0;
         for (size_t q = oldlen; q < buflen; q++)
           buf[q] = asciiibm[(size_t) (unsigned char) buf[q]];
 
-    }
-    else break;
-  }
-
-#if 0
-  while (1) {
-    if (sig == SIGUSR1) {
-      sigaction(SIGINT, &sa, NULL);
-      sig = 0;
-      printstat();
-    }
-    else if (sig == SIGINT) return (SIGINT+128) | errno;
-
-    if (wbuf->len == obs) {
-      if ((ret = write(ofd, wbuf->buf, obs)) == -1) break;
-      if ((size_t) ret == obs) wfull++;
-      else {
-        memmove(wbuf->buf, wbuf->buf+ret, obs-ret);
-        wpart++;
-      }
-      wbuf->len -= ret;
-      bytes += ret;
-    }
-    else if (sbuf->len == 4096) {
+      // can this be better?
       if (options[optconv].value & 1 << convswab) {
-        for (size_t q = 0; q < 512; q++)
-          sbuf->u64buf[q] = ((0x00ff00ff00ff00ffULL & sbuf->u64buf[q]) << 8) |
-            ((0xff00ff00ff00ff00ULL & sbuf->u64buf[q]) >> 8);
+        uint16_t *u16buf = (uint16_t *) &buf[swablen], *end = (uint16_t *) &buf[buflen&~1];
+        size_t incr = end - u16buf;
+        for (; u16buf < end; u16buf++) *u16buf = swap(*u16buf);
+        swablen += incr*2;
       }
-      swapped = 1;
-
-      size_t len = min(obs-wbuf->len, 4096);
-      memmove(wbuf->buf+wbuf->len, sbuf->buf, len);
-      wbuf->len += len;
-      memmove(sbuf->buf, sbuf->buf+len, sbuf->len-len);
-      sbuf->len -= len;
-    }
-    else if (swapped && sbuf->len) {
-      size_t len = min(obs-wbuf->len, 4096);
-      memmove(wbuf->buf+wbuf->len, sbuf->buf, len);
-      wbuf->len += len;
-      memmove(sbuf->buf, sbuf->buf+len, sbuf->len-len);
-      sbuf->len -= len;
-    }
-    else if (rbuf->len) {
-      size_t len = min(4096-sbuf->len, rbuf->len);
-      if (options[optconv].value & 1 << convascii)
-        for (size_t q = 0; q < rbuf->len; q++)
-          rbuf->buf[q] = ebcdicascii[(size_t) (unsigned char) rbuf->buf[q]];
-      if (options[optconv].value & 1 << convucase) {
-        for (size_t q = 0; q < rbuf->len; q++)
-          if (rbuf->buf[q] >= 97 && rbuf->buf[q] <= 122) rbuf->buf[q] &= ~32;
-      }
-      else if (options[optconv].value & 1 << convlcase) {
-        for (size_t q = 0; q < rbuf->len; q++)
-          if (rbuf->buf[q] >= 65 && rbuf->buf[q] <=  90) rbuf->buf[q] |=  32;
-      }
-      if (options[optconv].value & 1 << convascii) { } // avoid doing both
-      else if (options[optconv].value & 1 << convebcdic)
-        for (size_t q = 0; q < rbuf->len; q++)
-          rbuf->buf[q] = asciiebcdic[(size_t) (unsigned char) rbuf->buf[q]];
-      else if (options[optconv].value & 1 << convibm)
-        for (size_t q = 0; q < rbuf->len; q++)
-          rbuf->buf[q] = asciiibm[(size_t) (unsigned char) rbuf->buf[q]];
-
-      memmove(sbuf->buf+sbuf->len, rbuf->buf, len);
-      sbuf->len += len;
-      memmove(rbuf->buf, rbuf->buf+len, rbuf->len-len);
-      rbuf->len -= len;
-      swapped = 0;
-    }
-    else if (canread && count < (size_t) options[optcount].value) {
-      ret = read(ifd, rbuf->buf, ibs);
-      if (ret == 0 || (ret == -1 && errno != EINTR &&
-            !(options[optconv].value & 1 << convnoerror))) canread = 0;
-      if (ret != -1) rbuf->len = ret;
-      if (ret > 0) {
-        if ((size_t) ret != ibs && options[optconv].value & 1 << convsync) {
-          memset(rbuf->buf+ret, 0, ibs-ret); // posix recommends to do this *before* reading??
-          rbuf->len = ibs;
-        }
-      }
-      if (options[optiflag].value & 1 << flagcount_bytes) {
-        count += ret;
-        if (count > (size_t) options[optcount].value) rbuf->len -= count - options[optcount].value;
-      }
-      else count++;
-      if ((size_t) ret == ibs) rfull++;
-      else if (ret > 0) rpart++;
+      else swablen = buflen;
     }
     else break;
   }
 
-  if (sbuf->len) {
-    if (options[optconv].value & 1 << convswab) {
-      for (size_t q = 0; q < sbuf->len/2; q++) // rounded down, don't swab the last byte
-        sbuf->u16buf[q] = ((0x00ff & sbuf->u16buf[q]) << 8) |
-                          ((0xff00 & sbuf->u16buf[q]) >> 8);
-    }
+  if (options[optconv].value & 1 << convswab) {
+    uint16_t *u16buf = (uint16_t *) &buf[swablen], *end = (uint16_t *) &buf[buflen&~1];
+    size_t incr = end - u16buf;
+    for (; u16buf < end; u16buf++) *u16buf = swap(*u16buf);
+    swablen += incr * 2;
   }
-
-  while (wbuf->len || sbuf->len) { // leftovers
-    if (sbuf->len) {
-      size_t len = min(obs-wbuf->len, sbuf->len);
-      memmove(wbuf->buf+wbuf->len, sbuf->buf, len);
-      wbuf->len += len;
-      memmove(sbuf->buf, sbuf->buf+len, sbuf->len-len);
-      sbuf->len -= len;
-    }
-    if (wbuf->len) {
-      size_t len = min(obs, wbuf->len);
-      if ((ret = write(ofd, wbuf->buf, len)) == -1) break;
-      if ((size_t) ret == obs) wfull++;
-      else wpart++;
-      if ((size_t) ret != wbuf->len) memmove(wbuf->buf, wbuf->buf+ret, wbuf->len-ret);
-      wbuf->len -= ret;
-      bytes += ret;
-    }
-  }
-#endif
-
-  /*if (buf->len) {*/
-    /*if (options[optconv].value & 1 << convswab) {*/
-      /*for (size_t q = 0; q < buf->len/2; q++) // rounded down, don't swab the last byte*/
-        /*sbuf->u16buf[q] = ((0x00ff & sbuf->u16buf[q]) << 8) |*/
-                          /*((0xff00 & sbuf->u16buf[q]) >> 8);*/
-    /*}*/
-  /*}*/
+  else swablen = buflen;
 
   while (buflen) { // leftovers
     size_t len = min(obs, buflen);
