@@ -218,7 +218,7 @@ skipped: errno = 0;
   errno = 0;
 
   ssize_t ret;
-  size_t canread = 1, count = 0;
+  size_t canread = 1, count = 0, writepos = 0;
 #define swap(x) ((0x00ff & (x)) << 8) | ((0xff00 & (x)) >> 8)
   /* do the thing */
   while (1) {
@@ -229,18 +229,23 @@ skipped: errno = 0;
     }
     else if (sig == SIGINT) return (SIGINT+128) | errno;
 
-    if (swablen >= obs) {
-      /*printf("swablen: %zu", swablen);*/
-      /*if (ofd == 1) printf(" write:");*/
-      /*fflush(stdout);*/
-      if ((ret = write(ofd, buf, obs)) == -1) break;
+    printf("writepos %zu\n", writepos);
+    fflush(stdout);
+    if (swablen > writepos && swablen-writepos >= obs) {
+      printf("swablen%zu\n", swablen);
+        fflush(stdout);
+      if ((ret = write(ofd, buf+writepos, obs)) == -1) break;
       if ((size_t) ret == obs) wfull++;
       else wpart++;
-      memmove(buf, buf+ret, buflen-ret);
-      buflen -= ret;
-      /*if (options[optconv].value & 1 << convswab) swablen -= ret&~1;
-      else*/ swablen -= ret;
-      /*printf(" swablen: %zu\n", swablen);*/
+      writepos += ret;
+      if (writepos + ibs > bufsize) { // can we read again before overflowing the buffer?
+        printf("move: buflen %zu writepos %zu ret %zu\n", buflen,writepos,ret);
+        fflush(stdout);
+        memmove(buf, buf+writepos, min(buflen,writepos));
+        buflen -= min(buflen,writepos);
+        swablen -= min(buflen,writepos);
+        writepos = 0;
+      }
       bytes += ret;
     }
     else if (canread && count < (size_t) options[optcount].value) {
@@ -310,14 +315,16 @@ skipped: errno = 0;
 
   if (options[optconv].value & 1 << convswab) swabbytes();
 
-  while (buflen) { // leftovers
-    size_t len = min(obs, buflen);
-    if ((ret = write(ofd, buf, len)) == -1) break;
+  exit(0);
+  /*printf("<%s>\n", buf+writepos);*/
+  /*fflush(stdout);*/
+  while (writepos < buflen) { // leftovers
+    /*printf("move: buflen %zu writepos %zu\n", buflen,writepos);*/
+    /*fflush(stdout);*/
+    if ((ret = write(ofd, buf+writepos, min(obs, buflen-writepos))) == -1) break;
     if ((size_t) ret == obs) wfull++;
     else wpart++;
-    if ((size_t) ret != buflen) memmove(buf, buf+ret, len-ret);
-    buflen -= ret;
-    bytes += ret;
+    writepos += ret;
   }
 
   if (options[optconv ].value & 1 << convfdatasync) fdatasync(ofd);
