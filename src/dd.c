@@ -230,13 +230,17 @@ skipped: errno = 0;
     else if (sig == SIGINT) return (SIGINT+128) | errno;
 
     if (swablen >= obs) {
+      /*printf("swablen: %zu", swablen);*/
+      /*if (ofd == 1) printf(" write:");*/
+      /*fflush(stdout);*/
       if ((ret = write(ofd, buf, obs)) == -1) break;
       if ((size_t) ret == obs) wfull++;
       else wpart++;
       memmove(buf, buf+ret, buflen-ret);
       buflen -= ret;
-      if (options[optconv].value & 1 << convswab) swablen -= ret&~1;
-      else swablen -= ret;
+      /*if (options[optconv].value & 1 << convswab) swablen -= ret&~1;
+      else*/ swablen -= ret;
+      /*printf(" swablen: %zu\n", swablen);*/
       bytes += ret;
     }
     else if (canread && count < (size_t) options[optcount].value) {
@@ -281,23 +285,30 @@ skipped: errno = 0;
           buf[q] = asciiibm[(size_t) (unsigned char) buf[q]];
 
       // can this be better?
-      if (options[optconv].value & 1 << convswab) {
-        uint16_t *u16buf = (uint16_t *) &buf[swablen], *end = (uint16_t *) &buf[buflen&~1];
-        size_t incr = end - u16buf;
-        for (; u16buf < end; u16buf++) *u16buf = swap(*u16buf);
-        swablen += incr*2;
-      }
+#define swabbytes() do {                                                                        \
+          if (swablen % 2) { /* unaligned */                                                    \
+            while (((swablen+1)&~1) < (buflen&~1)) {                                            \
+              char tmp = buf[swablen];                                                          \
+              buf[swablen] = buf[swablen+1];                                                    \
+              buf[swablen+1] = tmp;                                                             \
+              swablen += 2;                                                                     \
+            }                                                                                   \
+          }                                                                                     \
+          else { /* todo: 8 byte aligned? */                                                    \
+            uint16_t *u16buf = (uint16_t *) &buf[swablen], *end = (uint16_t *) &buf[buflen&~1]; \
+            size_t incr = end - u16buf;                                                         \
+            for (; u16buf < end; u16buf++) *u16buf = swap(*u16buf);                             \
+            swablen += incr*2;                                                                  \
+          }                                                                                     \
+        } while (0)
+
+      if (options[optconv].value & 1 << convswab) swabbytes();
       else swablen = buflen;
     }
     else break;
   }
 
-  if (options[optconv].value & 1 << convswab) {
-    uint16_t *u16buf = (uint16_t *) &buf[swablen], *end = (uint16_t *) &buf[buflen&~1];
-    size_t incr = end - u16buf;
-    for (; u16buf < end; u16buf++) *u16buf = swap(*u16buf);
-    swablen += incr * 2;
-  }
+  if (options[optconv].value & 1 << convswab) swabbytes();
 
   while (buflen) { // leftovers
     size_t len = min(obs, buflen);
