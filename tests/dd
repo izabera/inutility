@@ -1,0 +1,67 @@
+#!/bin/bash
+
+[[ -t 1 ]] && green=$(tput setaf 2) red=$(tput setaf 1) reset=$(tput sgr0)
+statuses=("${green}ok$reset" "${red}fail$reset")
+
+check () {
+  "$@"
+  printf "%s\n" "${statuses[!!$?]}"
+}
+
+test1 () {
+  printf %-40s 'read from /dev/zero'
+            dd if=/dev/zero count=1k status=none | sha1sum > gnu
+  inutility dd if=/dev/zero count=1k status=none | sha1sum > inu
+  check cmp -s gnu inu
+}
+
+test2 () {
+  printf %-40s 'different ibs/obs'
+  head -c 1M /dev/urandom > rand
+            dd if=rand ibs=74 obs=33 count=1k status=none | sha1sum > gnu
+  inutility dd if=rand ibs=74 obs=33 count=1k status=none | sha1sum > inu
+  check cmp -s gnu inu
+}
+
+test3 () {
+  printf %-40s 'different ibs/obs and swab'
+  head -c 1M /dev/urandom > rand
+            dd if=rand ibs=77 obs=32 conv=swab status=none | sha1sum > gnu
+  inutility dd if=rand ibs=77 obs=32 conv=swab status=none | sha1sum > inu
+  check cmp -s gnu inu
+}
+
+test4 () {
+  printf %-40s'\n' 'timing large ibs small obs'
+            dd if=/dev/zero count=1k ibs=1M obs=1k of=/dev/null
+  inutility dd if=/dev/zero count=1k ibs=1M obs=1k of=/dev/null
+}
+
+test5 () {
+  printf %-40s'\n' 'timing small ibs large obs'
+            dd if=/dev/zero count=1M ibs=1k obs=1M of=/dev/null
+  inutility dd if=/dev/zero count=1M ibs=1k obs=1M of=/dev/null
+}
+
+dotest () {
+    if declare -F     "$1" >/dev/null; then     "$1"
+  elif declare -F "test$1" >/dev/null; then "test$1"
+  elif [[ -v 'aliases[$1]' ]]        ; then "${aliases[$1]}"
+  else echo "unknown test $1" >&2
+  fi
+  printf %s\\n -------------------------------------------
+}
+
+declare -A aliases=([/dev/zero]=test1 [ibs/obs]=test2 [swab]=test3
+[small/large]=test4 [large/small]=test5)
+
+((!$#)) && set -- $(compgen -A function test)
+
+for i; do dotest "$i"; done
+
+rm -f rand gnu inu
+
+
+# usage:
+# ./test                # runs all the tests
+# ./test 1 swab test2   # runs only these tests in this specific order
