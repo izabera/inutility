@@ -239,7 +239,13 @@ skipped: errno = 0;
       sig = 0;
       printstat();
     }
-    else if (sig == SIGINT) return (SIGINT+128) | errno;
+    else if (sig == SIGINT) {
+      sa.sa_handler = SIG_DFL;
+      sigaction(SIGINT, &sa, NULL);
+      printstat();
+      raise(SIGINT);
+      return (SIGINT+128) | errno; // not reached
+    }
 
     if (wbuf->len == obs) {
       if ((ret = write(ofd, wbuf->buf, obs)) == -1) break;
