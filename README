@@ -24,6 +24,7 @@ pwd [-LP]                                                   |
 pwdx pid [pid...]                                           |
 rev [file...]                                               |
 rmdir [-pv] dir [dir...]                                    |
+seq [-w] [-s arg] [-f arg] arg1 [arg2] [arg3]               |
 sleep number[suffix]                                        |
 sync [-df] [file...]                                        |
 tac [file...]                                               | no opts

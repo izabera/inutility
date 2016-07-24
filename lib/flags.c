@@ -20,11 +20,12 @@ char *flaglist; // flags in the order we got them for sed -e s/a/1/ -f <(echo s/
 static inline void closefile(FILE **fp) { if (*fp) fclose(*fp); }
 
 int parseopts(int argc, char *argv[], const char *program, struct opts options) {
-  char *valid = ":|*?ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789#",
+  char *valid = ":|*?ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789#_",
        /* : == needs string arg
         * | == needs num arg
         * * == needs byte arg
         * # == -num for things like head
+        * _ == stop at first negative num for things like seq
         * - == reserved for long opts, to be added eventually */
        *opts = options.shortopts;
   if (strlen(opts) != strspn(opts, valid)) return -1;
@@ -65,6 +66,7 @@ int parseopts(int argc, char *argv[], const char *program, struct opts options) 
       else {
         int brkt = 0;
         for (i = 0; opts[i]; i++) {
+          if (opts[i] == '_') continue;
           if (opts[i] == '#') {
             printf("%s-num] ", brkt ? "] [" : "[");
             brkt = 0;
@@ -104,6 +106,12 @@ int parseopts(int argc, char *argv[], const char *program, struct opts options) 
         (num = parsenumb(argv[i]+1+(argv[i][1] == '-'))) != INT64_MIN) {
       argpush('#', num, nums);
       continue;
+    }
+    // seq -3 10
+    else if (strchr(opts, '_')) {
+      char *tmp;
+      strtod(argv[i], &tmp);
+      if (!*tmp) break;
     }
     for (j = 1; (c = argv[i][j]); j++) {
       if (strchr(":#?|", c)) goto unknown; /* these can be in opts */

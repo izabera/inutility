@@ -14,6 +14,7 @@ possible suffixes after a letter:
 - | == needs num arg
 - * == needs byte arg
 - # == -num for things like head
+- _ == stop parsing options at the first negative number
 
 
 
