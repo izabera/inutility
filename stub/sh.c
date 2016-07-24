@@ -1,8 +1,7 @@
 #include "lib/common.h"
 
 int main(int argc, char *argv[]) {
-  // sane option parsing, not that stupid thing posix requires
-  options("abCefhimnsuvxc:o:");
+  options("abCefhimnsuvxco:");
   int exitcode = 0;
   FILE *fcode;
   char *code;
