@@ -21,6 +21,7 @@ int main(int argc, char *argv[]) {
   char *valid = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/=";
   char decoded[256] = { 0 };
   int c, count = 0, equal = 0;
+  memset(decoded, -1, sizeof(decoded));
   for (char *ptr = valid; *ptr; ptr++) decoded[(int)*ptr] = count++;
   count = 0;
   char old = 0, cur = 0;
@@ -28,7 +29,7 @@ int main(int argc, char *argv[]) {
   if (flag('d')) {
     while ((c = fgetc_unlocked(file)) != EOF) {
       if (c == '\n') continue;
-      if (!decoded[c]) {
+      if (decoded[c] == -1) {
         if (!flag('i')) return -1;
         else continue;
       }
