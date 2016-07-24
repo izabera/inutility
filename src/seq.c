@@ -15,17 +15,12 @@ static int fmtok(const char *str) {
   return f == 1;
 }
 
+size_t inte, frac;
 static char *buildfmt(double val[3]) {
-  char *buf, *ptr;
-  size_t inte = 0, frac = 0;
+  char *buf, tmp[512];
   for (int i = 0; i < 3; i++) {
-    asprintf(&buf, "%g", val[i]);
-    if ((ptr = strchr(buf, '.'))) {
-      frac = max(frac, strlen(ptr+1));
-      *ptr = 0;
-    }
-    inte = max(inte, strlen(buf));
-    free(buf);
+    snprintf(tmp, sizeof(tmp), "%lld", (long long)val[i]);
+    inte = max(inte, strlen(tmp));
   }
   asprintf(&buf, "%%0%zu.%zuf", inte + (frac ? frac + 1 : 0), frac);
   return buf;
@@ -34,15 +29,22 @@ static char *buildfmt(double val[3]) {
 int main(int argc, char *argv[]) {
   options("_ws:f:", .argleast = 1, .arglessthan = 4);
   double first = 1, last = 0 /* gcc */, incr = 1;
+  char *ptr;
   switch (argc) {
     case 2: last  = strtod(argv[1], NULL);
+            if ((ptr = strchr(argv[1], '.'))) frac = max(frac, strlen(ptr+1));
             break;
     case 3: first = strtod(argv[1], NULL);
+            if ((ptr = strchr(argv[1], '.'))) frac = max(frac, strlen(ptr+1));
             last  = strtod(argv[2], NULL);
+            if ((ptr = strchr(argv[2], '.'))) frac = max(frac, strlen(ptr+1));
             break;
     case 4: first = strtod(argv[1], NULL);
+            if ((ptr = strchr(argv[1], '.'))) frac = max(frac, strlen(ptr+1));
             incr  = strtod(argv[2], NULL);
+            if ((ptr = strchr(argv[2], '.'))) frac = max(frac, strlen(ptr+1));
             last  = strtod(argv[3], NULL);
+            if ((ptr = strchr(argv[3], '.'))) frac = max(frac, strlen(ptr+1));
             break;
   }
   if ((incr < 0 && first < last) || (incr > 0 && first > last)) return 0;
