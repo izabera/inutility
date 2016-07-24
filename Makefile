@@ -17,7 +17,7 @@ all: $(objdir) inutility
 inutility: $(obj) $(libheaders) $(srcdir)/proto.h $(srcdir)/struct.h inutility.c
 	$(CC) $(CFLAGS) $(LDFLAGS) $@.c $(obj) -o $@
 
-.PHONY: clean install uninstall
+.PHONY: clean install uninstall small fast all
 
 $(srcdir)/proto.h: $(src)
 	cd src && {							\
@@ -57,3 +57,11 @@ uninstall:
 	for target in inutility $(programs) list; do			\
 		rm -f "$(DESTDIR)$(PREFIX)/bin/$$target";		\
 	done
+
+fast:
+	make CFLAGS='-Ofast -march=native' LDFLAGS=-flto
+
+small:
+	make CC=gcc CFLAGS='-Os -fno-asynchronous-unwind-tables -fdata-sections -ffunction-sections -march=native' LDFLAGS='-flto -s -Wl,-gc-sections'
+	strip --strip-all --remove-section=.comment --remove-section=.note inutility
+	if type sstrip >/dev/null 2>&1; then sstrip inutility; fi

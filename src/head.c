@@ -37,7 +37,7 @@ inner:
       if (number < 0) {
         char c; /* todo: replace this with something faster */
         for (i = 0; i > number; i--)
-          if ((bytebuffer[-i] = getc(fileptr)) == EOF) goto nextfile;
+          if ((bytebuffer[-i] = getc_unlocked(fileptr)) == EOF) goto nextfile;
         while ((c = getc_unlocked(fileptr)) != EOF) {
           putchar_unlocked(bytebuffer[-i%number]);
           bytebuffer[-i%number] = c;

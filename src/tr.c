@@ -52,20 +52,20 @@ void makestr(struct str *dest, char *src) {
                     goto outfor;
                   }
                 }
-                fputc(character = '[', stream);
+                fputc_unlocked(character = '[', stream);
                 outfor: break;
-      case '-': if (character == -1 || !src[i+1]) fputc(character = '-', stream);
+      case '-': if (character == -1 || !src[i+1]) fputc_unlocked(character = '-', stream);
                 else {
                   int from = character+1, to; /* from+1 because we already added that char */
                   if (src[++i] == '\\') to = unescape(src, &i, 0);
                   else to = src[i];
-                  while (from <= to) fputc(from++, stream);
+                  while (from <= to) fputc_unlocked(from++, stream);
                   character = -1;
                 }
                 break;
-      case '\\': fputc(character = unescape(src, &i, 0), stream);
+      case '\\': fputc_unlocked(character = unescape(src, &i, 0), stream);
                  break;
-      default: fputc(character = src[i], stream);
+      default: fputc_unlocked(character = src[i], stream);
     }
   }
   fclose(stream);

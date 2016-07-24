@@ -10,7 +10,7 @@
   if (!(flags[opt(o)].target =                                                          \
         realloc(flags[opt(o)].target, sizeof(arg) * flags[opt(o)].count))) return '@';  \
   flags[opt(o)].target[flags[opt(o)].count-1] = arg;                                    \
-  putc(o, optfile);                                                                     \
+  putc_unlocked(o, optfile);                                                            \
 } while (0)
 
 int parseoptind, parseopterr = 1;
@@ -94,7 +94,7 @@ int parseopts(int argc, char *argv[], const char *program, struct opts options) 
         }
         else printf("[arg...]");
 
-        putchar('\n');
+        putchar_unlocked('\n');
       }
       return 'h';
     }
@@ -134,7 +134,7 @@ int parseopts(int argc, char *argv[], const char *program, struct opts options) 
         }
         else {
           flags[opt(c)].count++;
-          putc(c, optfile);
+          putc_unlocked(c, optfile);
         }
       }
       else {

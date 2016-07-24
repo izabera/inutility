@@ -28,7 +28,7 @@ int main(int argc, char *argv[]) {
     else fileptr = fdopen(file, "r");
 inner:
     if (anyflag) {
-      while ((c = fgetc(fileptr)) != EOF) {
+      while ((c = fgetc_unlocked(fileptr)) != EOF) {
              if (line)      { if (flag('n')) printf("%6lu\t", linecount); line = 0; }
              if (c == '\t')   printf(flag('T') ? "^I"    : "\t");
         else if (c == '\n') { printf(flag('E') ? "$\n"   : "\n"); linecount++; line = 1; }
@@ -37,7 +37,7 @@ inner:
         else if (c == 255)    printf(flag('v') ? "M-^?"  : "\377");
         else if (lowmeta(c))  printf(flag('v') ? "M-^%c" : "%c", c - 64);
         else if (himeta(c))   printf(flag('v') ? "M-%c"  : "%c", c - 128);
-        else                  putchar(c);
+        else                  putchar_unlocked(c);
       }
       fflush(stdout);
     }

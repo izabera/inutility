@@ -35,9 +35,9 @@ int main_list(int argc, char *argv[]) {
           linelen = strlen(inutility[i].name);
         }
         linelen++;
-        putchar(' ');
+        putchar_unlocked(' ');
       }
-      if (linelen) putchar('\n');
+      if (linelen) putchar_unlocked('\n');
     }
   }
   return 0;
