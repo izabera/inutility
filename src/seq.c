@@ -50,7 +50,8 @@ int main(int argc, char *argv[]) {
   if ((incr < 0 && first < last) || (incr > 0 && first > last)) return 0;
   char *separator = flag('s') ? lastarg('s') : "\n",
        *format = flag('f') ? lastarg('f') :
-                 flag('w') ? buildfmt((double[]){ first, last, incr }) : "%g";
+                 flag('w') ? buildfmt((double[]){ first, last, incr }) :
+                             buildfmt((double[]){     0,    0,    0 }) ;
   if (!fmtok(format)) return -1;
   double val = first;
 #define cond ((incr > 0 && val <= last) || (incr < 0 && val >= last))
