@@ -24,6 +24,7 @@
 #include <sys/time.h>
 #include <alloca.h>
 #include <sys/wait.h>
+#include <sys/utsname.h>
 
 #include "flags.h"
 #include "parsenumb.h"
