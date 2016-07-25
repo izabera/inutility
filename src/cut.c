@@ -72,8 +72,11 @@ int main(int argc, char *argv[]) {
 inner:
     while ((read = getdelim(&line, &len, ldelim, fileptr)) > 0) {
       if (flag('b')) {
-        for (tmprange = &ranges; tmprange->next && tmprange->first < (size_t) read; tmprange = tmprange->next)
-          fwrite_unlocked(line+tmprange->first-1, 1, tmprange->last-tmprange->first+1, stdout);
+        for (tmprange = &ranges; tmprange->next &&
+            tmprange->first < (size_t) read; tmprange = tmprange->next) {
+          fwrite_unlocked(line+tmprange->first-1, 1,
+              min(read-tmprange->first, tmprange->last-tmprange->first+1), stdout);
+        }
         if (line[read-1] == ldelim) putchar_unlocked(line[read-1]);
       }
       else if (flag('c')) {
