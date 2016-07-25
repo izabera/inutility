@@ -26,8 +26,8 @@ int main(int argc, char *argv[]) {
   FILE *fileptr = stdin;
 
   ssize_t read;
-  size_t len;
-  char *line;
+  size_t len = 0;
+  char *line = NULL;
   int ldelim = flag('z') ? '\0' : '\n', fdelim = flag('d') ? *lastarg('d') : '\t';
   if (!flag('b') && !flag('c') && !flag('f')) return -1;
 

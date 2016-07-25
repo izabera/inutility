@@ -3,13 +3,12 @@
 static int fmtok(const char *str) {
   int f;
   for (f = 0; *str; str++) {
-    if (str[0] == '%') {
-      if (str[1] == '%') str++;
-      else {
-        while (str[1] && strchr("0123456789+-# .'", str[1])) str++;
-        if (!str[1]) return 0;
-        if (strchr("aAeEfFgG", str[1])) f++;
-      }
+    if (str[0] != '%') continue;
+    if (str[1] == '%') str++;
+    else {
+      str += strspn(str+1, "0123456789+-# .'");
+      if (!str[1]) return 0;
+      if (strchr("aAeEfFgG", str[1])) f++;
     }
   }
   return f == 1;
