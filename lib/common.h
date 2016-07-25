@@ -28,6 +28,7 @@
 #include <sys/vfs.h>
 #include <grp.h>
 #include <pwd.h>
+#include <ctype.h>
 
 #include "flags.h"
 #include "parsenumb.h"
@@ -73,3 +74,7 @@ mode_t getumask();
                      (x) > (1<<20) ? 'M' : \
                      (x) > (1<<10) ? 'K' : 'B')
 #define scale(x) scalenum(x), unit(x)
+
+
+#define Case    break; case
+#define Default break; default

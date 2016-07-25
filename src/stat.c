@@ -1,7 +1,5 @@
 #include "lib/common.h"
 
-#define Case    break; case
-#define Default break; default
 void fsstatprint(char fmt, struct statfs *fs) {
   switch (fmt) {
     Case 'a': printf("%lu", fs->f_bavail);
