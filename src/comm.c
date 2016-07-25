@@ -1,8 +1,11 @@
 #include "lib/common.h"
 
+static int delim;
 static void miniprintf(const char *fmt, const char *str, size_t len) {
   for ( ; *fmt == '\t'; fmt++) putchar_unlocked('\t');
-  if (*fmt) fwrite_unlocked(str, 1, len, stdout);
+  if (*fmt) fwrite_unlocked(str, 1, len-1, stdout);
+  if (str[len-1] != delim) putchar_unlocked(str[len-1]);
+  putchar_unlocked(delim);
 }
 
 int main(int argc, char *argv[]) {
@@ -23,7 +26,8 @@ int main(int argc, char *argv[]) {
     [0][6] = "%", [1][6] = ""   , [2][6] = ""     , //  |
     [0][7] = "" , [1][7] = ""   , [2][7] = ""     , // -+
   };
-  int mask = flag('1') | !!flag('2') << 1 | !!flag('3') << 2, delim = flag('z') ? 0 : '\n';
+  int mask = flag('1') | !!flag('2') << 1 | !!flag('3') << 2;
+  delim = flag('z') ? 0 : '\n';
 
   char *line[2] = { 0 };
   size_t len[2] = { 0 };
