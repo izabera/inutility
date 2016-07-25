@@ -3,9 +3,8 @@
 static int delim;
 static void miniprintf(const char *fmt, const char *str, size_t len) {
   for ( ; *fmt == '\t'; fmt++) putchar_unlocked('\t');
-  if (*fmt) fwrite_unlocked(str, 1, len-1, stdout);
-  if (str[len-1] != delim) putchar_unlocked(str[len-1]);
-  putchar_unlocked(delim);
+  if (*fmt) fwrite_unlocked(str, 1, len, stdout);
+  if (str[len-1] != delim) putchar_unlocked(delim);
 }
 
 int main(int argc, char *argv[]) {
@@ -37,7 +36,9 @@ int main(int argc, char *argv[]) {
   };
 
   while (read[0] != -1 && read[1] != -1) {
-    int cmp = memcmp(line[0], line[1], read[0]);
+    int cmp = read[0] == read[1] ? memcmp(line[0], line[1], read[0])     :
+              read[0]  < read[1] ? memcmp(line[0], line[1], read[0]) | 1 : // not 0
+                                   memcmp(line[0], line[1], read[1]) | 1 ;
     miniprintf(formats[cmp == 0 ? 2 : cmp < 0 ? 0 : 1][mask], line[cmp > 0], read[cmp > 0]);
     if (cmp == 0) {
       read[0] = getdelim(&line[0], &len[0], delim, file[0]);
