@@ -25,6 +25,9 @@
 #include <alloca.h>
 #include <sys/wait.h>
 #include <sys/utsname.h>
+#include <sys/vfs.h>
+#include <grp.h>
+#include <pwd.h>
 
 #include "flags.h"
 #include "parsenumb.h"
