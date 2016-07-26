@@ -21,7 +21,7 @@ static char *buildfmt(double val[3]) {
     snprintf(tmp, sizeof(tmp), "%lld", (long long)val[i]);
     inte = max(inte, strlen(tmp));
   }
-  asprintf(&buf, "%%0%zu.%zuf", inte + (frac ? frac + 1 : 0), frac);
+  if (asprintf(&buf, "%%0%zu.%zuf", inte + (frac ? frac + 1 : 0), frac) == -1) exit(errno);
   return buf;
 }
 
@@ -57,7 +57,7 @@ int main(int argc, char *argv[]) {
   if (cond) {
     printf(format, val);
     char *newfmt;
-    asprintf(&newfmt, "%%s%s", format);
+    if (asprintf(&newfmt, "%%s%s", format) == -1) return errno;
     if (!flag('f') && flag('w')) free(format);
     for (val += incr; cond; val += incr) printf(newfmt, separator, val);
     putchar_unlocked('\n');

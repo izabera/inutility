@@ -17,10 +17,6 @@
 #include <sys/sysinfo.h>
 #include <utmpx.h>
 #include <time.h>
-#include <stdio.h>
-#include <sys/sysinfo.h>
-#include <utmpx.h>
-#include <time.h>
 #include <sys/time.h>
 #include <alloca.h>
 #include <sys/wait.h>

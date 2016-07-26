@@ -152,8 +152,9 @@ int main(int argc, char *argv[]) {
         else if (*fmt == 'N' && !flag('f')) { // toybox does this with a global var
           if (S_ISLNK(st.st_mode)) {
             char linktarget[PATH_MAX] = { 0 };
-            readlink(*argv, linktarget, sizeof(linktarget));
-            printf("`%s' -> `%s'", *argv, linktarget); 
+            if (readlink(*argv, linktarget, sizeof(linktarget)) == -1)
+                 printf("`%s' -> `?" "?'", *argv);  // fuck trigraphs
+            else printf("`%s' -> `%s'", *argv, linktarget); 
           }
           else printf("`%s'", *argv); 
         }

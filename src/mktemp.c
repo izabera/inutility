@@ -12,7 +12,7 @@ int main(int argc, char *argv[]) {
     template = "tmp.XXXXXX";
     if (!(dir = flag('p') ? lastarg('p') : getenv("TMPDIR"))) dir = "/tmp";
   }
-  asprintf(&path, "%s%s%s", dir, dir[0] ? "/" : "", template);
+  if (asprintf(&path, "%s%s%s", dir, dir[0] ? "/" : "", template) == -1) return errno;
 
   if (flag('d')) { if (!mkdtemp(path)) return errno; }
   else { if (mkstemp(path) == -1) return errno; }
