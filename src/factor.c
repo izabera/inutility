@@ -1,10 +1,11 @@
 #include "lib/common.h"
 
 #include "lib/factor.data"
-void factor(const char* str) {
+static void factor(const char* str) {
   uint64_t num = strtoull(str, NULL, 10), factor = 0;
   uint8_t increment = primes[arrsize(primes)-1] % 6 == 1 ? 2 : 4;
   printf("%" PRIu64 ":", num);
+  if (num < 2) goto end;
   size_t i = 0;
 #define getprime() (i < arrsize(primes) ? primes[i++] : factor + (increment ^= 6))
   while (factor * factor <= num) {
@@ -16,7 +17,7 @@ void factor(const char* str) {
     }
   }
   if (num > 1) printf(" %" PRIu64, num);
-  putchar_unlocked('\n');
+end: putchar_unlocked('\n');
 }
 
 int main(int argc, char *argv[]) {
