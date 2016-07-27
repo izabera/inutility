@@ -25,6 +25,7 @@
 #include <grp.h>
 #include <pwd.h>
 #include <ctype.h>
+#include <sched.h>
 
 #include "flags.h"
 #include "parsenumb.h"

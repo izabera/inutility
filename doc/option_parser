@@ -29,7 +29,7 @@ how to...
 - ...check if we got -a ?
   if (flag('a')) { ... }
 - ...get the last argument to -c?
-  char *argument = lastarg('c');   // NULL if no -c
+  char *argument = lastarg('c');
 - ...get all the arguments to -c?
   for (size_t i = 0; i < flag('c'); i++) puts(flag[opt('c')].args[i]);
 - ...check if -c came before -d?
