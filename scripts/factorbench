@@ -1,0 +1,28 @@
+#!/bin/bash
+for (( i = ${1-10000}; i > 0; i-- )) do
+  printf "%s\n" "$((RANDOM*RANDOM*RANDOM+RANDOM))"
+done > nums
+
+TIMEFORMAT='real: %lR, user: %lU, sys: %lS'
+PS4='$ '
+set -x
+time toybox    factor < nums > tf
+time inutility factor < nums > if
+time plan9     factor < nums > 9f
+time gnu       factor < nums > gf
+time heirloom  factor < nums > hf
+{ set +x; } 2>/dev/null
+
+# heirloom prints something very similar to plan9, but without the numers
+# fixing it is annoying, remove the numbers from plan9 and compare it first
+sed '/^[0-9]/d' 9f > 9f2
+cmp 9f2 hf
+
+# now convert plan9 to the same format as the others
+sed -ni 's/^[^ ].*/&:/;s/   */ /;H;/^$/{x;s/\n//gp}' 9f
+
+cmp if gf
+cmp tf gf
+cmp 9f gf
+
+rm tf if 9f gf hf 9f2 nums
