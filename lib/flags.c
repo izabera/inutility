@@ -55,7 +55,8 @@ int parseopts(int argc, char *argv[], const char *program, struct opts options) 
       break;
     }
     if (!strcmp("--version", argv[i])) {
-      printf("inutility v %s built on %s %s\n", VERSION, __DATE__, __TIME__);
+      if (options.version) puts(options.version);
+      else printf("inutility v %s built on %s %s\n", VERSION, __DATE__, __TIME__);
       return 'v';
     }
     if (!strcmp("--help", argv[i])) {

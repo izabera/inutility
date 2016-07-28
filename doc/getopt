@@ -1,0 +1,29 @@
+getopt uses the same parser as inutility of course
+
+it accepts these options:
+-d description
+-n 'program name'   (default: "programname")
+-h 'help string'
+-v 'version string'
+-l argleast
+-L arglessthan
+-u                  (unqouted output, by default it's quoted for posix sh)
+
+$ inutility getopt abc:d: -abbacus -d hello world! ain\'t no place like \$HOME
+ -a -b -b -a -c us -d hello -- 'world!' 'ain'\''t' no place like '$HOME'
+
+$ inutility getopt -u abc:d: -abbacus -d hello world! ain\'t no place like \$HOME
+ -a -b -b -a -c us -d hello -- world! ain't no place like $HOME
+
+$ inutility getopt 'a*b|#' -a 12M -b 34M -56 -78 -- -90
+ -a 12582912 -b 34000000 -56 -78 -- -90
+
+$ inutility getopt abc_ -a -b -10 -a
+ -a -b -- -10 -a
+
+$ inutility getopt -n hal -v 9000 -d 'pod bay door opener' 'ab:c*d|#' --help
+hal: pod bay door opener
+hal [-a] [-b arg] [-c byte] [-d num] [-num] [arg...]
+
+$ inutility getopt -n hal -v 9000 -d 'pod bay door opener' 'ab:c*d|#' --version
+9000
