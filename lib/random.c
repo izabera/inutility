@@ -21,7 +21,8 @@ pcg32_random_t globalrand;
 __attribute__((constructor)) static void srandtimeNULL() {
   struct timespec t;
   clock_gettime(CLOCK_REALTIME, &t);
-  memcpy(&globalrand, &t, min(sizeof(t), sizeof(globalrand))); // they're the same size?
+  globalrand.state = t.tv_nsec;
+  pcg32_random(); // the first number is always low
 }
 
 uint32_t pcg32_random() { return pcg32_random_r(&globalrand); }
