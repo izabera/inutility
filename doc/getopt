@@ -3,25 +3,45 @@ options, options with missing args, --help, --version, --, bytes and numbers
 
 it accepts these options:
 -d description
--n 'program name'   (default: "programname")
 -h 'help string'
 -v 'version string'
 -l argleast
 -L arglessthan
--u                  (unqouted output, by default it's quoted for posix sh)
++ most of what gnu getopt accepts
 
+
+basic stuff
+-----------
 $ inutility getopt abc:d: -abbacus -d hello world! ain\'t no place like \$HOME
- -a -b -b -a -c us -d hello -- 'world!' 'ain'\''t' no place like '$HOME'
-
-$ inutility getopt -u abc:d: -abbacus -d hello world! ain\'t no place like \$HOME
  -a -b -b -a -c us -d hello -- world! ain't no place like $HOME
 
+
+shell escaping
+--------------
+$ inutility getopt -s bash abc:d: -abbacus -d hello world! ain\'t no place like \$HOME
+ -a -b -b -a -c us -d hello -- 'world!' 'ain'\''t' no place like '$HOME'
+
+$ inutility getopt -s csh abc:d: -abbacus -d hello world! ain\'t no place like \$HOME
+ -a -b -b -a -c us -d hello -- 'world'\!'' 'ain'\''t' no place like '$HOME'
+
+$ inutility getopt -s rc abc:d: -abbacus -d hello world! ain\'t no place like \$HOME
+ -a -b -b -a -c us -d hello -- 'world!' 'ain''t' no place like '$HOME'
+
+$ inutility getopt -s mksh -u abc:d: -abbacus -d hello world! ain\'t no place like \$HOME
+ -a -b -b -a -c us -d hello -- world! ain't no place like $HOME
+
+
+advanced features
+-----------------
 $ inutility getopt 'a*b|#' -a 12M -b 34M -56 -78 -- -90
  -a 12582912 -b 34000000 -56 -78 -- -90
 
 $ inutility getopt abc_ -a -b -10 -a
  -a -b -- -10 -a
 
+
+help and version
+----------------
 $ inutility getopt -n hal -v 9000 -d 'pod bay door opener' 'ab:c*d|#' --help
 hal: pod bay door opener
 hal [-a] [-b arg] [-c byte] [-d num] [-num] [arg...]
@@ -31,30 +51,38 @@ $ inutility getopt -n hal -v 9000 -d 'pod bay door opener' 'ab:c*d|#' --version
 
 
 it returns 152 (-'h') for --help and 138 (-'v') for --version
-example usage:
+
+
+
+example usage (argument parsing for head(1)):
 
 #!/bin/bash
-opts=$(inutility getopt -n head                                \
-                        -v 0.2                                 \
+opts=$(inutility getopt -n head -v 0.2                         \
                         -d "outputs the first lines of a file" \
                         "qvz#c*n|" "$@")
 case $? in
-        0)                                ;;
+        0) ;;
   152|138) printf "%s\n" "$opts" ; exit 0 ;;
-        *)                         exit 1 ;;
+        *) exit 1 ;;
 esac
+
 eval set -- "$opts"
+
 while (($#)); do
-	case $1 in
+  case $1 in
     -q) quietmode=1 ;;
     -v) quietmode=0 ;;
+    -z) zero=1 ;;
     -c) bytes=$2; shift ;;
     -n) lines=$2; shift ;;
     --) shift; break ;;
-	esac
+     *) lines=$1 ;;        # head -7
+  esac
   shift
 done
+
 printf "quietmode: %d\n" "$quietmode"
+printf "zero: %d\n" "$zero"
 printf "bytes: %d\n" "$bytes"
 printf "lines: %d\n" "$lines"
 printf "args: "

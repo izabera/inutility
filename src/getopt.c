@@ -1,69 +1,72 @@
 #include "lib/common.h"
 
-static void printstr(const char *str) {
+static void printstr(const char *str, int shell) {
   char *safe = "QWERTYUIOPASDFGHJKLZXCVBNM"
                "qwertyuiopasdfghjklzxcvbnm"
                "1234567890" "+-,./:=@_^%";
   if (strlen(str) == strspn(str, safe)) printf(" %s", str);
   else {
     printf(" '");
-    for ( ; *str; str++) { 
-      if (*str == '\'') printf("'\\''");
-      else putchar_unlocked(*str);
+    for ( ; *str; str++) {
+      switch (shell) {
+        Case 0:
+               if (*str == '\'') printf("'\\''" );
+          else putchar_unlocked(*str);
+        Case 1: // not sure about this...
+               if (*str == '\'') printf("'\\''" );
+          else if (*str == '\\') printf("\\\\"  ); // especially this...
+          else if (*str == '\n') printf("\\n"   );
+          else if (*str == '!' ) printf("'\\!'" );
+          else if (*str == ' ' ) printf("'\\ '" );
+          else if (*str == '\t') printf("'\\\t'");
+          else putchar_unlocked(*str);
+        Case 2: // or this...
+               if (*str == '\'') printf("''"    );
+          else putchar_unlocked(*str);
+      }
     }
     putchar_unlocked('\'');
   }
 }
 
-static void noquotestr(const char *str) { printf(" %s", str); }
+static void noquotestr(const char *str, int shell) { (void) shell; printf(" %s", str); }
 
 int main(int argc, char *argv[]) {
-  options("ud:h:l|L|n:v:", .argleast = 1);
+  char *optstring = "qQTud:h:l|L|n:s:v:", *name = argv[0];
+  options(optstring, .argleast = 1);
   struct opts opts = { 0 };
-  char *name = "programname";
-  void (*func)(const char *str) = printstr;
-  // must free all the structures set by the previous options()
-  if (flag('u')) {
-    func = noquotestr;
-    flag('u') = 0;
-  }
-  if (flag('d')) {
-    opts.descr       = lastarg('d');
-    flag('d') = 0;
-    free(flags[opt('d')].args);
-    flags[opt('d')].args = NULL;
-  }
-  if (flag('l')) {
-    opts.argleast    = lastnum('l');
-    flag('l') = 0;
-    free(flags[opt('l')].args);
-    flags[opt('l')].args = NULL;
-  }
-  if (flag('L')) {
-    opts.arglessthan = lastnum('m');
-    flag('L') = 0;
-    free(flags[opt('L')].args);
-    flags[opt('L')].args = NULL;
-  }
-  if (flag('n')) {
-    name             = lastarg('n');
-    flag('n') = 0;
-    free(flags[opt('n')].args);
-    flags[opt('n')].args = NULL;
-  }
-  if (flag('h')) {
-    opts.help        = lastarg('h');
-    flag('h') = 0;
-    free(flags[opt('h')].args);
-    flags[opt('h')].args = NULL;
-  }
-  if (flag('v')) {
-    opts.version     = lastarg('v');
-    flag('v') = 0;
-    free(flags[opt('v')].args);
-    flags[opt('v')].args = NULL;
+  void (*func)(const char*, int) = noquotestr;
+  int shell = 0; // posix sh
+
+  if (flag('u')) func             = noquotestr;
+  if (flag('d')) opts.descr       = lastarg('d');
+  if (flag('l')) opts.argleast    = lastnum('l');
+  if (flag('L')) opts.arglessthan = lastnum('m');
+  if (flag('n')) name             = lastarg('n');
+  if (flag('h')) opts.help        = lastarg('h');
+  if (flag('v')) opts.version     = lastarg('v');
+  if (flag('q')) parseopterr      = 0;
+  if (flag('Q')) freopen("/dev/null", "w", stdout);
+  if (flag('T')) return 4; // pretend to be gnu getopt
+  if (flag('s')) {
+    func = printstr;
+    char * sh[] = { "sh", "ash", "bash", "dash", "ksh", "mksh", "pdksh", "posh", "yash", "zsh", NULL },
+         *csh[] = { "csh", "tcsh", NULL },
+         * rc[] = { "rc", NULL },
+         **shells[3] = { sh, csh, rc };
+    for (int i = 0; i < 3; i++)
+      for (int j = 0; shells[i][j]; j++)
+        if (!strcmp(shells[i][j], lastarg('s'))) shell = i; // not found => keep sh
   }
 
+  // must free all the structures set by the previous parseopts()
+  for ( ; *optstring; optstring++) {
+    if (!strchr("ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789#", *optstring))
+      continue;
+    flag(*optstring) = 0;
+    free(flags[opt(*optstring)].args);
+    flags[opt(*optstring)].args = NULL;
+  }
   free(flaglist);
 
   opts.shortopts = argv[1];
@@ -83,12 +86,12 @@ int main(int argc, char *argv[]) {
     }
     printf(" -%c", *flaglist);
     char *ptr = strchr(opts.shortopts, *flaglist);
-         if (ptr[1] == ':')                  func(getarg(args));
+         if (ptr[1] == ':')                  func(getarg(args), shell);
     else if (ptr[1] == '*' || ptr[1] == '|') printf(" %" PRIi64, getarg(nums));
   }
 
   printf(" --");
-  while (*++argv) func(*argv);
+  while (*++argv) func(*argv, shell);
   putchar_unlocked('\n');
   return errno;
 }
