@@ -28,9 +28,10 @@
 #include <sched.h>
 
 #include "flags.h"
+#include "memspn.h"
 #include "parsenumb.h"
 #include "parsemode.h"
-#include "memspn.h"
+#include "random.h"
 #include "unescape.h"
 #include "uptime.h"
 
