@@ -9,9 +9,9 @@ static void printstr(const char *str) {
     printf(" '");
     for ( ; *str; str++) { 
       if (*str == '\'') printf("'\\''");
-      else putchar(*str);
+      else putchar_unlocked(*str);
     }
-    putchar('\'');
+    putchar_unlocked('\'');
   }
 }
 
@@ -31,31 +31,37 @@ int main(int argc, char *argv[]) {
     opts.descr       = lastarg('d');
     flag('d') = 0;
     free(flags[opt('d')].args);
+    flags[opt('d')].args = NULL;
   }
   if (flag('l')) {
     opts.argleast    = lastnum('l');
     flag('l') = 0;
     free(flags[opt('l')].args);
+    flags[opt('l')].args = NULL;
   }
   if (flag('L')) {
     opts.arglessthan = lastnum('m');
     flag('L') = 0;
     free(flags[opt('L')].args);
+    flags[opt('L')].args = NULL;
   }
   if (flag('n')) {
     name             = lastarg('n');
     flag('n') = 0;
     free(flags[opt('n')].args);
+    flags[opt('n')].args = NULL;
   }
   if (flag('h')) {
     opts.help        = lastarg('h');
     flag('h') = 0;
     free(flags[opt('h')].args);
+    flags[opt('h')].args = NULL;
   }
   if (flag('v')) {
     opts.version     = lastarg('v');
     flag('v') = 0;
     free(flags[opt('v')].args);
+    flags[opt('v')].args = NULL;
   }
 
   free(flaglist);
@@ -83,6 +89,6 @@ int main(int argc, char *argv[]) {
 
   printf(" --");
   while (*++argv) func(*argv);
-  putchar('\n');
+  putchar_unlocked('\n');
   return errno;
 }

@@ -34,11 +34,14 @@ it returns 152 (-'h') for --help and 138 (-'v') for --version
 example usage:
 
 #!/bin/bash
-opts=$(inutility getopt -n head "qvz#c*n|" "$@")
+opts=$(inutility getopt -n head                                \
+                        -v 0.2                                 \
+                        -d "outputs the first lines of a file" \
+                        "qvz#c*n|" "$@")
 case $? in
-        0)        ;;
-  152|138) exit 0 ;;
-        *) exit 1 ;;
+        0)                                ;;
+  152|138) printf "%s\n" "$opts" ; exit 0 ;;
+        *)                         exit 1 ;;
 esac
 eval set -- "$opts"
 while (($#)); do
