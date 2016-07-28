@@ -17,6 +17,7 @@ env [-i0] [-u unset...] [-] [VAR=value...] [cmd [args...]]  |
 factor [arg...]                                             |
 false                                                       |
 file [-hL] [file...]                                        |
+getopt [-various] [-options]                                | documented in doc/getopt
 head [-n num] [-num] [-c byte] [-qvz]                       |
 kill [-sig] [-l] [-s sig] pid [pid...]                      |
 link file1 file2                                            |

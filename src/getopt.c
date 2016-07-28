@@ -3,7 +3,7 @@
 static void printstr(const char *str, int shell) {
   char *safe = "QWERTYUIOPASDFGHJKLZXCVBNM"
                "qwertyuiopasdfghjklzxcvbnm"
-               "1234567890" "+-,./:=@_^%";
+               "1234567890" "+-,./:@_";
   if (strlen(str) == strspn(str, safe)) printf(" %s", str);
   else {
     printf(" '");
