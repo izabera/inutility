@@ -62,7 +62,8 @@ int main(int argc, char *argv[]) {
 
   opts.shortopts = argv[1];
   switch (parseopts(argc-2, argv+2, name, opts)) {
-    case 'h': case 'v': return 0;
+    case 'h': return -'h';
+    case 'v': return -'v';
     case '?': case ':': case '@': case 'n': return -1;
   }
   argv += parseoptind + 1;

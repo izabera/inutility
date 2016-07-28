@@ -1,4 +1,5 @@
-getopt uses the same parser as inutility of course
+getopt uses the same parser as inutility of course, so it handles unknown
+options, options with missing args, --help, --version, --, bytes and numbers
 
 it accepts these options:
 -d description
@@ -27,3 +28,32 @@ hal [-a] [-b arg] [-c byte] [-d num] [-num] [arg...]
 
 $ inutility getopt -n hal -v 9000 -d 'pod bay door opener' 'ab:c*d|#' --version
 9000
+
+
+it returns 152 (-'h') for --help and 138 (-'v') for --version
+example usage:
+
+#!/bin/bash
+opts=$(inutility getopt -n head "qvz#c*n|" "$@")
+case $? in
+        0)        ;;
+  152|138) exit 0 ;;
+        *) exit 1 ;;
+esac
+eval set -- "$opts"
+while (($#)); do
+	case $1 in
+    -q) quietmode=1 ;;
+    -v) quietmode=0 ;;
+    -c) bytes=$2; shift ;;
+    -n) lines=$2; shift ;;
+    --) shift; break ;;
+	esac
+  shift
+done
+printf "quietmode: %d\n" "$quietmode"
+printf "bytes: %d\n" "$bytes"
+printf "lines: %d\n" "$lines"
+printf "args: "
+printf "<%s> " "$@"
+echo
