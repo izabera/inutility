@@ -35,7 +35,7 @@ int main(int argc, char *argv[]) {
     char *frac = strptime(lastarg('d'), "%Y-%m-%d %H:%M:%S", &tm), *tmp, buf[10] = "000000000";
     if (*frac == '.' || *frac == ',') {
       strtoul(++frac, &tmp, 10);
-      if (*tmp == 'Z') putenv("TZ=UTC");
+      if (*tmp == 'Z') setenv("TZ", "UTC", 1);
       tmp[0] = 0;
       memmove(buf, frac, min(strlen(frac), 9));
       ts[0].tv_sec  = ts[1].tv_sec  = mktime(&tm);

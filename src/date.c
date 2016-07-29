@@ -18,7 +18,7 @@
 int main(int argc, char *argv[]) {
   options("RuD:d:r:", .arglessthan = 2); // D like toybox and busybox
   char *informat, *outformat = flag('R') ? "%a, %d %b %Y %T %z" : "%a %b %e %H:%M:%S %Z %Y", outbuf[4096];
-  if (flag('u')) putenv("TZ=UTC");
+  if (flag('u')) setenv("TZ", "UTC", 1);
   struct tm *tm = localtime(&(time_t) { time(NULL) });
   if (flag('d')) parsedate(lastarg('d'));
   else if (flag('r')) {
