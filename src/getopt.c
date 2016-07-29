@@ -34,7 +34,7 @@ static void noquotestr(const char *str, int shell) { (void) shell; printf(" %s",
 int main(int argc, char *argv[]) {
   char *optstring = "qQTud:h:l|L|n:s:v:", *name = argv[0];
   options(optstring, .argleast = 1);
-  struct opts opts = { 0 };
+  struct opts opts = { NULL, NULL, NULL, NULL, 0, 0 };
   void (*func)(const char*, int) = noquotestr;
   int shell = 0; // posix sh
 
@@ -46,7 +46,7 @@ int main(int argc, char *argv[]) {
   if (flag('h')) opts.help        = lastarg('h');
   if (flag('v')) opts.version     = lastarg('v');
   if (flag('q')) parseopterr      = 0;
-  if (flag('Q')) freopen("/dev/null", "w", stdout);
+  if (flag('Q')) if (!freopen("/dev/null", "w", stdout)) return errno;
   if (flag('T')) return 4; // pretend to be gnu getopt
   if (flag('s')) {
     func = printstr;

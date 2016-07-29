@@ -1,0 +1,45 @@
+inutility uses gcc extensions, glibc extensions and linux extensions
+they're useful
+deal with it
+
+
+keep in mind that:
+- clang 3.8.0 and a bunch of other compilers support them as well
+- the code compiles fine under musl 1.1.15
+- the CFLAGS you get when you only type make include -std=c11 -Wall -Wextra
+  -Wshadow -pedantic
+
+
+compiler extensions include:
+- __attribute__((cleanup))
+  used in lib/flags.c to close a FILE from open_memstream
+  will probably use this again because it's awesome
+- __attribute__((constructor))
+  used in lib/random.h to initialize the seed for the prng
+- _Pragma("GCC diagnostic push")
+  used in lib/flags.h to silence a warning about the missing fields in a struct
+  it allows a much simpler call to options() without all the parameters
+  there's no other way to achieve this afaik
+- __auto_type __unused __attribute__((unused))
+  this is used for the UNUSED macro only with gcc and -D_FORTIFY_SOURCE
+  because   (void) x   doesn't silence the warning about x being unused
+  for reasons
+
+
+glibc extensions include:
+- asprintf
+  used in a couple of places, could probably be replaced by snprintf or
+  something but it's just too handy and even openbsd has it
+- *_unlocked
+  posix defines only *_unlocked versions of getc, getchar, putc and putchar
+  inutility uses *_unlocked versions whenever possible
+  this alone made base64 5x faster
+
+
+linux extensions include:
+- syncfs
+- statfs
+- unshare
+- sysinfo
+- getting the current dir of a process by looking in /proc/pid/cwd
+there's no portable alternative for any of these

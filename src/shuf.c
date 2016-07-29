@@ -42,7 +42,7 @@ int main(int argc, char *argv[]) {
     if (*str++ != '-') return -1;
     unsigned long long end   = strtoull(str, NULL, 10);
     for ( ; begin <= end; begin++) {
-      asprintf(&str, "%llu", begin);
+      if (asprintf(&str, "%llu", begin) == -1) return errno;
       addtolist(str, strlen(str));
     }
   }
