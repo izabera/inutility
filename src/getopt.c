@@ -35,10 +35,9 @@ int main(int argc, char *argv[]) {
   char *optstring = "qQTud:h:l|L|n:s:v:", *name = argv[0];
   options(optstring, .argleast = 1);
   struct opts opts = { NULL, NULL, NULL, NULL, 0, 0 };
-  void (*func)(const char*, int) = noquotestr;
+  void (*func)(const char*, int) = flaglist[0] ? printstr : noquotestr; // copy what others do
   int shell = 0; // posix sh
 
-  if (flag('u')) func             = noquotestr;
   if (flag('d')) opts.descr       = lastarg('d');
   if (flag('l')) opts.argleast    = lastnum('l');
   if (flag('L')) opts.arglessthan = lastnum('m');
@@ -58,6 +57,7 @@ int main(int argc, char *argv[]) {
       for (int j = 0; shells[i][j]; j++)
         if (!strcmp(shells[i][j], lastarg('s'))) shell = i; // not found => keep sh
   }
+  if (getenv("GETOPT_COMPATIBLE") || flag('u')) func = noquotestr;
 
   // must free all the structures set by the previous parseopts()
   for ( ; *optstring; optstring++) {

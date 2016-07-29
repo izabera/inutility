@@ -87,7 +87,7 @@ inner:
       current->size = current->next->size;
       struct node *tmp = current->next->next;
       free(current->next);
-      current->next = tmp;
+      current->next = tmp; // last element must check this?
       nelements--;
     }
   }
