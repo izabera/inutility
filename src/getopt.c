@@ -23,6 +23,10 @@ static void printstr(const char *str, int shell) {
         Case 2: // or this...
                if (*str == '\'') printf("''"    );
           else putchar_unlocked(*str);
+        Case 3: // giucam says this is fine
+               if (*str == '\'') printf("\\'"   );
+          else if (*str == '\\') printf("\\\\"  );
+          else putchar_unlocked(*str);
       }
     }
     putchar_unlocked('\'');
@@ -49,12 +53,13 @@ int main(int argc, char *argv[]) {
   if (flag('T')) return 4; // pretend to be gnu getopt
   if (flag('s')) {
     func = printstr;
-    char * sh[] = { "sh", "ash", "bash", "dash", "ksh", "mksh", "pdksh", "posh", "yash", "zsh", NULL },
-         *csh[] = { "csh", "tcsh", NULL },
-         * rc[] = { "rc", NULL },
-         **shells[3] = { sh, csh, rc };
-    for (int i = 0; i < 3; i++)
-      for (int j = 0; shells[i][j]; j++)
+    char *  sh[] = { "sh", "ash", "bash", "dash", "ksh", "mksh", "pdksh", "posh", "yash", "zsh", NULL },
+         * csh[] = { "csh", "tcsh", NULL },
+         *  rc[] = { "rc", NULL },
+         *fish[] = { "fish", NULL },  // fish support!
+         **shells[] = { sh, csh, rc, fish };
+    for (size_t i = 0; i < sizeof(shells)/sizeof(**shells); i++)
+      for (size_t j = 0; shells[i][j]; j++)
         if (!strcmp(shells[i][j], lastarg('s'))) shell = i; // not found => keep sh
   }
   if (getenv("GETOPT_COMPATIBLE") || flag('u')) func = noquotestr;
