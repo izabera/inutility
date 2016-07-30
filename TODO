@@ -6,3 +6,4 @@
 - utf8 aware rev
 - fix printf %b with \0
 - find a way to handle option parsing like in unshare
+- kill -TERM

@@ -26,6 +26,7 @@
 #include <pwd.h>
 #include <ctype.h>
 #include <sched.h>
+#include <dirent.h>
 
 #include "flags.h"
 #include "memspn.h"
