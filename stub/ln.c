@@ -3,6 +3,7 @@
 #include "lib/flags.h"
 
 int main(int argc, char *argv[]) {
-  options("fsLP");
+  options("bdfFiLnPrsTvS:t:", .argleast = 1);
+  if (flag('F')) flag('d') = 1;
   return errno;
 }

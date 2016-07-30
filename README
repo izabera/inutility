@@ -35,6 +35,7 @@ stat [-Lft] [-c arg] file1 [file...]                        | todo -c %m
 sync [-df] [file...]                                        |
 tac [file...]                                               | no opts
 tee [-ai] [file...]                                         |
+timeout [-p] [-k num] [-s num] arg1 arg2 [arg...]
 tr [-cCtds] set1 [set2]                                     | no [=equiv=] [x*n]
 true                                                        |
 truncate [-c] [-r file] [-s byte] file [file...]            |
