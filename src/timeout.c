@@ -11,14 +11,14 @@ int main(int argc, char *argv[]) {
   // dunno why gnu doesn't have short opts for this
   int signal = flag('s') ? lastnum('s') : SIGTERM;
   double term_time = strtod(argv[1], NULL), kill_time = flag('k') ? lastnum('k') : 0;
-  if (term_time < 0) return -1;
+  if (term_time < 0 || kill_time < 0) return -1;
 
   volatile char *map = mmap(NULL, 1, PROT_READ|PROT_WRITE, MAP_ANONYMOUS|MAP_SHARED, -1, 0);
   if (map) map[0] = 0; // silly thing to check whether exec succeeded
   pid_t pid;
   if ((pid = fork()) == -1) return errno;
   else if (pid == 0) {
-    setpgid(0, 0);
+    setpgid(0, 0); // this is needed to kill -pid on linux
     execvp(argv[2], argv+2);
     if (map) map[0] = 1;
     return errno;
@@ -33,17 +33,22 @@ int main(int argc, char *argv[]) {
                    ikill = { .it_value = { (time_t) kill_time, kill_time - (time_t) kill_time } };
   setitimer(ITIMER_REAL, &iterm, NULL);
 
-  int status = 0;
-  int ret = waitpid(pid, &status, 0);
-  if (ret != -1 && map && map[0]) // execvp failed
-    return WEXITSTATUS(status);
+  int status = 0, ret;
+  ret = waitpid (pid, &status, 0);
 
-  if (ret != -1 && WIFEXITED(status)) return errno;
+  if (ret != -1) {
+    if ((map && map[0]) || // execvp failed
+        (WIFEXITED(status) && flag('p'))) return WEXITSTATUS(status);
+    return errno;
+  }
+
   kill(-pid, signal);
   if (!flag('k')) {
+    while (waitpid(pid, &status, 0) == -1) continue;
     if (flag('p')) return WEXITSTATUS(status);
     else return 124; // copy what gnu does
   }
+
   sigaction(SIGALRM, &sa, NULL);
   setitimer(ITIMER_REAL, &ikill, NULL);
   ret = waitpid(pid, &status, 0);
