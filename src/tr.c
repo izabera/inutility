@@ -19,7 +19,7 @@
 #define space " \f\n\r\t\v"
 #define punct "[]!\"#$%&'()*+,./:;<=>?@\\^_`{|}~-"
 
-void makestr(struct str *dest, char *src) {
+static void makestr(struct str *dest, char *src) {
   size_t bufsize;
   FILE *stream = open_memstream((char **)&(dest->str), &bufsize);
 #define makeclass(name, chars) { name, chars, sizeof(name)-1, sizeof(chars)-1 },

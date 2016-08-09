@@ -38,7 +38,7 @@ static void noquotestr(const char *str, int shell) { (void) shell; printf(" %s",
 int main(int argc, char *argv[]) {
   char *optstring = "qQTud:h:l|L|n:s:v:", *name = argv[0];
   options(optstring, .argleast = 1);
-  struct opts opts = { NULL, NULL, NULL, NULL, 0, 0 };
+  struct opts opts = { NULL, NULL, NULL, NULL, NULL, 0, 0 };
   void (*func)(const char*, int) = flaglist[0] ? printstr : noquotestr; // copy what others do
   int shell = 0; // posix sh
 

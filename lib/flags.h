@@ -20,7 +20,7 @@ extern int parseoptind, parseopterr;
 
 // https://github.com/mcinglis/c-style#use-structs-to-name-functions-optional-arguments
 struct opts {
-  char *shortopts, *descr, *help, *version;
+  char *shortopts, *descr, *help, *version, *longopts;
   short argleast, arglessthan;
   /* todo: long opts */
 };

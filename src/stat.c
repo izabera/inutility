@@ -1,6 +1,6 @@
 #include "lib/common.h"
 
-void fsstatprint(char fmt, struct statfs *fs) {
+static void fsstatprint(char fmt, struct statfs *fs) {
   switch (fmt) {
     Case 'a': printf("%lu", fs->f_bavail);
     Case 'b': printf("%lu", fs->f_blocks);
@@ -50,7 +50,7 @@ void fsstatprint(char fmt, struct statfs *fs) {
   }
 }
 
-void statprint(char fmt, struct stat *st) {
+static void statprint(char fmt, struct stat *st) {
   char buf[512];
   struct group *g;
   struct passwd *pw;

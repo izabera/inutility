@@ -4,7 +4,8 @@
 // do a jenkins hash on the string starting with a random num
 uint32_t randnum;
 int (*cmpfun)(const char *, const char *);
-int strrand(const char *line1, const char *line2) {
+static int strrand(const char *line1, const char *line2) {
+  const char *p1 = line1, *p2 = line2;
   uint32_t hash1 = randnum, hash2 = randnum;
   char c;
   while ((c = *line1++)) { hash1 += c; hash1 += hash1 << 10; hash1 ^= hash1 >> 6; }
@@ -12,14 +13,15 @@ int strrand(const char *line1, const char *line2) {
   hash1 += (hash1 << 3); hash1 ^= (hash1 >> 11); hash1 += (hash1 << 15);
   hash2 += (hash2 << 3); hash2 ^= (hash2 >> 11); hash2 += (hash2 << 15);
 
-  return (hash1 > hash2) - (hash1 < hash2);
+  int ret = (hash1 > hash2) - (hash1 < hash2);
+  return ret ? ret : strcmp(p1, p2);
 }
 
-int numcmp(const char *line1, const char *line2) {
+static int numcmp(const char *line1, const char *line2) {
   return (int)(strtod(line1, NULL) - strtod(line2, NULL));
 }
 
-int compare(const void *p1, const void *p2) {
+static int compare(const void *p1, const void *p2) {
   const char *line1 = *(char **)p1, *line2 = *(char **)p2;
   if (flag('b')) {
     while (isblank(*line1)) line1++;

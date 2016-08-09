@@ -27,7 +27,8 @@ int parseopts(int argc, char *argv[], const char *program, struct opts options) 
         * # == -num for things like head
         * _ == stop at first negative num for things like seq
         * - == reserved for long opts, to be added eventually */
-       *opts = options.shortopts;
+       *opts = options.shortopts,
+       *lopts = options.longopts;
   if (strlen(opts) != strspn(opts, valid)) return -1;
   valid++;
   if (*opts == ':') {
