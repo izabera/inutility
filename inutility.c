@@ -11,7 +11,7 @@ struct inutility {
 #include "src/struct.h"
 };
 
-int cmp(const void *a, const void *b) {
+static int cmp(const void *a, const void *b) {
   const struct inutility *inutila = a, *inutilb = b;
   return strcmp(inutila->name, inutilb->name);
 }
