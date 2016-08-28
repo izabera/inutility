@@ -43,7 +43,7 @@ inner:
     }
     else {
       while ((size = read(file, buf, BUFSIZ)) > 0)
-        UNUSED(write(1, buf, size));
+        for (ssize_t w = 0; w != -1 && (size -= w); w = write(1, buf, size)) ;
     }
     if (fileptr != stdin) fclose(fileptr);
   }
