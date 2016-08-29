@@ -17,7 +17,7 @@ static struct Wc wc(int fd) { /* counts both utf8 chars and bytes, assuming vali
   int inword = 0;
   unsigned char buffer[bufsize];
   ssize_t len;
-  while ((len = read(fd, &buffer, bufsize)) > 0) {
+  while ((len = read(fd, buffer, bufsize)) > 0) {
     for (int i = 0; i < len; i++) {
       switch (buffer[i]) {
         case '\n': lines++;
@@ -56,16 +56,27 @@ int main(int argc, char *argv[]) {
     else if ((file = open(argv[0], O_RDONLY)) == -1) continue;
     else fileptr = fdopen(file, "r");
 inner:
-    saverrno = errno;
     if (fileptr == stdin && stdinonce++) {
       count = (struct Wc) { 0, 0, 0, 0 };
       goto readdone;
     }
+    struct stat st;
+    saverrno = errno;
+    if (fstat(file, &st) == -1 || !S_ISREG(st.st_mode) || st.st_size == 0) goto readit;
     if (fl == 2) {
-      struct stat st;
-      if (fstat(file, &st) == -1) goto readit;
-      if (!S_ISREG(st.st_mode) || st.st_size == 0) goto readit;
       count.c = st.st_size;
+      goto readdone;
+    }
+    if (fl == 6 || fl == 4) { // it's worth to special case this
+      if (fl == 6) count.c = st.st_size;
+      char buffer[bufsize], *p;
+      ssize_t len, left;
+      while ((len = read(file, buffer, bufsize)) > 0) {
+        for (p = buffer, left = len; left > 0 && (p = memchr(p, '\n', left)); p++) {
+          left = buffer + len - p;
+          count.l++;
+        }
+      }
       goto readdone;
     }
     else {
