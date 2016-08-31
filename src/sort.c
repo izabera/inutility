@@ -1,7 +1,7 @@
 #include "lib/common.h"
 
 struct line {
-  size_t lineno/*, start, len*/;
+  size_t lineno/*, start, len*/, nkeys;
   char *line, *cmpstr;
 };
 
@@ -76,88 +76,38 @@ static int bignumcmp(const char *line1, const char *line2) {
 static int compare(const void *p1, const void *p2) {
   struct line *s1 = (struct line *)p1, *s2 = (struct line *)p2;
   char *str1 = s1->cmpstr, *str2 = s2->cmpstr;
-  int c = cmpfun(str1, str2);
-  if (!c && flag('s')) c = str1 > str2 ? 1 : -1;
-  return flag('r') ? -c : c;
+  int c;
+  size_t i;
+  for (i = 0; i < s1->nkeys && i < s2->nkeys; i++) {
+    if ((c = cmpfun(str1, str2))) return flag('r') ? -c : c;
+    str1 += strlen(str1) + 1;
+    str2 += strlen(str2) + 1;
+  }
+
+  if (s1->nkeys == s2->nkeys) {
+    if (flag('s')) c = str1 > str2 ? 1 : -1;
+    return flag('r') ? -c : c;
+  }
+  return flag('r') ? s1->nkeys > s2->nkeys : s1->nkeys < s2->nkeys;
 }
 
-static char *preparse(char *line) {
+void preparse(struct line *line) {
   if (flag('b') || flag('d') || flag('i') || flag('k')) {
-    char *ret;
     size_t i;
-    FILE *tmpfile = open_memstream(&ret, &i);
-    for (i = 0; line[i]; i++)
-      if (line[i] != '\t' && line[i] != ' ') break;
-    for (     ; line[i]; i++)
-      if (!((flag('d') && !(isblank(line[i]) || isalnum(line[i]))) ||
-            (flag('i') && !isprint(line[i]))))
-        putc_unlocked(line[i], tmpfile);
+    FILE *tmpfile = open_memstream(&line->cmpstr, &i);
+    for (i = 0; line->line[i]; i++)
+      if (line->line[i] != '\t' && line->line[i] != ' ') break;
+    for (     ; line->line[i]; i++)
+      if (!((flag('d') && !(isblank(line->line[i]) || isalnum(line->line[i]))) ||
+            (flag('i') && !isprint(line->line[i]))))
+        putc_unlocked(line->line[i], tmpfile);
     fclose(tmpfile);
-    return ret;
   }
-  return strdup(line);
+  else {
+    line->cmpstr = strdup(line->line);
+    line->nkeys = 1;
+  }
 }
-
-#if 0
-static FILE **files;
-static struct line *filelines;
-static size_t fileno;
-
-static struct line *gimmealine(void) {
-  ssize_t read;
-  static char *line = NULL;
-  static size_t size = 0;
-  int delim = /*flag('z') ? 0 :*/ '\n';
-  for (size_t i = 0; i < fileno; i++) {
-    if (files[i] && !filelines[i])
-      if ((read = getdelim(&line, &size, delim, files[i])) > 0) {
-        filelines[i] = strdup(line);
-        filelines[i]
-  }
-  char *max = NULL;
-  for (size_t i = 0; i < fileno; i++) {
-    if (max == NULL || cmpfun(max, filelines[i]) < 0) max = filelines[i];
-  return max;
-}
-
-
-static int merge(int argc, char *argv[]) {
-
-  size_t i = 0;
-  while (*++argv) {
-    files[i] = fopen(argv[0], "r");
-    if (files[i]) i++;
-  }
-  if (argc == 1) files[0] = stdin;
-  fileno = argc + (argc == 1);
-  files = calloc(fileno, sizeof(FILE *));
-  filelines = calloc(fileno, sizeof(struct line));
-  if (!files || !filelines) return errno;
-
-  while ((line = gimmealine())) {
-    lines[count].line = line->line;
-    lines[count].cmpstr = line->cmpstr;
-
-    // extract only the part used for comparisons
-    lines[count].cmpstr = preparse(line);
-
-    if (count && (flag('c') || flag('C'))) {
-      int c = compare(&lines[i-1], &lines[i]);
-      if ((c == 0 && flag('u')) || c > 0) {
-        if (flag('c')) fprintf(stderr, "error in line %zu\n", i);
-        return 1; // errno?
-      }
-    }
-    if (count++ > arrsize) {
-      arrsize *= 2;
-      if (!(lines = realloc(lines, arrsize * sizeof(struct line)))) return 1;
-    }
-  }
-  return errno;
-}
-#endif
-
-
 
 
 int main(int argc, char *argv[]) {
@@ -195,7 +145,7 @@ inner:
       lines[count].line = strdup(line);
 
       // extract only the part used for comparisons
-      lines[count].cmpstr = preparse(line);
+      preparse(&lines[count]);
 
       if (count && (flag('c') || flag('C'))) {
         int c = compare(&lines[count-1], &lines[count]);

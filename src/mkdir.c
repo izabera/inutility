@@ -58,7 +58,7 @@ int main(int argc, char *argv[]) {
     fclose(outfile);
     free(outstr);
 
-    fchdir(startfd);
+    UNUSED(fchdir(startfd));
   }
   return errno;
 }
