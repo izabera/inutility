@@ -29,6 +29,7 @@
 #include <dirent.h>
 
 #include "flags.h"
+#include "math.h"
 #include "memspn.h"
 #include "parsenumb.h"
 #include "parsemode.h"
@@ -41,7 +42,7 @@
 #define max(a,b) ((a) > (b) ? (a) : (b))
 
 struct str {
-  unsigned char *str;
+  char *str;
   size_t len;
 };
 

@@ -4,14 +4,11 @@ int main(int argc, char *argv[]) {
   options("");
 
   struct {
-    struct string {
-      char *str;
-      size_t size;
-    } *line;
+    struct str *line;
     size_t used, size;
   } lines;
   lines.size = 64;
-  if (!(lines.line = malloc(lines.size * sizeof(struct string)))) return 1;
+  if (!(lines.line = malloc(lines.size * sizeof(struct str)))) return 1;
 
   int file = 0;
   FILE *fileptr = stdin;
@@ -31,14 +28,14 @@ inner:
       while ((read = getline(&line, &len, fileptr)) != -1) {
         if (lines.used == lines.size) {
           lines.size *= 2;
-          if (!(lines.line = realloc(lines.line, lines.size * sizeof(struct string)))) return 1;
+          if (!(lines.line = realloc(lines.line, lines.size * sizeof(struct str)))) return 1;
         }
         if (!(lines.line[lines.used].str = malloc(read))) return 1;
-        lines.line[lines.used].size = read;
+        lines.line[lines.used].len = read;
         memcpy(lines.line[lines.used++].str, line, read);
       }
       while (lines.used--) {
-        fwrite_unlocked(lines.line[lines.used].str, 1, lines.line[lines.used].size, stdout);
+        fwrite_unlocked(lines.line[lines.used].str, 1, lines.line[lines.used].len, stdout);
         free(lines.line[lines.used].str);
       }
     if (fileptr != stdin) fclose(fileptr);

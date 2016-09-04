@@ -88,17 +88,17 @@ int main(int argc, char *argv[]) {
   if (flag('c')) {
     for (i = j = 0; i < 256; i++)
       if (!memchr(str[0].str, i, str[0].len)) tmp[j++] = i;
-    str[0].str = tmp;
+    str[0].str = (char *)tmp;
     str[0].len = j;
   }
   if (argc == 3) makestr(&str[1], argv[2]);
 
   for (i = 0; i < min(str[0].len, str[1].len); i++)
-    map[(int)str[0].str[i]] = str[1].str[i];
+    map[(unsigned char)str[0].str[i]] = str[1].str[i];
 
   if (!flag('t') && argc == 3 && str[0].len > str[1].len)
     for (; i < str[0].len; i++)
-      map[(int)str[0].str[i]] = str[1].str[(int)str[1].len-1];
+      map[(unsigned char)str[0].str[i]] = str[1].str[(unsigned char)str[1].len-1];
 
   if (flag('d')) {
     for (i = 0; i < 256; i++)
