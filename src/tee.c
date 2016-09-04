@@ -6,7 +6,7 @@ int main(int argc, char *argv[]) {
   if (flag('a')) openflags |= O_APPEND;
   else openflags |= O_TRUNC;
 
-  if (flag('i')) sigignore(SIGINT);
+  if (flag('i')) signal(SIGINT, SIG_IGN);
 
   int files[argc], i = 0;
   files[0] = 1;

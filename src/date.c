@@ -34,7 +34,7 @@ dodate:
   }
   else {
     parsedate(argv[1]);
-    settimeofday(&(struct timeval) { mktime(tm), 0 }, NULL);
+    clock_settime(CLOCK_REALTIME, &(struct timespec) { mktime(tm), 0 });
     strftime(outbuf, sizeof(outbuf), outformat, localtime(&(time_t) { time(NULL) }));
   }
   puts(outbuf);
