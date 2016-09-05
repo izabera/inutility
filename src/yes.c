@@ -2,15 +2,24 @@
 
 int main(int argc, char *argv[]) {
   options("");
-       if (argc == 1) while (1) puts("y");
-  else if (argc == 2) while (1) puts(argv[1]);
-
   char *buf;
   size_t size;
   FILE *file = open_memstream(&buf, &size);
-  fputs(*++argv, file);
-  do { fprintf(file, " %s", *++argv);} while (argv[1]);
+  if (argc == 1) // optimize for speeeeeeed
+    for (size_t i = 0; i < BUFSIZ; i += 2) fputs_unlocked("y\n", file);
+  else if (argc == 2) {
+    fputs_unlocked(argv[1], file);
+    fputc_unlocked('\n', file);
+  }
+  else {
+    fputs_unlocked(*++argv, file);
+    while (*++argv) {
+      fputc_unlocked(' ', file);
+      fputs_unlocked(*argv, file);
+    }
+    fputc_unlocked('\n', file);
+  }
   fclose(file);
-  while (1) puts(buf);
+  while (1) fputs_unlocked(buf, stdout);
   return 0;
 }
