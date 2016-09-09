@@ -4,7 +4,6 @@
 #define lowmeta(x) (x > 127 && x < 160)
 #define himeta(x) (x > 159)
 int main(int argc, char *argv[]) {
-  char buf[IBUFSIZ];
   int file = 0, c;
   ssize_t size;
   /* todo: -b -s */
@@ -41,10 +40,7 @@ inner:
       }
       fflush_unlocked(stdout);
     }
-    else {
-      while ((size = read(file, buf, sizeof(buf))) > 0)
-        for (ssize_t w = 0; w != -1 && (size -= w); w = write(1, buf, size)) ;
-    }
+    else copyfd(file, 1);
     if (fileptr != stdin) fclose(fileptr);
   }
   return errno;

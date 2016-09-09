@@ -33,6 +33,7 @@
 #include <wctype.h>
 #include <wchar.h>
 #include <locale.h>
+#include <sys/sendfile.h>
 
 #include "flags.h"
 #include "math.h"
@@ -43,6 +44,7 @@
 #include "unescape.h"
 #include "uptime.h"
 #include "readaline.h"
+#include "copyfd.h"
 
 #define arrsize(a) (sizeof(a)/sizeof(*a))
 #define min(a,b) ((a) < (b) ? (a) : (b))
