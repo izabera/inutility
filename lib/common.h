@@ -27,6 +27,12 @@
 #include <ctype.h>
 #include <sched.h>
 #include <dirent.h>
+#include <sys/mman.h>
+#include <sys/ioctl.h>
+#include <termios.h>
+#include <wctype.h>
+#include <wchar.h>
+#include <locale.h>
 
 #include "flags.h"
 #include "math.h"
@@ -36,6 +42,7 @@
 #include "random.h"
 #include "unescape.h"
 #include "uptime.h"
+#include "readaline.h"
 
 #define arrsize(a) (sizeof(a)/sizeof(*a))
 #define min(a,b) ((a) < (b) ? (a) : (b))
