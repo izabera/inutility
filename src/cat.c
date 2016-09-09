@@ -5,7 +5,6 @@
 #define himeta(x) (x > 159)
 int main(int argc, char *argv[]) {
   int file = 0, c;
-  ssize_t size;
   /* todo: -b -s */
   options("AeEntTuv");
 

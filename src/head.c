@@ -47,7 +47,7 @@ inner:
       else {
         char buf[BUFSIZ];
         i = number;
-        while (i > sizeof(buf)) {
+        while ((size_t)i > sizeof(buf)) {
           if ((read = fread_unlocked(buf, 1, sizeof(buf), fileptr)) > 0)
             fwrite_unlocked(buf, 1, read, stdout);
           else break;
