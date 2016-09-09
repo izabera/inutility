@@ -7,8 +7,7 @@ struct termios old, rawterm = {
   .c_iflag = ~(IGNBRK|BRKINT|PARMRK|ISTRIP|INLCR|IGNCR|ICRNL|IXON),
   .c_oflag = ~OPOST,
   .c_lflag = ~(ECHO|ECHONL|ICANON|ISIG|IEXTEN),
-  .c_cflag = ~(CSIZE|PARENB),
-  .c_cflag = CS8,
+  .c_cflag = ~(CSIZE|PARENB) | CS8,
   .c_cc[VMIN] = 1,
   .c_cc[VTIME] = 0,
 };
@@ -16,7 +15,7 @@ struct termios old, rawterm = {
 static void readaline_init() {
   setvbuf(stdout, NULL, _IONBF, 0);
   ioctl(1, TIOCGWINSZ, &w);
-  tcgetattr(0, &old);
+  tcgetattr(1, &old);
   tcsetattr(1, TCSADRAIN, &rawterm);
 }
 

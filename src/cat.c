@@ -39,7 +39,7 @@ inner:
         else if (himeta(c))   printf(flag('v') ? "M-%c"  : "%c", c - 128);
         else                  putchar_unlocked(c);
       }
-      fflush(stdout);
+      fflush_unlocked(stdout);
     }
     else {
       while ((size = read(file, buf, BUFSIZ)) > 0)

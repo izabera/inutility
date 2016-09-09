@@ -19,7 +19,7 @@ int main(int argc, char *argv[]) {
     if (dir[strlen(dir)-1] == '/') dir[strlen(dir)-1] = 0;
 
     if (dir[0] == '/') {
-      fputc('/', outfile);
+      fputc_unlocked('/', outfile);
       if (chdir("/") == -1) break;
       dir++;
     }
@@ -28,14 +28,14 @@ int main(int argc, char *argv[]) {
       ptr = strtok(dir, "/");
       while (ptr) {
         fprintf(outfile, "%s", ptr);
-        fflush(outfile);
+        fflush_unlocked(outfile);
         saverrno = errno;
         if (mkdirat(AT_FDCWD, ptr, mode) == -1) {
           if (errno == EEXIST) errno = saverrno;
           else break;
         }
         else if (flag('v')) printf("mkdir: created directory '%s'\n", outstr);
-        fputc('/', outfile);
+        fputc_unlocked('/', outfile);
         if (chdir(ptr) == -1) break;
         ptr = strtok(NULL, "/");
       }
