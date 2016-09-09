@@ -118,7 +118,7 @@ int main(int argc, char *argv[]) {
   size_t read;
   unsigned char inbuf[BUFSIZ], outbuf[BUFSIZ];
   int prev = -1;
-  while ((read = fread_unlocked(inbuf, 1, BUFSIZ, stdin)) > 0) {
+  while ((read = fread_unlocked(inbuf, 1, sizeof(inbuf), stdin)) > 0) {
     for (i = j = 0; i < read; i++) {
       if (!delete[inbuf[i]]) {
         if (!squeeze[inbuf[i]] || prev != map[inbuf[i]])

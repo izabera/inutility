@@ -85,3 +85,5 @@ mode_t getumask();
 
 #define Case    break; case
 #define Default break; default
+
+#define IBUFSIZ (128*1024)

@@ -14,9 +14,9 @@ int main(int argc, char *argv[]) {
     files[++i] = open(argv[0], openflags, 0666);
 
   ssize_t size;
-  char buf[BUFSIZ];
+  char buf[IBUFSIZ];
 
-  while ((size = read(0, buf, BUFSIZ)) > 0)
+  while ((size = read(0, buf, sizeof(buf))) > 0)
     for (i = 0; i < argc; i++)
       if (files[i] > 0)
         for (ssize_t w = 0, s = size; w != -1 && (s -= w); w = write(files[i], buf, s)) ;
