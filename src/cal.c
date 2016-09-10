@@ -13,17 +13,32 @@ static char *printmon(struct tm *tm, int zero) {
   static mon m = { .str = { 0 } }; // static! and null terminated
   int day = dow(tm->tm_year, tm->tm_mon, 1),
       lengths[] = { 31, 28+isleap(), 31, 30, 31, 30, 31, 31, 30, 31, 30, 31 };
-  for (int i = 0; i < 6; i++)
-    for (int j = 0; j < 7; j++) {
-      if ((i == 0 && j < day) || 1+i*7+j-day > lengths[tm->tm_mon]) memcpy(m.mon[i][j], "  ", 2);
-      else snprintf(m.mon[i][j], 3, "%2d", 1+i*7+j-day);
-      m.mon[i][j][2] = zero ? 0 : j < 6 ? ' ' : '\n';
-    }
+  if (tm->tm_year < 1752 || (tm->tm_year == 1752 && tm->tm_mon < 8)) day = (day+4) % 7;
+  if (tm->tm_year == 1752 && tm->tm_mon == 8) {
+    memcpy(m.str, "       1  2 14 15 16\n" // this is stupid and useless
+                  "17 18 19 20 21 22 23\n"
+                  "24 25 26 27 28 29 30\n"
+                  "                    \n"
+                  "                    \n"
+                  "                    \n", 126);
+    if (zero)
+      for (int i = 0; i < 6; i++)
+        for (int j = 0; j < 7; j++)
+          m.mon[i][j][2] = 0;
+  }
+  else {
+    for (int i = 0; i < 6; i++)
+      for (int j = 0; j < 7; j++) {
+        if ((i == 0 && j < day) || 1+i*7+j-day > lengths[tm->tm_mon]) memcpy(m.mon[i][j], "  ", 2);
+        else snprintf(m.mon[i][j], 3, "%2d", 1+i*7+j-day);
+        m.mon[i][j][2] = zero ? 0 : j < 6 ? ' ' : '\n';
+      }
+  }
   return m.str;
 }
 
 int main(int argc, char *argv[]) {
-  options("");
+  options("", .arglessthan = 3);
   struct tm *tm = localtime(&(time_t) { time(NULL) });
   tm->tm_year += 1900;
   char *months[] = { "January", "February", "March", "April", "May", "June",
@@ -32,11 +47,9 @@ int main(int argc, char *argv[]) {
 
 #define rpad(x) ((int)(20 - strlen(months[x]))/2)
   switch (argc) {
-    default:
     case  3: tm->tm_year = atoi(argv[2]);
              if ((tm->tm_mon = atoi(argv[1]) - 1) < 0 || tm->tm_mon > 11) return -1;
-    case  1: printf("%*s %-*d\n%s\n", 17-rpad(tm->tm_mon), months[tm->tm_mon],
-                 rpad(tm->tm_mon), tm->tm_year, days);
+    case  1: printf("%*s %d\n%s\n", 17-rpad(tm->tm_mon), months[tm->tm_mon], tm->tm_year, days);
              fputs_unlocked(printmon(tm, 0), stdout);
              break;
 

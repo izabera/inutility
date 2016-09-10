@@ -5,6 +5,7 @@ synopsis                                                    | notes
 ------------------------------------------------------------+-----------------
 base64 [-di] [-w num] [file]                                |
 basename [-az] [-s suffix] name [name...]                   |
+cal [[month] year]                                          |
 cat [-AeEntTuv] [file...]                                   | todo -b -s
 comm [-123z] file1 file2                                    |
 cmp [-ls] [-n byte] file1 [file2 [skip1 [skip2]]]           | todo -b
