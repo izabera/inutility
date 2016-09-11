@@ -10,7 +10,7 @@ enum { flagappend, flagdirect, flagdirectory, flagdsync, flagsync,
   flagfullblock, flagnonblock, flagnoatime, flagnocache, flagnoctty,
   flagnofollow, flagcount_bytes, flagskip_bytes, flagseek_bytes };
 
-int64_t parsecomma(const char *string, const char *valid[], size_t validcount) {
+static int64_t parsecomma(const char *string, const char *valid[], size_t validcount) {
   int retval = 0;
   char *str = strdup(string);
   char *token = strtok(str, ",");
@@ -28,7 +28,7 @@ nextwhile:
   return retval;
 }
 
-int64_t parseconv(const char *string) {
+static int64_t parseconv(const char *string) {
   const char *convs[] = { [convascii    ] = "ascii",
                           [convebcdic   ] = "ebcdic",
                           [convibm      ] = "ibm",
@@ -48,7 +48,7 @@ int64_t parseconv(const char *string) {
   return parsecomma(string, convs, arrsize(convs));
 }
 
-int64_t parseflag(const char *string) {
+static int64_t parseflag(const char *string) {
   const char *ddflags[] = { [flagappend     ] = "append",
                             [flagdirect     ] = "direct",
                             [flagdirectory  ] = "directory",
@@ -66,20 +66,20 @@ int64_t parseflag(const char *string) {
   return parsecomma(string, ddflags, arrsize(ddflags));
 }
 
-int64_t parsestat(const char *string) {
+static int64_t parsestat(const char *string) {
   if (!strcmp("none", string)) return 1;
   if (!strcmp("noxfer", string)) return 2;
 //if (!strcmp("progress", string)) return 3;  naaaah...
   exit(-1);
 }
 
-volatile int sig;
-void sighandler(int s) { sig = s; }
+static volatile int sig;
+static void sighandler(int s) { sig = s; }
 
-struct timeval begintime, endtime;
-size_t rpart = 0, rfull = 0, wpart = 0, wfull = 0, bytes = 0;
+static struct timeval begintime, endtime;
+static size_t rpart = 0, rfull = 0, wpart = 0, wfull = 0, bytes = 0;
 
-struct {
+static struct {
   const char *name;
   int64_t (*func)(const char *); // function that parses this option
   int64_t value; // bitmask or number returned from that function
@@ -95,7 +95,7 @@ struct {
                 [optskip  ] = {   "skip=", parsebyte, 0 },
                 [optstatus] = { "status=", parsestat, 0 }  };
 
-void printstat() {
+static void printstat() {
   if (options[optstatus].value == 1) return;
   gettimeofday(&endtime, NULL);
   double seconds = ((endtime.tv_sec * 1000000 + endtime.tv_usec) -

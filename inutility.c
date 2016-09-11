@@ -3,7 +3,7 @@
 #include "src/proto.h"
 int main_list(int, char **);
 
-struct inutility {
+static struct inutility {
   char *name;
   int (*func)(int, char **);
 } inutility[] = {

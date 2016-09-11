@@ -1,6 +1,6 @@
 #include "lib/common.h"
 
-struct rangelist {
+static struct rangelist {
   struct rangelist *next;
   size_t first, last;
 } ranges, *tmprange;

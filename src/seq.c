@@ -14,7 +14,7 @@ static int fmtok(const char *str) {
   return f == 1;
 }
 
-size_t inte, frac;
+static size_t inte, frac;
 static char *buildfmt(double val[3]) {
   char *buf, tmp[512];
   for (int i = 0; i < 3; i++) {

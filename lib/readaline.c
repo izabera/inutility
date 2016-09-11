@@ -3,7 +3,8 @@
 // readaline always returns a malloc'd string
 
 static struct winsize w;
-struct termios old, rawterm = {
+static struct termios old;
+struct termios rawterm = {
   .c_iflag = ~(IGNBRK|BRKINT|PARMRK|ISTRIP|INLCR|IGNCR|ICRNL|IXON),
   .c_oflag = ~OPOST,
   .c_lflag = ~(ECHO|ECHONL|ICANON|ISIG|IEXTEN),

@@ -1,6 +1,6 @@
 #include "lib/common.h"
 
-unsigned long col = 0;
+static unsigned long col = 0;
 static void printchar(char c) {
   putchar_unlocked(c);
   if (++col == flag('w')) {
