@@ -76,7 +76,7 @@ static int bignumcmp(const char *line1, const char *line2) {
 static int compare(const void *p1, const void *p2) {
   struct line *s1 = (struct line *)p1, *s2 = (struct line *)p2;
   char *str1 = s1->cmpstr, *str2 = s2->cmpstr;
-  int c;
+  int c = 0;
   size_t i;
   for (i = 0; i < s1->nkeys && i < s2->nkeys; i++) {
     if ((c = cmpfun(str1, str2))) return flag('r') ? -c : c;
