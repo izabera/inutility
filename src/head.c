@@ -35,9 +35,10 @@ inner:
     if (verbose) printf("%s==> %s <==\n", firstfile++ ? "\n" : "", argv[0]);
     if (flag('c')) {
       if (number < 0) {
-        char c; /* todo: replace this with something faster */
+        int c; /* todo: replace this with something faster */
         for (i = 0; i > number; i--)
-          if ((bytebuffer[-i] = getc_unlocked(fileptr)) == EOF) goto nextfile;
+          if ((c = getc_unlocked(fileptr)) == EOF) goto nextfile;
+          else bytebuffer[-i] = c;
         while ((c = getc_unlocked(fileptr)) != EOF) {
           putchar_unlocked(bytebuffer[-i%number]);
           bytebuffer[-i%number] = c;

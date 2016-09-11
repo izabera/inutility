@@ -106,14 +106,14 @@ inner:
       continue;
     }
     switch (ascii((char *)buf, siz)) {
-      case 0: printtype("data");                                           break;
-      case 1: printtype("ASCII text");                                     break;
-      case 2: printtype("ASCII text, with CRLF line terminators");         break;
-      case 3: printtype("ASCII text, with LF, CRLF line terminators");     break;
-      case 4: printtype("ASCII text, with CR line terminators");           break;
-      case 5: printtype("ASCII text, with CR, LF line terminators");       break;
-      case 6: printtype("ASCII text, with CRLF, CR line terminators");     break;
-      case 7: printtype("ASCII text, with CRLF, CR, LF line terminators"); break;
+      case 0: printtype("data");  // printtype ends in continue
+      case 1: printtype("ASCII text");
+      case 2: printtype("ASCII text, with CRLF line terminators");
+      case 3: printtype("ASCII text, with LF, CRLF line terminators");
+      case 4: printtype("ASCII text, with CR line terminators");
+      case 5: printtype("ASCII text, with CR, LF line terminators");
+      case 6: printtype("ASCII text, with CRLF, CR line terminators");
+      case 7: printtype("ASCII text, with CRLF, CR, LF line terminators");
     }
   }
   return errno;

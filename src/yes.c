@@ -21,5 +21,4 @@ int main(int argc, char *argv[]) {
   }
   fclose(file);
   while (1) fputs_unlocked(buf, stdout);
-  return 0;
 }
