@@ -7,6 +7,7 @@ base64 [-di] [-w num] [file]                                |
 basename [-az] [-s suffix] name [name...]                   |
 cal [[month] year]                                          |
 cat [-AeEntTuv] [file...]                                   | todo -b -s
+chroot root [cmd...]                                        |
 comm [-123z] file1 file2                                    |
 cmp [-ls] [-n byte] file1 [file2 [skip1 [skip2]]]           | todo -b
 clear                                                       |
@@ -21,9 +22,12 @@ file [-hL] [file...]                                        |
 getopt [-various] [-options]                                | documented in doc/getopt
 head [-n num] [-num] [-c byte] [-qvz]                       |
 kill [-sig] [-l] [-s sig] pid [pid...]                      |
+line                                                        |
 link file1 file2                                            |
 list [-n]                                                   | lists inutilities
 mkdir [-pv] dir1 [dir...]                                   | todo: mode
+mktemp [-dqu] [-p dir] [template]                           |
+nice [-num] [-n num] cmd [args...]                          |
 printf format [args...]                                     |
 pwd [-LP]                                                   |
 pwdx pid [pid...]                                           |
@@ -32,16 +36,19 @@ rmdir [-pv] dir [dir...]                                    |
 seq [-w] [-s arg] [-f arg] arg1 [arg2] [arg3]               |
 shuf [-erz] [-i lo-hi] [-n num] [file...]                   |
 sleep number[suffix]                                        |
+sort [-bcdfghimnruCMRV] [-o file] [-t sep] [file...]        | todo -k
 stat [-Lft] [-c arg] file1 [file...]                        | todo -c %m
 sync [-df] [file...]                                        |
 tac [file...]                                               | no opts
 tee [-ai] [file...]                                         |
-timeout [-p] [-k num] [-s num] arg1 arg2 [arg...]
+timeout [-p] [-k num] [-s num] time cmd [args...]           |
+touch [-acfm] [-r file] [-t time] [-d date] file [file...]  |
 tr [-cCtds] set1 [set2]                                     | no [=equiv=] [x*n]
 true                                                        |
 truncate [-c] [-r file] [-s byte] file [file...]            |
 tty [-s]                                                    |
 uname [-amnrsv]                                             |
+unshare [-fimnpuU] cmd [args...]                            |
 uniq [-icdDu] [-s num] [-w num] [-z] [infile [outfile]]     | todo -f
 unlink file [file...]                                       | allows more than 1 file
 uptime                                                      | no opts
