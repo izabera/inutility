@@ -91,7 +91,7 @@ static int compare(const void *p1, const void *p2) {
   return flag('r') ? s1->nkeys > s2->nkeys : s1->nkeys < s2->nkeys;
 }
 
-void preparse(struct line *line) {
+static void preparse(struct line *line) {
   if (flag('b') || flag('d') || flag('i') || flag('k')) {
     size_t i;
     FILE *tmpfile = open_memstream(&line->cmpstr, &i);
