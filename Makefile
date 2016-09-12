@@ -8,9 +8,9 @@ objlib = $(addsuffix .o,$(basename $(libheaders)))
 src = $(addprefix $(srcdir)/,$(addsuffix .c,$(programs)))
 obj = $(addprefix $(objdir)/,$(addsuffix .o,$(programs))) $(objlib)
 
-CFLAGS = -std=c11 -Wall -Wextra -Wshadow -pedantic -O2 -g -march=native
+CFLAGS = -Wall -Wextra -Wshadow -pedantic -O2 -g -march=native
 LDFLAGS = -flto
-override CFLAGS += -DVERSION='"$(shell git describe --always --dirty || echo xxxxxxx)"' -D_GNU_SOURCE
+override CFLAGS += -std=c11 -DVERSION='"$(shell git describe --always --dirty || echo xxxxxxx)"' -D_GNU_SOURCE
 
 all: $(objdir) inutility
 
@@ -48,7 +48,6 @@ clean:
 install: inutility
 	mkdir -p $(DESTDIR)$(PREFIX)/bin
 	cp inutility $(DESTDIR)$(PREFIX)/bin
-	strip $(DESTDIR)$(PREFIX)/bin/inutility
 	for target in $(programs) list; do				\
 		ln -fs inutility "$(DESTDIR)$(PREFIX)/bin/$$target";	\
 	done
@@ -62,6 +61,6 @@ fast:
 	make CFLAGS='-Ofast -march=native' LDFLAGS=-flto
 
 small:
-	make CC=musl-gcc CFLAGS='-DSMALL -Os -fno-asynchronous-unwind-tables -fdata-sections -ffunction-sections -march=native' LDFLAGS='-flto -s -Wl,-gc-sections'
+	make CC=musl-gcc CFLAGS='-DSMALL -Os -fno-asynchronous-unwind-tables -fdata-sections -ffunction-sections -march=native' LDFLAGS='-flto -s -Wl,-gc-sections -static'
 	strip --strip-all --remove-section=.comment --remove-section=.note inutility
 	if type sstrip >/dev/null 2>&1; then sstrip inutility; fi

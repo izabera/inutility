@@ -28,6 +28,7 @@ list [-n]                                                   | lists inutilities
 mkdir [-pv] dir1 [dir...]                                   | todo: mode
 mktemp [-dqu] [-p dir] [template]                           |
 nice [-num] [-n num] cmd [args...]                          |
+pathchk [-pP] file [file...]                                |
 printf format [args...]                                     |
 pwd [-LP]                                                   |
 pwdx pid [pid...]                                           |
