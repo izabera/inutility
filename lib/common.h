@@ -45,6 +45,7 @@
 #include "uptime.h"
 #include "readaline.h"
 #include "copyfd.h"
+#include "hashtable.h"
 
 #define arrsize(a) (sizeof(a)/sizeof(*a))
 #define min(a,b) ((a) < (b) ? (a) : (b))
