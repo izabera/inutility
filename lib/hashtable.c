@@ -131,6 +131,8 @@ void htable_del(htable *h, const char *key) {
     free(h->elem[hash]->val);
     free(h->elem[hash]);
     h->elem[hash] = NULL;
+    h->current--;
+    return;
   }
   hash = fnv1a(key) % h->capacity;
   if (h->elem[hash] && !strcmp(key, h->elem[hash]->key)) {
@@ -138,6 +140,7 @@ void htable_del(htable *h, const char *key) {
     free(h->elem[hash]->val);
     free(h->elem[hash]);
     h->elem[hash] = NULL;
+    h->current--;
   }
 }
 
