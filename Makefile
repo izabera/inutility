@@ -17,7 +17,7 @@ all: $(objdir) inutility
 inutility: $(obj) $(libheaders) $(srcdir)/proto.h $(srcdir)/struct.h inutility.c
 	$(CC) $(CFLAGS) $(LDFLAGS) $@.c $(obj) -o $@
 
-.PHONY: clean install uninstall small fast all
+.PHONY: clean install uninstall small smalldyn fast all
 
 $(srcdir)/proto.h: $(src)
 	cd src && {							\
@@ -59,6 +59,11 @@ uninstall:
 
 fast:
 	make CFLAGS='-Ofast -march=native' LDFLAGS=-flto
+
+smalldyn:
+	make CC=musl-gcc CFLAGS='-DSMALL -Os -fno-asynchronous-unwind-tables -fdata-sections -ffunction-sections -march=native' LDFLAGS='-flto -s -Wl,-gc-sections'
+	strip --strip-all --remove-section=.comment --remove-section=.note inutility
+	if type sstrip >/dev/null 2>&1; then sstrip inutility; fi
 
 small:
 	make CC=musl-gcc CFLAGS='-DSMALL -Os -fno-asynchronous-unwind-tables -fdata-sections -ffunction-sections -march=native' LDFLAGS='-flto -s -Wl,-gc-sections -static'
