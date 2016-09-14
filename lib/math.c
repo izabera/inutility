@@ -1,9 +1,6 @@
 #include <stdint.h>
 
-uint8_t ilog2(uint64_t n) {
-  // todo: fallback
-  return 64 - __builtin_clzll(n) - 1;
-}
+uint8_t ilog2(uint64_t n) { return 64 - __builtin_clzll(n) - 1; }
 
 uint64_t isqrt(uint64_t n) {
   // bisection

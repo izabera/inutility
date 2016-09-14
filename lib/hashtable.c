@@ -4,6 +4,14 @@
 
 static inline uint32_t nextpow2(uint32_t num) { return 1 << (32-__builtin_clz(num)); } // num != 0
 
+// https://oeis.org/A014234
+static const uint64_t primes[] = {
+  2, 3, 7, 13, 31, 61, 127, 251, 509, 1021, 2039, 4093, 8191, 16381, 32749,
+  65521, 131071, 262139, 524287, 1048573, 2097143, 4194301, 8388593, 16777213,
+  33554393, 67108859, 134217689, 268435399, 536870909, 1073741789, 2147483647,
+  4294967291
+};
+
 static uint32_t jenkins(const char *s) {
   uint32_t hash = 0;
   for (; *s; s++) {
@@ -38,10 +46,10 @@ struct htable {
 htable *htable_new(size_t size) {
   htable *h = malloc(sizeof(struct htable));
   if (!h) return NULL;
-  size = nextpow2(size < 63 ? 63 : size);
+  size = ilog2(size < 63 ? 63 : size);
   h->capacity = size;
   h->current = 0;
-  h->elem = calloc(size, sizeof(helem*));
+  h->elem = calloc(primes[size], sizeof(helem*));
   if (!h->elem) {
     free(h);
     return NULL; 
@@ -49,11 +57,19 @@ htable *htable_new(size_t size) {
   return h;
 }
 
+#define cuckoo_threshold 5
 char *htable_get(htable *h, const char *key) {
-  uint32_t hash = jenkins(key) % h->capacity;
-  if (h->elem[hash] && !strcmp(key, h->elem[hash]->key)) return h->elem[hash]->val;
-  hash = fnv1a(key) % h->capacity;
-  if (h->elem[hash] && !strcmp(key, h->elem[hash]->key)) return h->elem[hash]->val;
+  uint32_t hash = jenkins(key) % primes[h->capacity];
+  for (int i = 0; i < cuckoo_threshold; i++) {
+    hash = (hash + i) % primes[h->capacity];
+    if (h->elem[hash] && !strcmp(key, h->elem[hash]->key)) return h->elem[hash]->val;
+  }
+
+  hash = fnv1a(key) % primes[h->capacity];
+  for (int i = 0; i < cuckoo_threshold; i++) {
+    hash = (hash + i) % primes[h->capacity];
+    if (h->elem[hash] && !strcmp(key, h->elem[hash]->key)) return h->elem[hash]->val;
+  }
   return NULL;
 }
 
@@ -73,7 +89,7 @@ static inline int tryempty(htable *h, uint32_t hash, const char *key, const char
   if (!(h->elem[hash] = malloc(sizeof(helem)))) abort();
   if (!(h->elem[hash]->key = dup(key))) abort();
   if (!(h->elem[hash]->val = dup(val))) abort();
-  if (++h->current > h->capacity / 2) rehash(h);
+  if (++h->current > primes[h->capacity] / 2) rehash(h);
   return 1;
 }
 
@@ -86,14 +102,20 @@ static inline int trykey(htable *h, uint32_t hash, const char *key, const char *
 
 void htable_set(htable *h, const char *key, const char *val) {
   dupfunc dup = strdup;
-  for (int steps = 0; ; steps++) {
-    uint32_t hash = jenkins(key) % h->capacity;
-    if (tryempty(h, hash, key, val, dup)) return;
-    if (trykey(h, hash, key, val, dup)) return;
+  for (size_t steps = 0; ; steps++) {
+    uint32_t hash = jenkins(key) % primes[h->capacity];
+    for (int i = 0; i < cuckoo_threshold; i++) {
+      hash = (hash + i) % primes[h->capacity];
+      if (tryempty(h, hash, key, val, dup)) return;
+      if (trykey(h, hash, key, val, dup)) return;
+    }
 
-    hash = fnv1a(key) % h->capacity;
-    if (tryempty(h, hash, key, val, dup)) return;
-    if (trykey(h, hash, key, val, dup)) return;
+    hash = fnv1a(key) % primes[h->capacity];
+    for (int i = 0; i < cuckoo_threshold; i++) {
+      hash = (hash + i) % primes[h->capacity];
+      if (tryempty(h, hash, key, val, dup)) return;
+      if (trykey(h, hash, key, val, dup)) return;
+    }
 
     // both were full
     char *oldkey = h->elem[hash]->key, *oldval = h->elem[hash]->val;
@@ -103,7 +125,7 @@ void htable_set(htable *h, const char *key, const char *val) {
     key = oldkey;
     val = oldval;
 
-    if (steps == 100) { // log(capacity) (or something) instead of 100?
+    if (steps == h->capacity) {
       rehash(h);
       steps = 0;
     }
@@ -112,15 +134,15 @@ void htable_set(htable *h, const char *key, const char *val) {
 
 static void rehash(htable *h) {
   htable tmptable = {
-    .elem = calloc(h->capacity * 2, sizeof(helem*)),
-    .capacity = h->capacity * 2,
-    .current = 0
+    .current = 0,
+    .capacity = h->capacity + 1,
+    .elem = calloc(primes[h->capacity+1], sizeof(helem*)),
   };
-  for (size_t i = 0; i < h->capacity; i++)
+  for (size_t i = 0; i < primes[h->capacity]; i++)
     if (h->elem[i])
       htable_set(&tmptable, h->elem[i]->key, h->elem[i]->val);
   freeelems(h);
-  h->capacity *= 2;
+  h->capacity += 1;
   h->elem = tmptable.elem;
 }
 
@@ -159,3 +181,5 @@ void htable_destroy(htable *h) {
   freeelems(h);
   free(h);
 }
+
+
