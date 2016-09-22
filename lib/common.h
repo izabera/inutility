@@ -61,12 +61,29 @@ mode_t getumask();
 
 
 // "gross" -- people in ##c
-#define casebin       '0': case '1'
-#define caseoct  casebin : case '2': case '3': case '4': case '5': case '6': case '7'
-#define casedec  caseoct : case '8': case '9'
-#define caselhex casedec : case 'a': case 'b': case 'c': case 'd': case 'e': case 'f'
-#define caseuhex casedec : case 'A': case 'B': case 'C': case 'D': case 'E': case 'F'
-#define casehex  caselhex: case 'A': case 'B': case 'C': case 'D': case 'E': case 'F'
+#define casebin        '0': case '1'
+#define caseoct   casebin : case '2': case '3': case '4': case '5': case '6': case '7'
+#define casedec   caseoct : case '8': case '9'
+#define caselhex  casedec : case 'a': case 'b': case 'c': case 'd': case 'e': case 'f'
+#define caseuhex  casedec : case 'A': case 'B': case 'C': case 'D': case 'E': case 'F'
+#define casehex   caselhex: case 'A': case 'B': case 'C': case 'D': case 'E': case 'F'
+#define caselower      'a': case 'b': case 'c': case 'd': case 'e': case 'f': case 'g': \
+                            case 'h': case 'i': case 'j': case 'l': case 'm': case 'n': \
+                            case 'o': case 'p': case 'q': case 'r': case 's': case 't': \
+                            case 'u': case 'v': case 'w': case 'x': case 'y': case 'z'
+#define caseupper      'A': case 'B': case 'C': case 'D': case 'E': case 'F': case 'G': \
+                            case 'H': case 'I': case 'J': case 'L': case 'M': case 'N': \
+                            case 'O': case 'P': case 'Q': case 'R': case 'S': case 'T': \
+                            case 'U': case 'V': case 'W': case 'X': case 'Y': case 'Z'
+#define casealpha caselower: case caseupper
+#define casealnum casealpha: case casedec
+#define casepunct     '\\': case '[': case ']': case '!': case '"': case '#': case '$': \
+                            case '%': case '&': case '(': case ')': case '*': case '+': \
+                            case ',': case '.': case '/': case ':': case ';': case '<': \
+                            case '=': case '>': case '?': case '@': case '^': case '_': \
+                            case '`': case '{': case '|': case '}': case '~': case '-': case '\''
+#define caseblank      ' ': case '\t':
+#define casespace caseblank: case '\v': case '\f': case '\r': case '\n'
 
 
 // for _FORTIFY_SOURCE
