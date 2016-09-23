@@ -11,7 +11,7 @@ int main(int argc, char *argv[]) {
   int files[argc], i = 0;
   files[0] = 1;
   while (*++argv)
-    files[++i] = open(argv[0], openflags, 0666);
+    files[++i] = open(argv[0], openflags, 0644);
 
   ssize_t size;
   char buf[IBUFSIZ];

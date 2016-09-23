@@ -170,9 +170,9 @@ nextwhile: ;
 
   gettimeofday(&begintime, NULL);
 
-  if (ifile) { if ((ifd = open(ifile, iflag, 0666)) == -1) return errno; }
+  if (ifile) { if ((ifd = open(ifile, iflag, 0644)) == -1) return errno; }
   else fcntl(0, F_SETFL, fcntl(0, F_GETFL) | iflag);
-  if (ofile) { if ((ofd = open(ofile, oflag, 0666)) == -1) return errno; }
+  if (ofile) { if ((ofd = open(ofile, oflag, 0644)) == -1) return errno; }
   else fcntl(1, F_SETFL, fcntl(1, F_GETFL) | oflag);
 
   struct {

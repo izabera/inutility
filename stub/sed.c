@@ -66,7 +66,7 @@ inner:
       asprintf(&template, "%sXXXXXX", *argv);
       int tmpfd;
       if ((tmpfd = mkstemp(template)) == -1) return errno;
-      fchmod(tmpfd, 0666);
+      fchmod(tmpfd, 0644);
       fclose(outfile);
       outfile = fdopen(tmpfd, "w");
     }

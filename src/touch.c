@@ -53,7 +53,7 @@ int main(int argc, char *argv[]) {
     if (access(argv[0], F_OK) == -1) {
       errno = olderrno;
       if (flag('c')) continue;
-      if ((fd = creat(argv[0], 0666)) != -1) {
+      if ((fd = creat(argv[0], 0644)) != -1) {
         futimens(fd, ts);
         close(fd);
       }
