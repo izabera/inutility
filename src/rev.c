@@ -16,6 +16,7 @@ int main(int argc, char *argv[]) {
     else if ((file = open(argv[0], O_RDONLY)) == -1) continue;
     else fileptr = fdopen(file, "r");
 inner:
+      sequential(file);
       while ((read = getline(&line, &len, fileptr)) != -1) {
         if (read > 1) {
           posleft = 0;

@@ -17,6 +17,7 @@ int main(int argc, char *argv[]) {
   if (argc == 2) if (!(file = fopen(argv[1], "r"))) return errno;
   if (flag('w')) flag('w') = lastnum('w');
   else flag('w') = 76;
+  sequential(fileno(file));
 
   char *valid = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/=";
   char decoded[256] = { 0 };

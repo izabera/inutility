@@ -20,6 +20,7 @@ int main(int argc, char *argv[]) {
   ssize_t read;
   int (*compare)(const char *, const char *) = flag('i') ? strcasecmp : strcmp;
   int (*comparen)(const char *, const char *, size_t) = flag('i') ? strncasecmp : strncmp;
+  sequential(fileno(stdin));
   if ((read = getdelim(&prevline, &len, !flag('z') * '\n', stdin)) <= 0) return 0; // no errno
   if (prevline[read-1] == '\n') prevline[read-1] = 0;
   while ((read = getline(&line, &len, stdin)) != -1) {

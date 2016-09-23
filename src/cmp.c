@@ -17,6 +17,8 @@ int main(int argc, char *argv[]) {
 
   if (file1 == file2) return 0; // cmp - or cmp - -
 
+  sequential(fileno(file1));
+  sequential(fileno(file2));
   char buf[BUFSIZ];
   size_t tmp;
   if (skip1 && fseek(file1, skip1, SEEK_CUR))

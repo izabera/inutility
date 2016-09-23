@@ -35,6 +35,9 @@ int main(int argc, char *argv[]) {
     [1] = getdelim(&line[1], &len[1], delim, file[1]),
   };
 
+  sequential(fileno(file[0]));
+  sequential(fileno(file[1]));
+
   while (read[0] != -1 && read[1] != -1) {
     int cmp = read[0] == read[1] ? memcmp(line[0], line[1], read[0])     :
               read[0]  < read[1] ? memcmp(line[0], line[1], read[0]) | 1 : // not 0

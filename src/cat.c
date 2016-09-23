@@ -25,6 +25,7 @@ int main(int argc, char *argv[]) {
     else if ((file = open(argv[0], O_RDONLY)) == -1) continue;
     else fileptr = fdopen(file, "r");
 inner:
+    sequential(file);
     if (anyflag) {
       while ((c = fgetc_unlocked(fileptr)) != EOF) {
              if (line)      { if (flag('n')) printf("%6lu\t", linecount); line = 0; }

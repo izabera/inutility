@@ -32,6 +32,7 @@ int main(int argc, char **argv) {
          if (argv[0][0] == '-' && argv[0][1] == 0) fileptr = stdin;
     else if (!(fileptr = fopen(argv[0], "r"))) continue;
 inner:
+    sequential(fileno(fileptr));
     if (verbose) printf("%s==> %s <==\n", firstfile++ ? "\n" : "", argv[0]);
     if (flag('c')) {
       if (number < 0) {
