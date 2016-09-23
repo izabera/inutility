@@ -24,12 +24,13 @@ int main(int argc, char *argv[]) {
               break;
             case 's':
               printf(currformat, *argv ? *argv++ : ""); break;
-            case 'b': // fixme:  breaks on \0
-              ptr = unescapestr(*argv ? *argv++ : "", 1);
-              currformat[strlen(currformat)-1] = 's';
-              printf(currformat, ptr);
+            case 'b': {
+              size_t len = unescapestr(&ptr, *argv ? *argv++ : "", 1);
+              // todo actual format with precision and width
+              fwrite_unlocked(ptr, 1, len, stdout);
               free(ptr);
               break;
+            }
             case 'c':
               putchar_unlocked(*argv ? **argv++ : '\0'); break;
           }

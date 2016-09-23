@@ -1,2 +1,2 @@
 int unescape(const char *, size_t *, int); /* increments i */
-char *unescapestr(const char *, int);
+int unescapestr(char **, const char *, int);

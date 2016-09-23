@@ -30,7 +30,7 @@ int unescape(const char *src, size_t *i, int oct4) {
   return character;
 }
 
-char *unescapestr(const char *src, int oct4) {
+int unescapestr(char **target, const char *src, int oct4) {
   size_t i = 0, siz;
   char *str;
   FILE *f = open_memstream(&str, &siz);
@@ -39,5 +39,6 @@ char *unescapestr(const char *src, int oct4) {
     i++;
   }
   fclose(f);
-  return str;
+  *target = str;
+  return siz;
 }
