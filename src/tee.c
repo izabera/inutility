@@ -9,8 +9,9 @@ int main(int argc, char *argv[]) {
   int i = 1;
   FILE *files[argc];
   files[0] = stdout;
+  setvbuf(stdout, NULL, _IONBF, 0);
   while (*++argv)
-    if ((files[i] = fopen(argv[0], mode))) i++;
+    if ((files[i] = fopen(argv[0], mode))) setvbuf(files[i++], NULL, _IONBF, 0);
     else argc--;
 
   sequential(0);
