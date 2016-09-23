@@ -2,16 +2,15 @@
 
 int main(int argc, char *argv[]) {
   options("ai");
-  int openflags = O_WRONLY | O_CREAT;
-  if (flag('a')) openflags |= O_APPEND;
-  else openflags |= O_TRUNC;
+  char *mode = flag('a') ? "a" : "w";
 
   if (flag('i')) signal(SIGINT, SIG_IGN);
 
-  int files[argc], i = 1;
-  files[0] = 1;
+  int i = 1;
+  FILE *files[argc];
+  files[0] = stdout;
   while (*++argv)
-    if ((files[i] = open(argv[0], openflags, 0644)) != -1) i++;
+    if ((files[i] = fopen(argv[0], mode))) i++;
     else argc--;
 
   sequential(0);
@@ -20,7 +19,7 @@ int main(int argc, char *argv[]) {
 
   while ((size = read(0, buf, sizeof(buf))) > 0)
     for (i = 0; i < argc; i++)
-      for (ssize_t w = 0, s = size; w != -1 && (s -= w); w = write(files[i], buf, s)) ;
+      fwrite_unlocked(buf, 1, size, files[i]);
 
   return errno;
 }
