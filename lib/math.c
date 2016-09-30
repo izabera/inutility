@@ -1,6 +1,33 @@
 #include <stdint.h>
 
 uint8_t ilog2(uint64_t n) { return 64 - __builtin_clzll(n) - 1; }
+uint8_t ilog10(uint64_t n) {
+  // https://graphics.stanford.edu/%7Eseander/bithacks.html#IntegerLog10
+  uint8_t temp = (64 - __builtin_clzll(n | 1)) * 1233 >> 12;
+  uint64_t pow10[] = {
+    UINT64_C(0),
+    UINT64_C(10),
+    UINT64_C(100),
+    UINT64_C(1000),
+    UINT64_C(10000),
+    UINT64_C(100000),
+    UINT64_C(1000000),
+    UINT64_C(10000000),
+    UINT64_C(100000000),
+    UINT64_C(1000000000),
+    UINT64_C(10000000000),
+    UINT64_C(100000000000),
+    UINT64_C(1000000000000),
+    UINT64_C(10000000000000),
+    UINT64_C(100000000000000),
+    UINT64_C(1000000000000000),
+    UINT64_C(10000000000000000),
+    UINT64_C(100000000000000000),
+    UINT64_C(1000000000000000000),
+    UINT64_C(10000000000000000000),
+  };
+  return temp - (n < pow10[temp]) + 1;
+}
 
 uint64_t isqrt(uint64_t n) {
   // bisection

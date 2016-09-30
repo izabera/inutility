@@ -46,6 +46,27 @@ int main(int argc, char *argv[]) {
             if ((ptr = strchr(argv[3], '.'))) frac = max(frac, strlen(ptr+1));
             break;
   }
+
+#define cond(incr,val,last) ((incr > 0 && val <= last) || (incr < 0 && val >= last))
+  // make the common case fast
+  if (!flag('s') && !flag('w') && !flag('f') &&
+      //        unsigned                   unsigned                  signed
+      first == (uint64_t)first && last == (uint64_t)last && incr == (int64_t)incr) {
+    uint64_t v = first, l = last;
+    char buf[IBUFSIZ];
+    ptr = buf;
+    for (int64_t i = incr; cond(i,v,l); v += i) {
+      ptr += utoa(v, ptr);
+      *ptr++ = '\n';
+      if (ptr - buf > (signed) sizeof(buf) - 25) {
+        fwrite_unlocked(buf, 1, ptr - buf, stdout);
+        ptr = buf;
+      }
+    }
+    if (ptr != buf) fwrite_unlocked(buf, 1, ptr - buf, stdout);
+    return errno;
+  }
+
   if ((incr < 0 && first < last) || (incr > 0 && first > last)) return 0;
   char *separator = flag('s') ? lastarg('s') : "\n",
        *format = flag('f') ? lastarg('f') :
@@ -53,13 +74,12 @@ int main(int argc, char *argv[]) {
                              buildfmt((double[]){     0,    0,    0 }) ;
   if (!fmtok(format)) return -1;
   double val = first;
-#define cond ((incr > 0 && val <= last) || (incr < 0 && val >= last))
-  if (cond) {
+  if (cond(incr,val,last)) {
     printf(format, val);
     char *newfmt;
     if (asprintf(&newfmt, "%%s%s", format) == -1) return errno;
     if (!flag('f') && flag('w')) free(format);
-    for (val += incr; cond; val += incr) printf(newfmt, separator, val);
+    for (val += incr; cond(incr,val,last); val += incr) printf(newfmt, separator, val);
     putchar_unlocked('\n');
   }
   return errno;
