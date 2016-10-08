@@ -22,6 +22,7 @@ __attribute__((constructor)) static void srandtimeNULL() {
   struct timespec t;
   clock_gettime(CLOCK_REALTIME, &t);
   globalrand.state = t.tv_nsec;
+  globalrand.inc = t.tv_nsec | 1;
   pcg32_random(); // the first number is always low
 }
 

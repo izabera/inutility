@@ -5,19 +5,14 @@ int main(int argc, char *argv[]) {
   char *buf;
   size_t size;
   FILE *file = open_memstream(&buf, &size);
-  if (argc == 1) // optimize for speeeeeeed
-    for (size_t i = 0; i < BUFSIZ; i += 2) fputs_unlocked("y\n", file);
-  else if (argc == 2) {
-    fputs_unlocked(argv[1], file);
-    fputc_unlocked('\n', file);
-  }
-  else {
-    fputs_unlocked(*++argv, file);
-    while (*++argv) {
-      fputc_unlocked(' ', file);
-      fputs_unlocked(*argv, file);
-    }
-    fputc_unlocked('\n', file);
+  if (argc == 1) *argv-- = "y";
+  fputs_unlocked(*++argv, file);
+  while (*++argv) fprintf(file, " %s", *argv);
+  fputc_unlocked('\n', file);
+  fflush(file);
+  if (size < BUFSIZ / 2) {
+    char *tmp = strdupa(buf); // glibc can reuse buf but musl can't.......
+    for (size_t i = 1; i * size < BUFSIZ; i++) fputs(tmp, file);
   }
   fclose(file);
   while (1) fputs_unlocked(buf, stdout);

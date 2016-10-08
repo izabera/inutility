@@ -1,7 +1,7 @@
 #include "lib/common.h"
 
 #include "src/proto.h"
-int main_list(int, char **);
+static int main_list(int, char **);
 
 static struct inutility {
   char *name;
@@ -16,7 +16,7 @@ static int cmp(const void *a, const void *b) {
   return strcmp(inutila->name, inutilb->name);
 }
 
-int main_list(int argc, char *argv[]) {
+static int main_list(int argc, char *argv[]) {
   options("n", .arglessthan = 1);
   qsort(inutility, arrsize(inutility), sizeof(*inutility), cmp);
   size_t linelen = 0, i;
