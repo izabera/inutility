@@ -12,7 +12,7 @@ int main(int argc, char *argv[]) {
   fflush(file);
   if (size < BUFSIZ / 2) {
     char *tmp = strdupa(buf); // glibc can reuse buf but musl can't.......
-    for (size_t i = 1; i * size < BUFSIZ; i++) fputs(tmp, file);
+    for (size_t i = 1; i * size < BUFSIZ; i++) fputs_unlocked(tmp, file);
   }
   fclose(file);
   while (1) fputs_unlocked(buf, stdout);
