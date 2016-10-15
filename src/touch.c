@@ -33,7 +33,7 @@ int main(int argc, char *argv[]) {
   else if (flag('d')) {
     struct tm tm;
     char *frac = strptime(lastarg('d'), "%Y-%m-%d %H:%M:%S", &tm), *tmp, buf[10] = "000000000";
-    if (!frac) frac = strptime(lastarg('d'), "%Y-%m-%dT%H:%S", &tm); // it must be either a space or T
+    if (!frac) frac = strptime(lastarg('d'), "%Y-%m-%dT%H:%M:%S", &tm); // it must be either a space or T
     ts[0].tv_sec  = ts[1].tv_sec  = mktime(&tm);
     ts[0].tv_nsec = ts[1].tv_nsec = 0;
     if (*frac == '.' || *frac == ',') {
