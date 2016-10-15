@@ -32,13 +32,13 @@ int main(int argc, char *argv[]) {
   }
   else if (flag('d')) {
     struct tm tm;
+    if (lastarg('d')[strlen(lastarg('d'))-1] == 'Z') setenv("TZ", "UTC", 1);
     char *frac = strptime(lastarg('d'), "%Y-%m-%d %H:%M:%S", &tm), *tmp, buf[10] = "000000000";
     if (!frac) frac = strptime(lastarg('d'), "%Y-%m-%dT%H:%M:%S", &tm); // it must be either a space or T
     ts[0].tv_sec  = ts[1].tv_sec  = mktime(&tm);
     ts[0].tv_nsec = ts[1].tv_nsec = 0;
     if (*frac == '.' || *frac == ',') {
       strtoul(++frac, &tmp, 10);
-      if (*tmp == 'Z') setenv("TZ", "UTC", 1);
       tmp[0] = 0;
       memmove(buf, frac, min(strlen(frac), 9));
       ts[0].tv_nsec = ts[1].tv_nsec = strtoul(buf, NULL, 10);
