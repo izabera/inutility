@@ -7,6 +7,8 @@ int main(int argc, char *argv[]) {
     { 0, UTIME_NOW },
     { 0, UTIME_NOW },
   };
+  if (flag('d') && lastarg('d')[strlen(lastarg('d'))-1] == 'Z') setenv("TZ", "UTC", 1);
+  struct tm *tm = localtime(&(time_t) { time(NULL) });
   if (flag('r')) {
     struct stat st;
     if (stat(lastarg('r'), &st) == -1) return errno;
@@ -15,7 +17,6 @@ int main(int argc, char *argv[]) {
   }
   else if (flag('t')) {
     char *informat, *seconds, *tmp = lastarg('t');
-    struct tm *tm = localtime(&(time_t) { time(NULL) });
     if ((seconds = strchr(tmp, '.'))) {
       *seconds++ = 0;
       tm->tm_sec = strtol(seconds, NULL, 10);
@@ -31,11 +32,10 @@ int main(int argc, char *argv[]) {
     ts[0].tv_nsec = ts[1].tv_nsec = 0;
   }
   else if (flag('d')) {
-    struct tm tm;
-    if (lastarg('d')[strlen(lastarg('d'))-1] == 'Z') setenv("TZ", "UTC", 1);
-    char *frac = strptime(lastarg('d'), "%Y-%m-%d %H:%M:%S", &tm), *tmp, buf[10] = "000000000";
-    if (!frac) frac = strptime(lastarg('d'), "%Y-%m-%dT%H:%M:%S", &tm); // it must be either a space or T
-    ts[0].tv_sec  = ts[1].tv_sec  = mktime(&tm);
+    char *frac, *tmp = strchr(lastarg('d'), ' '), buf[10] = "000000000";
+    if (tmp) *tmp = 'T'; // it must be either a space or T
+    frac = strptime(lastarg('d'), "%Y-%m-%dT%H:%M:%S", tm);
+    ts[0].tv_sec  = ts[1].tv_sec  = mktime(tm);
     ts[0].tv_nsec = ts[1].tv_nsec = 0;
     if (*frac == '.' || *frac == ',') {
       strtoul(++frac, &tmp, 10);
