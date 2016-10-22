@@ -1,7 +1,7 @@
 #include "lib/common.h"
 
 int main(int argc, char *argv[]) {
-  options("acfmr:t:d:", .argleast = 1); // todo -t -d
+  options("acfmr:t:d:", .argleast = 1);
   int fd;
   struct timespec ts[2] = {
     { 0, UTIME_NOW },
@@ -16,18 +16,14 @@ int main(int argc, char *argv[]) {
     ts[0].tv_nsec = ts[1].tv_nsec = st.st_mtim.tv_nsec;
   }
   else if (flag('t')) {
-    char *informat, *seconds, *tmp = lastarg('t');
+    char *seconds, *tmp = lastarg('t');
     if ((seconds = strchr(tmp, '.'))) {
       *seconds++ = 0;
       tm->tm_sec = strtol(seconds, NULL, 10);
     }
-    switch (strlen(tmp)) {
-      Case  8: informat = "%m%d%H%M"    ;
-      Case 10: informat = "%y%m%d%H%M"  ;
-      Case 12: informat = "%C%y%m%d%H%M";
-      Default: return -1;
-    }
-    strptime(tmp, informat, tm);
+    size_t len = strlen(tmp);
+    if (len != 8 && len != 10 && len != 12) return -1;
+    strptime(tmp, "%C%y%m%d%H%M" + 12 - len, tm);
     ts[0].tv_sec  = ts[1].tv_sec  = mktime(tm);
     ts[0].tv_nsec = ts[1].tv_nsec = 0;
   }

@@ -1,10 +1,8 @@
 #include "common.h"
 
-char *memdup(const char *s, size_t n) {
-  char *dest = malloc(n);
-  if (!dest) return NULL;
-  memcpy(dest, s, n);
-  return dest;
+void *memdup(const void *s, size_t n) {
+  void *dest = malloc(n);
+  return dest ? memcpy(dest, s, n) : NULL;
 }
 
 mode_t getumask() {

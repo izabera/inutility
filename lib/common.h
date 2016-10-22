@@ -58,7 +58,7 @@ struct str {
   size_t len;
 };
 
-char *memdup(const char *mem, size_t len);
+void *memdup(const void *mem, size_t len);
 mode_t getumask();
 
 
@@ -109,3 +109,6 @@ mode_t getumask();
 #define Default break; default
 
 #define IBUFSIZ (128*1024)
+
+#define attrpure __attribute__((pure))
+#define attrconst __attribute__((const))
