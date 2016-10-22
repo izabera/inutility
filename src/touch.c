@@ -44,7 +44,7 @@ int main(int argc, char *argv[]) {
   if (!flag('m') && flag('a')) ts[1].tv_nsec = UTIME_OMIT;
   while (*++argv) {
     if (argv[0][0] == '-' && argv[0][1] == 0) {
-      futimens(0, ts);
+      futimens(1, ts);
       continue;
     }
     int olderrno = errno;
