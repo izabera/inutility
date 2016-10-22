@@ -12,7 +12,7 @@ static const uint64_t primes[] = {
   4294967291
 };
 
-static uint32_t jenkins(const char *s) {
+attrpure static uint32_t jenkins(const char *s) {
   uint32_t hash = 0;
   for (; *s; s++) {
     hash += *s;
@@ -25,7 +25,7 @@ static uint32_t jenkins(const char *s) {
   return hash;
 }
 
-static uint32_t fnv1a(const char *s) {
+attrpure static uint32_t fnv1a(const char *s) {
   uint32_t hash = 2166136261;
   for (; *s; s++) {
     hash ^= *s;
@@ -58,7 +58,7 @@ htable *htable_new(size_t size) {
 }
 
 #define cuckoo_threshold 5
-char *htable_get(htable *h, const char *key) {
+attrpure char *htable_get(htable *h, const char *key) {
   uint32_t hash = jenkins(key) % primes[h->capacity];
   for (int i = 0; i < cuckoo_threshold; i++) {
     hash = (hash + i) % primes[h->capacity];

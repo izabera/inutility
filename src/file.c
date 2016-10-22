@@ -1,5 +1,5 @@
 #include "lib/common.h"
-static int ascii(char *buf, size_t siz) {
+attrpure static int ascii(const char *buf, size_t siz) {
   int cr = 0;
   for (size_t i = 0; i < siz; i++) {
     if ((buf[i] >= 32 && buf[i] <= 126) || buf[i] == 9 || buf[i] == 11 || buf[i] == 12) continue;

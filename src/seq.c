@@ -1,6 +1,6 @@
 #include "lib/common.h"
 
-static int fmtok(const char *str) {
+attrpure static int fmtok(const char *str) {
   int f;
   for (f = 0; *str; str++) {
     if (str[0] != '%') continue;

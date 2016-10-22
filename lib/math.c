@@ -1,7 +1,7 @@
-#include <stdint.h>
+#include "common.h"
 
-uint8_t ilog2(uint64_t n) { return 64 - __builtin_clzll(n) - 1; }
-uint8_t ilog10(uint64_t n) {
+attrconst uint8_t ilog2(uint64_t n) { return 64 - __builtin_clzll(n) - 1; }
+attrconst uint8_t ilog10(uint64_t n) {
   // https://graphics.stanford.edu/%7Eseander/bithacks.html#IntegerLog10
   uint8_t temp = (64 - __builtin_clzll(n | 1)) * 1233 >> 12;
   uint64_t pow10[] = {
@@ -29,7 +29,7 @@ uint8_t ilog10(uint64_t n) {
   return temp - (n < pow10[temp]) + 1;
 }
 
-uint64_t isqrt(uint64_t n) {
+attrconst uint64_t isqrt(uint64_t n) {
   // bisection
   if (n == 0) return 0;
   uint8_t halflog = ilog2(n) / 2;
@@ -44,7 +44,7 @@ uint64_t isqrt(uint64_t n) {
   return lo;
 }
 
-uint64_t icbrt(uint64_t n) {
+attrconst uint64_t icbrt(uint64_t n) {
   // as above
   if (n == 0) return 0;
   uint8_t thirdlog = ilog2(n) / 3;
@@ -59,7 +59,7 @@ uint64_t icbrt(uint64_t n) {
   return lo;
 }
 
-uint64_t powermod(uint64_t base, uint64_t exp, uint64_t mod) {
+attrconst uint64_t powermod(uint64_t base, uint64_t exp, uint64_t mod) {
   // with exp by squaring
   uint64_t res = 1;
   for ( ; exp; exp /= 2) {
@@ -69,7 +69,7 @@ uint64_t powermod(uint64_t base, uint64_t exp, uint64_t mod) {
   return res;
 }
 
-uint64_t gcd(uint64_t a, uint64_t b) {
+attrconst uint64_t gcd(uint64_t a, uint64_t b) {
   // binary gcd
   if (!a) return b;
   if (!b) return a;

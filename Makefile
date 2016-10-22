@@ -12,6 +12,10 @@ CFLAGS = -Wall -Wextra -Wshadow -pedantic -O2 -g -march=native
 LDFLAGS = -flto
 override CFLAGS += -std=c11 -DVERSION='"$(shell git describe --always --dirty || echo xxxxxxx)"' -D_GNU_SOURCE
 
+ifeq ($(notdir $(CC)),gcc)
+	override CFLAGS += -Wsuggest-attribute=const -Wsuggest-attribute=pure -Wsuggest-attribute=format -Wsuggest-attribute=noreturn
+endif
+
 all: $(objdir) inutility
 
 inutility: $(obj) $(libheaders) $(srcdir)/proto.h $(srcdir)/struct.h inutility.c

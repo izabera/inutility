@@ -9,7 +9,7 @@ struct line {
 // do a jenkins hash on the string starting with a random num
 static uint32_t randnum;
 static int (*cmpfun)(const char *, const char *);
-static int strrand(const char *line1, const char *line2) {
+attrpure static int strrand(const char *line1, const char *line2) {
   const char *p1 = line1, *p2 = line2;
   uint32_t hash1 = randnum, hash2 = randnum;
   char c;
@@ -42,7 +42,7 @@ static int monthsort(const char *line1, const char *line2) {
          !month1 && !month2 ? 0 : month1 ? 1 : -1;
 }
 
-static int bignumcmp(const char *line1, const char *line2) {
+attrpure static int bignumcmp(const char *line1, const char *line2) {
   while (*line1 == ' ') line1++; // this wasn't so obvious...
   while (*line2 == ' ') line2++;
   int neg1 = 1, neg2 = 1, cmp;

@@ -66,7 +66,7 @@ static int64_t parseflag(const char *string) {
   return parsecomma(string, ddflags, arrsize(ddflags));
 }
 
-static int64_t parsestat(const char *string) {
+attrpure static int64_t parsestat(const char *string) {
   if (!strcmp("none", string)) return 1;
   if (!strcmp("noxfer", string)) return 2;
 //if (!strcmp("progress", string)) return 3;  naaaah...
