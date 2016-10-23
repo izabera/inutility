@@ -75,9 +75,13 @@ inner:
         }
       }
       else {
-        for (int64_t q = 0; q < number; q++) {
-          if ((read = getdelim(&line, &len, !flag('z') * '\n', fileptr)) > 0)
-            fwrite_unlocked(line, 1, read, stdout);
+        char buf[BUFSIZ];
+        for (int64_t q = 0, i; q < number; q++) {
+          if ((read = fread_unlocked(buf, 1, sizeof(buf), fileptr)) > 0) {
+            for (i = 0; i < read && q < number; )
+              if (buf[i++] == '\n') --number;
+            fwrite_unlocked(buf, 1, i, stdout);
+          }
           else break;
         }
       }
