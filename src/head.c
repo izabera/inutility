@@ -76,11 +76,11 @@ inner:
       }
       else {
         char buf[BUFSIZ];
-        for (int64_t q = 0, i; q < number; q++) {
+        for (int64_t q = 0, j; q < number; ) {
           if ((read = fread_unlocked(buf, 1, sizeof(buf), fileptr)) > 0) {
-            for (i = 0; i < read && q < number; )
-              if (buf[i++] == '\n') --number;
-            fwrite_unlocked(buf, 1, i, stdout);
+            for (j = 0; j < read && q < number; )
+              if (buf[j++] == '\n') --number;
+            fwrite_unlocked(buf, 1, j, stdout);
           }
           else break;
         }
