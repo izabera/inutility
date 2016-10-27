@@ -15,6 +15,7 @@ void parselabel() {
   addlabel(
 }
 
+/*void parse*/
 int main(int argc, char *argv[]) {
   options("inrsze:f:l:");
   char *template, *sedscript;
@@ -46,8 +47,6 @@ int main(int argc, char *argv[]) {
   if (argc == 1) {
     if ((!flag('f') && !flag('e')) || flag('i')) return -1;
     argv[0] = "-";
-    parse(sedscript);
-    goto inner;
   }
   else {
     if (!flag('f') && !flag('e')) {
@@ -56,6 +55,11 @@ int main(int argc, char *argv[]) {
       scriptlen = strlen(sedscript);
     }
   }
+
+  parse(&sedscript);
+  if (*sedscript) printf("trailing }\n"), return -1;
+  if (!strncmp(sedscript, "#n")) flag('n') = 1;
+  if (argc == 1) goto inner;
 
   while (*++argv) {
          if (argv[0][0] == '-' && argv[0][1] == 0) infile = stdin;
@@ -71,13 +75,22 @@ inner:
       outfile = fdopen(tmpfd, "w");
     }
     while ((read = getdelim(&line, &len, delim, infile)) > 0) {
+      lineno++;
+      if (delayed) {
+        puts(delayed);
+        free(delayed);
+        delayed = NULL;
+      }
       for (instr = 0; instructions[instr]; instr++) {
+        switch (instruction[instr]) {
+          case 'a':
+          case 'b':
+        }
       }
       if (!flag('n')) {
         fwrite(patspace.str, patspace.size, 1, outfile);
         if (line[read-1] == delim) putc(delim, outfile);
       }
-      lineno++;
     }
     if (flag('i')) {
       if (rename(template, *argv) == -1) return errno;
