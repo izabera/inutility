@@ -43,7 +43,9 @@ int main(int argc, char *argv[]) {
       switch (count++) {
         case 0: old = decoded[c]; break;
         case 1: cur = decoded[c]; putchar_unlocked((old<<2)+(cur>>4)); old = cur % 16; break;
-        case 2: cur = decoded[c]; putchar_unlocked((old<<4)+(cur>>2)); old = cur %  4; break;
+        case 2: cur = decoded[c]; if (c != '=') putchar_unlocked((old<<4)+(cur>>2));
+                old = cur %  4;
+                break;
         case 3: cur = decoded[c];
                 if (c == '=') equal = 0;
                 else putchar_unlocked((old<<6)+cur);
