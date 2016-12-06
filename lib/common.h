@@ -34,6 +34,7 @@
 #include <wchar.h>
 #include <locale.h>
 #include <sys/sendfile.h>
+#include <ftw.h>
 
 #include "flags.h"
 #include "math.h"
