@@ -34,6 +34,7 @@ printf format [args...]                                     |
 pwd [-LP]                                                   |
 pwdx pid [pid...]                                           |
 rev [file...]                                               |
+rm [-dfiRrv] file [file...]                                 |
 rmdir [-pv] dir [dir...]                                    |
 seq [-w] [-s arg] [-f arg] arg1 [arg2] [arg3]               |
 shuf [-erz] [-i lo-hi] [-n num] [file...]                   |

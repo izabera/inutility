@@ -2,7 +2,7 @@
 
 static int rm(const char *path, struct stat *st, int type, struct FTW *ftw) {
   if (flag('i')) {
-    printf("remove '%s'? ", path);
+    fprintf(stderr, "remove '%s'? ", path);
     char buf[10];
     fgets(buf, sizeof buf, stdin);
     if (tolower(buf[0]) != 'y') return 0;
@@ -13,7 +13,7 @@ static int rm(const char *path, struct stat *st, int type, struct FTW *ftw) {
   }
   else {
     if (lstat(path, st) == -1) return errno;
-    if (S_ISDIR(st->st_mode)) rmdir(path);
+    if (S_ISDIR(st->st_mode) && flag('d')) rmdir(path);
     else unlink(path);
   }
   if (flag('v') && !errno) printf("removed '%s'\n", path);
@@ -21,7 +21,7 @@ static int rm(const char *path, struct stat *st, int type, struct FTW *ftw) {
 }
 
 int main(int argc, char *argv[]) {
-  options("fiRrv", .argleast = 1);
+  options("dfiRrv", .argleast = 1);
   if (flag('R')) flag('r') = 1;
   if (flag('r'))
     while (*++argv)
