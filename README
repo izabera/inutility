@@ -44,6 +44,7 @@ stat [-Lft] [-c arg] file1 [file...]                        | todo -c %m
 sync [-df] [file...]                                        |
 tac [file...]                                               | no opts
 tee [-ai] [file...]                                         |
+test [expr]                                                 |
 timeout [-p] [-k num] [-s num] time cmd [args...]           |
 touch [-acfm] [-r file] [-t time] [-d date] file [file...]  |
 tr [-cCtds] set1 [set2]                                     | no [=equiv=] [x*n]

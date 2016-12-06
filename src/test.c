@@ -1,7 +1,8 @@
 #include "lib/common.h"
 
+// all the tests must return the opposite value... so confusing...
 static int isbin(const char *arg) {
-  const char *arr[] = { "=", "!=", "-ne", "-eq", "-le", "-lt", "-ge", "-gt" };
+  const char *arr[] = { "=", "!=", "-ne", "-eq", "-le", "-lt", "-ge", "-gt", "-nt", "-ot", "-ef" };
   for (size_t i = 0; i < arrsize(arr); i++) if (!strcmp(arg, arr[i])) return 1;
   return 0;
 }
@@ -16,19 +17,24 @@ static int bin(char *argv[2]) {
   if (!strcmp(argv[2], "-lt")) return a >= b;
   if (!strcmp(argv[2], "-ge")) return a <  b;
   if (!strcmp(argv[2], "-gt")) return a <= b;
+  struct stat st1, st2;
+  if (stat(argv[1], &st1) == -1 || stat(argv[3], &st2) == -1) return 1;
+  if (!strcmp(argv[2], "-nt")) return st1.st_mtime <= st2.st_mtime;
+  if (!strcmp(argv[2], "-ot")) return st1.st_mtime >= st2.st_mtime;
+  if (!strcmp(argv[2], "-ef")) return st1.st_dev != st2.st_dev || st1.st_ino != st2.st_ino;
   return 255;
 }
 
 static int un(char *argv[]) {
   if (!strcmp(argv[1], "-n")) return argv[1][0] == 0;
   if (!strcmp(argv[1], "-z")) return argv[1][0] != 0;
-  if (!strcmp(argv[1], "-e")) return access(argv[2], F_OK);
-  if (!strcmp(argv[1], "-r")) return access(argv[2], R_OK);
-  if (!strcmp(argv[1], "-w")) return access(argv[2], W_OK);
-  if (!strcmp(argv[1], "-x")) return access(argv[2], X_OK);
+  if (!strcmp(argv[1], "-e")) return !!access(argv[2], F_OK);
+  if (!strcmp(argv[1], "-r")) return !!access(argv[2], R_OK);
+  if (!strcmp(argv[1], "-w")) return !!access(argv[2], W_OK);
+  if (!strcmp(argv[1], "-x")) return !!access(argv[2], X_OK);
   if (!strcmp(argv[1], "-t")) return !isatty(atoi(argv[2]));
-  struct stat st = { 0 };
-  if (stat(argv[2], &st) == 1) return 1;
+  struct stat st;
+  if (stat(argv[2], &st) == -1) return 1;
   if (!strcmp(argv[1], "-b")) return !S_ISBLK(st.st_mode);
   if (!strcmp(argv[1], "-c")) return !S_ISCHR(st.st_mode);
   if (!strcmp(argv[1], "-d")) return !S_ISDIR(st.st_mode);
