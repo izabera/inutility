@@ -34,8 +34,9 @@ $(srcdir)/struct.h: $(src)
 	cd src && {							\
 		for f in *.c; do					\
 			echo "{ \"$${f%.c}\", main_$${f%.c} },";	\
-		done > struct.h;					\
-	}
+		done;							\
+		echo "{ \"[\", main_test },";				\
+	} > struct.h
 
 $(objdir)/%.o: $(srcdir)/%.c $(objlib)
 	$(CC) $(CFLAGS) -Dmain=main_$* -c $(srcdir)/$*.c -o $@
