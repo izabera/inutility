@@ -15,6 +15,7 @@ cut [-nsz] [-b list] [-c list] [-f list] [-d sep] [file...] |
 date [-Ru] [-D format] [-d time] [-r file] [time]           |
 dd [various=options]                                        |
 dirname [-z] name [name...]                                 |
+echo [-n] [arg...]                                          |
 env [-i0] [-u unset...] [-] [VAR=value...] [cmd [args...]]  |
 factor [arg...]                                             |
 false                                                       |
