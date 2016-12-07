@@ -38,6 +38,14 @@ $(srcdir)/struct.h: $(src)
 		echo "{ \"[\", main_test },";				\
 	} > struct.h
 
+$(objdir)/errno.o: $(srcdir)/errno.c $(objlib)
+	cd src &&							\
+	echo '#include <errno.h>' |					\
+	$(CC) -dD -E - |						\
+	awk '/^#define E/ { printf "{ \"%s\", %s },\n", $$2, $$2 }' |	\
+	sort > errnolist.h
+	$(CC) $(CFLAGS) -Dmain=main_errno -c $(srcdir)/errno.c -o $@
+
 $(objdir)/%.o: $(srcdir)/%.c $(objlib)
 	$(CC) $(CFLAGS) -Dmain=main_$* -c $(srcdir)/$*.c -o $@
 
@@ -48,7 +56,7 @@ $(libdir)/%.o: $(libdir)/%.c
 	$(CC) $(CFLAGS) -c $(libdir)/$*.c -o $@
 
 clean:
-	rm -f $(obj) $(srcdir)/proto.h $(srcdir)/struct.h
+	rm -f $(obj) $(srcdir)/*.h
 
 install: inutility
 	mkdir -p $(DESTDIR)$(PREFIX)/bin

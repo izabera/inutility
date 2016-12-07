@@ -2,5 +2,6 @@ inutility
 *.o
 src/struct.h
 src/proto.h
+src/errnolist.h
 bin/*
 tags
