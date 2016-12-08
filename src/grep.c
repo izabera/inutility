@@ -14,7 +14,7 @@ static int strmatch(struct str s, size_t i) {
 }
 
 int main(int argc, char *argv[]) {
-  options("acEFhHinqsvxe:f:"); // -as are ignored
+  options("acEFhHilLnqsvxe:f:"); // -as are ignored
   FILE *fileptr = stdin;
   ssize_t read;
   size_t count, lineno;
@@ -45,7 +45,7 @@ int main(int argc, char *argv[]) {
       }
     }
     for (size_t i = 0; i < flag('e'); i++)
-      push(flags[opt('c')].args[i], strlen(flags[opt('c')].args[i]));
+      push(flags[opt('e')].args[i], strlen(flags[opt('e')].args[i]));
   }
   else {
     if (argc == 1) return 255;
@@ -85,15 +85,26 @@ inner:
         if (matchfunc(line, i) * flagv > 0) {
           if (flag('q')) return 0;
           matched = 1;
-          if (flag('c')) count++;
-          else {
+          count++;
+          if (flag('l')) {
+            puts(*argv);
+            goto nextfile;
+          }
+          if (!flag('c') && !flag('L')) {
             if (flag('H') && !flag('h')) printf("%s:", *argv);
             if (flag('n')) printf("%zu:", lineno);
             puts(line.str);
           }
+          break;
         }
     }
+    if (!count && flag('L')) {
+      puts("foo");
+      puts(*argv);
+      goto nextfile;
+    }
     if (flag('c')) printf("%zu\n", count);
+nextfile:
     if (fileptr != stdin) fclose(fileptr);
   }
   return (!matched) | errno;
