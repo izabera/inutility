@@ -36,6 +36,8 @@ $(srcdir)/struct.h: $(src)
 			echo "{ \"$${f%.c}\", main_$${f%.c} },";	\
 		done;							\
 		echo "{ \"[\", main_test },";				\
+		echo "{ \"egrep\", main_grep },";				\
+		echo "{ \"fgrep\", main_grep },";				\
 	} > struct.h
 
 $(objdir)/errno.o: $(srcdir)/errno.c $(objlib)

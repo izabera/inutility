@@ -27,7 +27,9 @@ static int strmatch(struct str s, size_t i) {
 }
 
 int main(int argc, char *argv[]) {
-  options("acEFhHilLnqsvwxe:f:"); // -as are ignored
+  if (!(strcmp(argv[0], "fgrep"))) flag('F') = 1;
+  if (!(strcmp(argv[0], "egrep"))) flag('E') = 1;
+  options("acEFGhHilLnqsvwxe:f:"); // -as are ignored
   FILE *fileptr = stdin;
   ssize_t read;
   size_t count, lineno;
@@ -71,7 +73,7 @@ int main(int argc, char *argv[]) {
     regs = malloc(sizeof(regex_t) * npatterns);
     for (size_t i = 0; i < npatterns; i++)
       if (regcomp(regs+i, patterns[i].str,
-            (!!flag('i')*REG_ICASE) | (!!flag('E')*REG_EXTENDED)) != 0)
+            (!!flag('i')*REG_ICASE) | (!!flag('E')*!flag('G')*REG_EXTENDED)) != 0)
           return 255;
   }
 
