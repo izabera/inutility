@@ -2,19 +2,32 @@
 
 static regex_t *regs;
 static struct str *patterns = NULL;
+
+static int checkborder(struct str h, struct str n) {
+  if (h.str != n.str) {
+    if (n.str[-1] == '_' || isalnum(n.str[-1])) return -1;
+  }
+  if (n.str[n.len] == '_' || isalnum(n.str[n.len])) return -1; // n.len and not n.len -1
+  return 1;
+}
+
 static int regmatch(struct str s, size_t i) {
   regmatch_t m;
   if (regexec(regs+i, s.str, 1, &m, 0) != 0) return -1;
   if (flag('x') && (m.rm_so != 0 || (size_t)m.rm_eo != s.len)) return -1;
-  return 1;
+  struct str tmp = { .str = s.str+m.rm_so, .len = m.rm_eo - m.rm_so };
+  return (flag('w')) ? checkborder(s, tmp) : 1;
 }
+
 static int strmatch(struct str s, size_t i) {
   if (flag('x') && s.len != patterns[i].len) return -1;
-  return strstr(s.str, patterns[i].str) != 0 ? 1 : -1;
+  struct str tmp = { .str = strstr(s.str, patterns[i].str), .len = patterns[i].len };
+  if (tmp.str == NULL) return -1;
+  return (flag('w')) ? checkborder(s, tmp) : 1;
 }
 
 int main(int argc, char *argv[]) {
-  options("acEFhHilLnqsvxe:f:"); // -as are ignored
+  options("acEFhHilLnqsvwxe:f:"); // -as are ignored
   FILE *fileptr = stdin;
   ssize_t read;
   size_t count, lineno;
@@ -67,15 +80,14 @@ int main(int argc, char *argv[]) {
   int matched = 0, flagv = flag('v') ? -1 : 1;
   struct str line = { 0 };
   size_t tmp = 0;
-  if (argc == 1) {
-    argv[0] = "-";
-    goto inner;
-  }
+  if (argc == 1) *argv-- = "-";
   if (argc > 2) flag('H') = 1;
   while (*++argv) {
-         if (argv[0][0] == '-' && argv[0][1] == 0) fileptr = stdin;
+         if (argv[0][0] == '-' && argv[0][1] == 0) {
+           *argv = "(standard input)"; // posix requires this...
+           fileptr = stdin;
+         }
     else if (!(fileptr = fopen(argv[0], "r"))) continue;
-inner:
     count = lineno = 0;
     while ((read = getline(&line.str, &tmp, fileptr)) > 0) {
       if (line.str[read-1] == '\n') line.str[--read] = 0;

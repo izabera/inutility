@@ -22,6 +22,7 @@ factor [arg...]                                             |
 false                                                       |
 file [-hL] [file...]                                        |
 getopt [-various] [-options]                                | documented in doc/getopt
+grep [-acEFhHilLnqsvwx] [-e arg] [-f file] [arg...]         | todo: -A -B -C and maybe more...
 head [-n num] [-num] [-c byte] [-qvz]                       |
 kill [-sig] [-l] [-s sig] pid [pid...]                      |
 line                                                        |
