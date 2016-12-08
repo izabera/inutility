@@ -3,17 +3,17 @@
 static regex_t *regs;
 static char **patterns = NULL;
 static int regmatch(const char *str, size_t i) {
-  return regexec(regs+i, str, 0, NULL, 0) == 0;
+  return regexec(regs+i, str, 0, NULL, 0) == 0 ? 1 : -1;
 }
 static int strmatch(const char *str, size_t i) {
-  return strstr(str, patterns[i]) != 0;
+  return strstr(str, patterns[i]) != 0 ? 1 : -1;
 }
 static int strcasematch(const char *str, size_t i) {
-  return strcasestr(str, patterns[i]) != 0;
+  return strcasestr(str, patterns[i]) != 0 ? 1 : -1;
 }
 
 int main(int argc, char *argv[]) {
-  options("cEFqe:f:"); // -as are ignored
+  options("ciEFqsve:f:"); // -as are ignored
   FILE *fileptr = stdin;
   ssize_t read;
   size_t len, count;
@@ -62,7 +62,7 @@ int main(int argc, char *argv[]) {
   int (*matchfunc)(const char *, size_t) =
     flag('F') ? flag('i') ? strcasematch : strmatch : regmatch;
 
-  int matched = 0;
+  int matched = 0, flagv = flag('v') ? -1 : 1;
   if (argc == 1) {
     argv[0] = "-";
     goto inner;
@@ -74,7 +74,7 @@ inner:
     count = 0;
     while ((read = getline(&line, &len, fileptr)) > 0) {
       for (size_t i = 0; i < npatterns; i++)
-        if (matchfunc(line, i)) {
+        if (matchfunc(line, i) * flagv > 0) {
           if (flag('q')) return 0;
           matched = 1;
           if (flag('c')) count++;
