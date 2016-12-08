@@ -69,6 +69,8 @@ int main(int argc, char *argv[]) {
     flag('F') ? flag('i') ? strcasematch : strmatch : regmatch;
 
   int matched = 0, flagv = flag('v') ? -1 : 1;
+  struct str line = { 0 };
+  size_t tmp = 0;
   if (argc == 1) {
     argv[0] = "-";
     goto inner;
@@ -79,8 +81,6 @@ int main(int argc, char *argv[]) {
     else if (!(fileptr = fopen(argv[0], "r"))) continue;
 inner:
     count = lineno = 0;
-    struct str line;
-    size_t tmp;
     while ((read = getline(&line.str, &tmp, fileptr)) > 0) {
       if (line.str[read-1] == '\n') line.str[--read] = 0;
       line.len = read;
