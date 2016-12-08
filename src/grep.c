@@ -31,9 +31,10 @@ int (*matchfunc)(struct str, size_t);
 size_t npatterns;
 static int grep(const char *path, struct stat *st, int type, struct FTW *ftw) {
   FILE *fileptr;
+  UNUSED(st);
   if (ftw) { // recursive
     if (!(fileptr = fopen(path, "r"))) return 0; // 0 to continue with nftw
-    if (type & (FTW_D|FTW_DP|FTW_DNR)) return 0;
+    if (type & (FTW_NS|FTW_SL|FTW_SLN|FTW_D|FTW_DP|FTW_DNR)) return 0;
   }
   else {
          if (path[0] == '-' && path[0] == 0) {
