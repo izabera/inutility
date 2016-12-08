@@ -47,6 +47,9 @@ static int un(char *argv[]) {
   if (!strcmp(argv[1], "-u")) return !(S_ISUID & st.st_mode);
   if (!strcmp(argv[1], "-g")) return !(S_ISGID & st.st_mode);
   if (!strcmp(argv[1], "-k")) return !(S_ISVTX & st.st_mode);
+  if (!strcmp(argv[1], "-N")) return !(st.st_atime <= st.st_mtime);
+  if (!strcmp(argv[1], "-O")) return !(st.st_uid == geteuid());
+  if (!strcmp(argv[1], "-G")) return !(st.st_gid == getegid());
   return 255;
 }
 
