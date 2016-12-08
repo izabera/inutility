@@ -35,6 +35,7 @@
 #include <locale.h>
 #include <sys/sendfile.h>
 #include <ftw.h>
+#include <regex.h>
 
 #include "flags.h"
 #include "math.h"
