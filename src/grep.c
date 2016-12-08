@@ -13,10 +13,10 @@ static int strcasematch(const char *str, size_t i) {
 }
 
 int main(int argc, char *argv[]) {
-  options("ciEFqsve:f:"); // -as are ignored
+  options("acEFhHinqsve:f:"); // -as are ignored
   FILE *fileptr = stdin;
   ssize_t read;
-  size_t len, count;
+  size_t len, count, lineno;
   char *line;
 
   size_t npatterns = 0;
@@ -67,18 +67,24 @@ int main(int argc, char *argv[]) {
     argv[0] = "-";
     goto inner;
   }
+  if (argc > 2) flag('H') = 1;
   while (*++argv) {
          if (argv[0][0] == '-' && argv[0][1] == 0) fileptr = stdin;
     else if (!(fileptr = fopen(argv[0], "r"))) continue;
 inner:
-    count = 0;
+    count = lineno = 0;
     while ((read = getline(&line, &len, fileptr)) > 0) {
+      lineno++;
       for (size_t i = 0; i < npatterns; i++)
         if (matchfunc(line, i) * flagv > 0) {
           if (flag('q')) return 0;
           matched = 1;
           if (flag('c')) count++;
-          else fputs_unlocked(line, stdout);
+          else {
+            if (flag('H') && !flag('h')) printf("%s:", *argv);
+            if (flag('n')) printf("%zu:", lineno);
+            fputs_unlocked(line, stdout);
+          }
         }
     }
     if (flag('c')) printf("%zu\n", count);
