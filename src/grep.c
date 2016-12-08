@@ -26,15 +26,63 @@ static int strmatch(struct str s, size_t i) {
   return (flag('w')) ? checkborder(s, tmp) : 1;
 }
 
+int matched, flagv;
+int (*matchfunc)(struct str, size_t);
+size_t npatterns;
+static int grep(const char *path, struct stat *st, int type, struct FTW *ftw) {
+  FILE *fileptr;
+  if (ftw) { // recursive
+    if (!(fileptr = fopen(path, "r"))) return 0; // 0 to continue with nftw
+    if (type & (FTW_D|FTW_DP|FTW_DNR)) return 0;
+  }
+  else {
+         if (path[0] == '-' && path[0] == 0) {
+           path = "(standard input)"; // posix requires this...
+           fileptr = stdin;
+         }
+    else if (!(fileptr = fopen(path, "r"))) return 0;
+  }
+
+  static struct str line = { 0 }; // <- static
+  static size_t tmp = 0;          // <- static
+  size_t count = 0, lineno = 0;
+  ssize_t read;
+  while ((read = getline(&line.str, &tmp, fileptr)) > 0) {
+    if (line.str[read-1] == '\n') line.str[--read] = 0;
+    line.len = read;
+    lineno++;
+    for (size_t i = 0; i < npatterns; i++)
+      if (matchfunc(line, i) * flagv > 0) {
+        if (flag('q')) return 0;
+        matched = 1;
+        count++;
+        if (flag('l')) {
+          puts(path);
+          goto nextfile;
+        }
+        if (!flag('c') && !flag('L')) {
+          if (flag('H') && !flag('h')) printf("%s:", path);
+          if (flag('n')) printf("%zu:", lineno);
+          puts(line.str);
+        }
+        break;
+      }
+  }
+  if (!count && flag('L')) {
+    puts(path);
+    goto nextfile;
+  }
+  if (flag('c')) printf("%zu\n", count);
+nextfile:
+  if (fileptr != stdin) fclose(fileptr);
+  return 0;
+}
+
 int main(int argc, char *argv[]) {
   if (!(strcmp(argv[0], "fgrep"))) flag('F') = 1;
   if (!(strcmp(argv[0], "egrep"))) flag('E') = 1;
-  options("acEFGhHilLnqsvwxe:f:"); // -as are ignored
-  FILE *fileptr = stdin;
-  ssize_t read;
-  size_t count, lineno;
+  options("acEFGhHilLnqrsvwxe:f:"); // -as are ignored
 
-  size_t npatterns = 0;
   // strikingly efficient, great engineering
 #define push(p, l) do {                                               \
     patterns = realloc(patterns, ++npatterns * sizeof(struct str));   \
@@ -51,6 +99,7 @@ int main(int argc, char *argv[]) {
         do {
           char *tmp = NULL;
           size_t s = 0;
+          ssize_t read;
           if ((read = getline(&tmp, &s, ftmp)) != -1) {
             if (tmp[read-1] == '\n') tmp[--read] = 0;
             push(tmp, read);
@@ -77,49 +126,21 @@ int main(int argc, char *argv[]) {
           return 255;
   }
 
-  int (*matchfunc)(struct str, size_t) = flag('F') ? strmatch : regmatch;
+  matchfunc = flag('F') ? strmatch : regmatch;
 
-  int matched = 0, flagv = flag('v') ? -1 : 1;
-  struct str line = { 0 };
-  size_t tmp = 0;
-  if (argc == 1) *argv-- = "-";
-  if (argc > 2) flag('H') = 1;
-  while (*++argv) {
-         if (argv[0][0] == '-' && argv[0][1] == 0) {
-           *argv = "(standard input)"; // posix requires this...
-           fileptr = stdin;
-         }
-    else if (!(fileptr = fopen(argv[0], "r"))) continue;
-    count = lineno = 0;
-    while ((read = getline(&line.str, &tmp, fileptr)) > 0) {
-      if (line.str[read-1] == '\n') line.str[--read] = 0;
-      line.len = read;
-      lineno++;
-      for (size_t i = 0; i < npatterns; i++)
-        if (matchfunc(line, i) * flagv > 0) {
-          if (flag('q')) return 0;
-          matched = 1;
-          count++;
-          if (flag('l')) {
-            puts(*argv);
-            goto nextfile;
-          }
-          if (!flag('c') && !flag('L')) {
-            if (flag('H') && !flag('h')) printf("%s:", *argv);
-            if (flag('n')) printf("%zu:", lineno);
-            puts(line.str);
-          }
-          break;
-        }
-    }
-    if (!count && flag('L')) {
-      puts("foo");
-      puts(*argv);
-      goto nextfile;
-    }
-    if (flag('c')) printf("%zu\n", count);
-nextfile:
-    if (fileptr != stdin) fclose(fileptr);
+  flagv = flag('v') ? -1 : 1;
+  if (flag('r')) {
+    flag('H') = 1;
+    if (argc == 1) *argv-- = ".";
+    while (*++argv)
+      nftw(*argv,
+          (int (*)(const char *, const struct stat *, int, struct FTW *))grep,
+          100, 0);
+  }
+  else {
+    if (argc == 1) *argv-- = "-";
+    if (argc > 2) flag('H') = 1;
+    while (*++argv) grep(*argv, &(struct stat){ 0 }, 0, 0);
   }
   return (!matched) | errno;
 }
