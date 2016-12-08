@@ -1,15 +1,11 @@
 #include "lib/common.h"
 
 // all the tests must return the opposite value... so confusing...
-static int isbin(const char *arg) {
-  const char *arr[] = { "=", "!=", "-ne", "-eq", "-le", "-lt", "-ge", "-gt", "-nt", "-ot", "-ef" };
-  for (size_t i = 0; i < arrsize(arr); i++) if (!strcmp(arg, arr[i])) return 1;
-  return 0;
-}
-
 static int bin(char *argv[2]) {
   if (!strcmp(argv[2], "=")) return !!strcmp(argv[1], argv[3]);
   if (!strcmp(argv[2], "!=")) return !strcmp(argv[1], argv[3]);
+  if (!strcmp(argv[2], "<")) return !(strcmp(argv[1], argv[3]) < 0);
+  if (!strcmp(argv[2], ">")) return !(strcmp(argv[1], argv[3]) > 0);
   int a = atoi(argv[1]), b = atoi(argv[3]);
   if (!strcmp(argv[2], "-ne")) return a != b;
   if (!strcmp(argv[2], "-eq")) return a == b;
@@ -54,12 +50,13 @@ static int un(char *argv[]) {
 }
 
 static int test(int argc, char *argv[]) {
+  int i;
   switch (argc) {
     default: return 255;
     case 0: return 1;
     case 1: return argv[1][0] == 0;
     case 2: return !strcmp(argv[1], "!") ? !test(argc-1, argv+1) : un(argv);
-    case 3: return isbin(argv[2]) ? bin(argv) :
+    case 3: return (i = bin(argv)) != 255 ? i :
                    !strcmp(argv[1], "!") ? !test(argc-1, argv+1) : 255;
     case 4: return !strcmp(argv[1], "!") ? !test(argc-1, argv+1) : 255;
   }
