@@ -12,10 +12,6 @@ static int strmatch(struct str s, size_t i) {
   if (flag('x') && s.len != patterns[i].len) return -1;
   return strstr(s.str, patterns[i].str) != 0 ? 1 : -1;
 }
-static int strcasematch(struct str s, size_t i) {
-  if (flag('x') && s.len != patterns[i].len) return -1;
-  return strcasestr(s.str, patterns[i].str) != 0 ? 1 : -1;
-}
 
 int main(int argc, char *argv[]) {
   options("acEFhHinqsvxe:f:"); // -as are ignored
@@ -27,6 +23,7 @@ int main(int argc, char *argv[]) {
   // strikingly efficient, great engineering
 #define push(p, l) do {                                               \
     patterns = realloc(patterns, ++npatterns * sizeof(struct str));   \
+    if (flag('i')) lowerstr(p);                                       \
     patterns[npatterns-1].str = p;                                    \
     patterns[npatterns-1].len = l;                                    \
   } while (0)
@@ -65,8 +62,7 @@ int main(int argc, char *argv[]) {
           return 255;
   }
 
-  int (*matchfunc)(struct str, size_t) =
-    flag('F') ? flag('i') ? strcasematch : strmatch : regmatch;
+  int (*matchfunc)(struct str, size_t) = flag('F') ? strmatch : regmatch;
 
   int matched = 0, flagv = flag('v') ? -1 : 1;
   struct str line = { 0 };

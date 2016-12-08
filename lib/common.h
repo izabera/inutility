@@ -50,6 +50,7 @@
 #include "hashtable.h"
 #include "sequential.h"
 #include "itoa.h"
+#include "casestr.h"
 
 #define arrsize(a) (sizeof(a)/sizeof(*a))
 #define min(a,b) ((a) < (b) ? (a) : (b))
