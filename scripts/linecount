@@ -1,2 +1,2 @@
 #!/bin/sh
-wc -l src/*.[ch] lib/*.[ch] inutility.c Makefile
+wc -l src/*.c lib/*.[ch] inutility.c Makefile

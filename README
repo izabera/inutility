@@ -9,9 +9,9 @@ cal [[month] year]                                          |
 cat [-AeEntsTuv] [file...]                                  | todo -b
 chroot root [cmd...]                                        |
 cksum [file...]                                             |
+clear                                                       |
 comm [-123z] file1 file2                                    |
 cmp [-ls] [-n byte] file1 [file2 [skip1 [skip2]]]           | todo -b
-clear                                                       |
 cut [-nsz] [-b list] [-c list] [-f list] [-d sep] [file...] |
 date [-Ru] [-D format] [-d time] [-r file] [time]           |
 dd [various=options]                                        |
@@ -43,7 +43,7 @@ rm [-dfiRrv] file [file...]                                 |
 rmdir [-pv] dir [dir...]                                    |
 seq [-w] [-s arg] [-f arg] arg1 [arg2] [arg3]               |
 shuf [-erz] [-i lo-hi] [-n num] [file...]                   |
-sleep number[suffix]...                                      |
+sleep number[suffix]...                                     |
 sort [-bcdfghimnruCMRV] [-o file] [-t sep] [file...]        | todo -k
 stat [-Lft] [-c arg] file1 [file...]                        | todo -c %m
 sync [-df] [file...]                                        |
@@ -57,9 +57,9 @@ true                                                        |
 truncate [-c] [-r file] [-s byte] file [file...]            |
 tty [-s]                                                    |
 uname [-amnrsv]                                             |
-unshare [-fimnpuU] cmd [args...]                            |
 uniq [-icdDu] [-s num] [-w num] [-z] [infile [outfile]]     | todo -f
 unlink file [file...]                                       | allows more than 1 file
+unshare [-fimnpuU] cmd [args...]                            |
 uptime                                                      | no opts
 wc [-wclm] [file...]                                        |
 yes [args...]                                               |
