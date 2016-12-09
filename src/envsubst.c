@@ -37,7 +37,7 @@ char *getvar(FILE *input, FILE *fail) {
 
 int main(int argc, char *argv[]) {
   options("v", .arglessthan = 2);
-  char *failstring = NULL, **vars = NULL, **values;
+  char *failstring = NULL, **vars = NULL;
   size_t s = 0, nvars = 0;
 
   if (flag('v') && argc == 1) return 255;
@@ -59,15 +59,6 @@ int main(int argc, char *argv[]) {
         free(failstring);
       }
     }
-
-    // now whitelist some and remove from env all the other variables
-    values = malloc(sizeof(char*) * nvars);
-    for (size_t i = 0; i < nvars; i++) {
-      values[i] = getenv(vars[i]);
-      if (!values[i]) values[i] = "";
-    }
-    *environ = NULL;
-    for (size_t i = 0; i < nvars; i++) setenv(vars[i], values[i], 1);
   }
 
   if (flag('v')) {
@@ -82,15 +73,23 @@ int main(int argc, char *argv[]) {
       FILE *fail = open_memstream(&failstring, &s);
       putc_unlocked('$', fail);
 
-      char *var = getvar(stdin, fail);
+      char *var = getvar(stdin, fail), *value;
       fclose(fail);
+
       if (var) { // found a var
-        char *value = getenv(var);
-        if (value) fputs_unlocked(value, stdout); // if it's in env, print it
-        else if (argc == 2) fwrite(failstring, 1, s, stdout); // if it's not whitelisted
-        free(var);
+        if (argc == 2) {
+          for (size_t i = 0; i < nvars; i++)
+            if (!strcmp(vars[i], var)) goto printvar; // var is whitelisted
+          goto printfallback;
+        }
+
+printvar:
+        value = getenv(var);
+        if (value) fputs_unlocked(value, stdout);
       }
-      else fwrite(failstring, 1, s, stdout); // var not found, fallback to this
+      else printfallback:
+        fwrite(failstring, 1, s, stdout); // var not found or not whitelisted
+      free(var);
       free(failstring);
     }
   }
