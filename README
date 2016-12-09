@@ -17,6 +17,7 @@ dd [various=options]                                        |
 dirname [-z] name [name...]                                 |
 echo [-n] [arg...]                                          |
 env [-i0] [-u unset...] [-] [VAR=value...] [cmd [args...]]  |
+envsubst [-v] [shell-format]                                |
 errno [-ls] [signal]                                        |
 factor [arg...]                                             |
 false                                                       |
