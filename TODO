@@ -4,6 +4,9 @@
 - compile all the files in the same compilation unit
 - dd cbs and related conversions
 - utf8 aware rev
-- fix printf %b with \0
 - find a way to handle option parsing like in unshare
 - kill -TERM
+- find a way to implement grep -wo correctly
+  grep -wo 'a.*b' <<< ab.abc
+  should print ab, but it's not easy to do
+  toybox and busybox print nothing

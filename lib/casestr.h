@@ -1,2 +1,2 @@
-void lowerstr(char *);
-void upperstr(char *);
+char *lowerstr(char *);
+char *upperstr(char *);

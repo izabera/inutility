@@ -26,9 +26,9 @@ static int strmatch(struct str s, size_t i) {
   return (flag('w')) ? checkborder(s, tmp) : 1;
 }
 
-int matched, flagv;
-int (*matchfunc)(struct str, size_t);
-size_t npatterns;
+static int matched, flagv;
+static int (*matchfunc)(struct str, size_t);
+static size_t npatterns;
 static int grep(const char *path, struct stat *st, int type, struct FTW *ftw) {
   FILE *fileptr;
   UNUSED(st);

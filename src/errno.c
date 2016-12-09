@@ -16,8 +16,8 @@ int main(int argc, char *argv[]) {
       int num = atoi(*argv), found = 0;
       for (size_t i = 0; i < arrsize(errnos); i++) {
         char *str = strerror(errnos[i].n);
-        if ((!strcmp(errnos[i].str, *argv) || errnos[i].n == num) ||
-            (flag('s') && strstr(str, *argv))) {
+        if ((!strcasecmp(errnos[i].str, *argv) || errnos[i].n == num) ||
+            (flag('s') && strcasestr(str, *argv))) {
           printf("%s %d %s\n", errnos[i].str, errnos[i].n, strerror(errnos[i].n));
           found = 1;
         }
