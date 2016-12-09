@@ -17,7 +17,7 @@ dd [various=options]                                        |
 dirname [-z] name [name...]                                 |
 echo [-n] [arg...]                                          |
 env [-i0] [-u unset...] [-] [VAR=value...] [cmd [args...]]  |
-errno [-ls]                                                 |
+errno [-ls] [signal]                                        |
 factor [arg...]                                             |
 false                                                       |
 file [-hL] [file...]                                        |
@@ -41,7 +41,7 @@ rm [-dfiRrv] file [file...]                                 |
 rmdir [-pv] dir [dir...]                                    |
 seq [-w] [-s arg] [-f arg] arg1 [arg2] [arg3]               |
 shuf [-erz] [-i lo-hi] [-n num] [file...]                   |
-sleep number[suffix]                                        |
+sleep number[suffix]...                                      |
 sort [-bcdfghimnruCMRV] [-o file] [-t sep] [file...]        | todo -k
 stat [-Lft] [-c arg] file1 [file...]                        | todo -c %m
 sync [-df] [file...]                                        |
