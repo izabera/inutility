@@ -7,11 +7,10 @@ int main(int argc, char *argv[]) {
 
   int fd/*, searchdir = 1*/;
   ioctl(1, TIOCGWINSZ, &w);
-  char *map, *screen = malloc(w.ws_row*w.ws_col), *cmd = NULL, *search = NULL;
-  if (!screen) return errno;
+  char *map, *screen = malloc(w.ws_row*w.ws_col) /*, *cmd = NULL, *search = NULL */;
 
   setvbuf(stdout, NULL, _IONBF, 0);
-  printf("%s", smcup civis);
+  fputs_unlocked(smcup civis, stdout);
   struct termios term;
   tcgetattr(1, &term);
   tcsetattr(1, TCSADRAIN, &rawterm);
@@ -20,10 +19,30 @@ int main(int argc, char *argv[]) {
     struct stat st;
     fstat(fd, &st);
     if ((map = mmap(NULL, st.st_size, PROT_READ, MAP_PRIVATE, fd, 0))) {
+      // split this file into lines
+      // \n is converted to \0 because who cares, it's a private map
+      // todo: line wrapping
+      size_t count = 0;
+      for (ssize_t i = 0; i < st.st_size; i++) {
+        if (map[i] == '\n') {
+          map[i] = 0;
+          count++;
+        }
+      }
+
+      // if screen has more lines, fill the rest with ~
+      if (count < w.ws_row) count = w.ws_row;
+
+      char **lines = malloc(sizeof(char *) * count);
+      for (ssize_t i = 0, j = 0; i < st.st_size; i++) {
+        lines[j++] = map+i;
+        i += strlen(map+i);
+      }
+
       char key[10] = { 0 };
-      ssize_t keysize = 0;
+      ssize_t keysize = 0, i = 0;
       for (printf("%s", cup); (keysize = read(0, &key, 1)) > 0; printf("%s", cup)) {
-        for (ssize_t j = 0; j < i + w.ws_row - 1; j++) puts(line[j]);
+        for (ssize_t j = 0; j < i + w.ws_row - 1; j++) puts(lines[j]);
         printf("%s%s (%zd/%zd)%s", rev el, argv[q], i+1, tot-w.ws_row+1, sgr0);
         switch (key[0]) {
           case 'e': case 'E': case '\5' : case 'j': case 'J': case '\n': case '\16': i++; break;

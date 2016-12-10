@@ -10,3 +10,4 @@
   grep -wo 'a.*b' <<< ab.abc
   should print ab, but it's not easy to do
   toybox and busybox print nothing
+- fix envsubst <<< '$$PATH'
