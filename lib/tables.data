@@ -1,3 +1,4 @@
+// vim: ft=c
 static const char ebcdicascii[] = {  // grabbed these tables from gnu dd
   '\000', '\001', '\002', '\003', '\234', '\011', '\206', '\177',
   '\227', '\215', '\216', '\013', '\014', '\015', '\016', '\017',

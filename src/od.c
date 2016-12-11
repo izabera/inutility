@@ -1,15 +1,11 @@
 #include "lib/common.h"
 
 int main(int argc, char *argv[]) {
-  options("bcdilosvxA:j*N*t:w|");
+  options("abcdilosvxA:j*N*t:w|");
   FILE *fileptr = stdin;
   size_t address = 0;
 
-  char namedchars[128][3] = {
 #include "lib/namedchars.data"
-  };
-
-  if (!flag('w')) flag('w') = 16;
 
   // todo: float
 #define C sizeof(char)
@@ -26,7 +22,7 @@ int main(int argc, char *argv[]) {
       uC = 32 | C, uS = 32 | S, uI = 32 | I, uL = 32 | L, // handle the cases
       x1 = 48 | 1, x2 = 48 | 2, x4 = 48 | 4, x8 = 48 | 8,
       xC = 48 | C, xS = 48 | S, xI = 48 | I, xL = 48 | L, // with numbers
-      a, c
+      a = 100, c = 101
     } *list;
     int num;
   } fmt = { .list = NULL, .num = 0 };
@@ -57,7 +53,6 @@ int main(int argc, char *argv[]) {
             case 'd': case 'o': case 'u': case 'x': ;
               char *doux = "doux";
               int val = 16 * (strchr(doux, flags[opt('t')].args[topt][i++]) - doux);
-              printf("%zu\n", i);
               switch (flags[opt('t')].args[topt][i]) {
                 case '1': val |= 1; break;
                 case '2': val |= 2; break;
@@ -77,13 +72,22 @@ int main(int argc, char *argv[]) {
   }
   if (!fmt.num) addfmt(oS);
 
-  char addressfmt = flag('A') ? lastarg('A')[0] : 0;
-  /*size_t width = flag('w') ? lastnum('w') : 16, pos = 0;*/
-  size_t pos = 0;
-#define width 16
-  // todo width (check -w2 -tx4 -to8)
-  char *current = malloc(width), *old = malloc(width);
+  char addressfmt = flag('A') ? lastarg('A')[0] : 'o';
+  if (!strchr("doxn", addressfmt)) return 255;
 
+  size_t width = flag('w') ? lastnum('w') : 16, pos = 0;
+  for (int i = 0; i < fmt.num; i++) {
+    unsigned opt = fmt.list[i];
+    if ((opt >> 4) < 4) { // if it's not -a or -c
+      //      -w2 -tx4             -w3 -to2
+      if ((opt & 15) > width || width % (opt & 15)) return 255;
+    }
+  }
+
+  char *curr = malloc(width), *old = malloc(width);
+
+  ssize_t jcount = 0, jval = flag('j') ? lastnum('j') : 0,
+          Ncount = 0, Nval = flag('N') ? lastnum('N') + jval : -1;
 
   if (argc == 1) {
     argv[0] = "-";
@@ -94,50 +98,44 @@ int main(int argc, char *argv[]) {
     else if (!(fileptr = fopen(argv[0], "r"))) continue;
 inner:
     do {
+      if (Ncount++ == Nval) break; // check before reading
       int ch = getc_unlocked(fileptr);
       if (ch == EOF) break;
-      current[pos++] = ch;
+      if (jcount++ < jval) continue;
+      curr[pos++] = ch;
+
       if (pos == width) {
         pos = 0;
-        if (!flag('v') && !memcmp(current, old, width)) puts("*");
+        if (!flag('v') && !memcmp(curr, old, width)) puts("*");
         else {
           for (int i = 0; i < fmt.num; i++) {
+            if (addressfmt)
             switch (fmt.list[i]) {
               case a:
-                for (int j = 0; j < width; j++)
-                  printf(" %.3s", namedchars[(unsigned char)current[j]&~128]);
+                for (size_t j = 0; j < width; j++)
+                  fwrite_unlocked(&namedchars_a[(unsigned char)curr[j]&~128], 1, 4, stdout);
                 break;
               case c:
-                for (int j = 0; j < width; j++)
-                  printf(isprint(current[j]) ? " %3c" :
-                         current[j] == '\0' ? "  \\0": current[j] == '\a' ? "  \\a":
-                         current[j] == '\b' ? "  \\b": current[j] == '\f' ? "  \\f":
-                         current[j] == '\n' ? "  \\n": current[j] == '\r' ? "  \\r":
-                         current[j] == '\t' ? "  \\t": current[j] == '\v' ? "  \\v":
-                         " %03o", current[j] & 255);
+                for (size_t j = 0; j < width; j++)
+                  fwrite_unlocked(&namedchars_c[(unsigned char)curr[j]], 1, 4, stdout);
                 break;
+#if 0
               default:
-                for (int j = 0; j < width; j += fmt.list[i] & 15) {
-                  char *format = (fmt.list[i] >> 4)[(char *[]){ " %03d", " %03o", " %03u" " %02x" }];
-                  // can't use a switch here...
-                       if ((fmt.list[i] & 15) == C) printf(format, current[j]);
-                  else if ((fmt.list[i] & 15) == S) printf(format, *(short*)(current+j) & (short)-1);
-                  else if ((fmt.list[i] & 15) == I) printf(format, *(int  *)(current+j) & (int  )-1);
-                  else if ((fmt.list[i] & 15) == L) printf(format, *(long *)(current+j) & (long )-1);
+                for (size_t j = 0; j < width; j += fmt.list[i] & 15) {
+                  char *format = (char *[]){ " %*d", " %0*o", " %0*u" " %0*x" }[(fmt.list[i] >> 4)];
+                  size_t value = 0;
+                  switch (fmt.list[i] & 15) {
+                    case 1: value = 
+                  }
                 }
+#endif
             }
-            /*int size = fmt.list[i] & 15;*/
-            /*// temp buffer for printf*/
-            /*char buf[size];*/
-            /*memcpy(buf, current, size);*/
-            /*for (int j = 0; j < width; j += size) {*/
-            /*}*/
             putchar_unlocked('\n');
           }
         }
         char *tmp = old;
-        old = current;
-        current = tmp;
+        old = curr;
+        curr = tmp;
       }
     } while (1);
 

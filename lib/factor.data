@@ -1,3 +1,4 @@
+// vim: ft=c
 static uint32_t primes[] = { // https://primes.utm.edu/lists/small/10000.txt
        2,      3,      5,      7,     11,     13,     17,     19,     23,     29,
 #ifndef SMALL
