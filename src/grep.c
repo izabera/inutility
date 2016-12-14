@@ -37,10 +37,10 @@ static int grep(const char *path, struct stat *st, int type, struct FTW *ftw) {
     if (type & (FTW_NS|FTW_SL|FTW_SLN|FTW_D|FTW_DP|FTW_DNR)) return 0;
   }
   else {
-         if (path[0] == '-' && path[0] == 0) {
-           path = "(standard input)"; // posix requires this...
-           fileptr = stdin;
-         }
+    if (!strcmp(path, "-")) {
+      path = "(standard input)"; // posix requires this...
+      fileptr = stdin;
+    }
     else if (!(fileptr = fopen(path, "r"))) return 0;
   }
 
@@ -79,42 +79,45 @@ nextfile:
   return 0;
 }
 
+void addpatterns(FILE *f) {
+  do {
+    char *tmp = NULL;
+    size_t s = 0;
+    ssize_t read;
+    if ((read = getline(&tmp, &s, f)) != -1) {
+      if (tmp[read-1] == '\n') tmp[--read] = 0;
+      patterns = realloc(patterns, ++npatterns * sizeof(struct str));
+      if (flag('i')) lowerstr(tmp);
+      patterns[npatterns-1].str = tmp;
+      patterns[npatterns-1].len = read;
+    }
+    else break;
+  } while (1);
+  fclose(f);
+}
+
 int main(int argc, char *argv[]) {
   if (!(strcmp(argv[0], "fgrep"))) flag('F') = 1;
   if (!(strcmp(argv[0], "egrep"))) flag('E') = 1;
   options("acEFGhHilLnqrsvwxe:f:"); // -as are ignored
 
-  // strikingly efficient, great engineering
-#define push(p, l) do {                                               \
-    patterns = realloc(patterns, ++npatterns * sizeof(struct str));   \
-    if (flag('i')) lowerstr(p);                                       \
-    patterns[npatterns-1].str = p;                                    \
-    patterns[npatterns-1].len = l;                                    \
-  } while (0)
-
+  FILE *ftmp;
   if (flag('e') || flag('f')) {
     if (flag('f')) {
-      FILE *ftmp;
       for (size_t i = 0; i < flag('f'); i++) {
         if (!(ftmp = fopen(flags[opt('f')].args[i], "r"))) return errno;
-        do {
-          char *tmp = NULL;
-          size_t s = 0;
-          ssize_t read;
-          if ((read = getline(&tmp, &s, ftmp)) != -1) {
-            if (tmp[read-1] == '\n') tmp[--read] = 0;
-            push(tmp, read);
-          }
-          else break;
-        } while (1);
+        addpatterns(ftmp);
       }
     }
-    for (size_t i = 0; i < flag('e'); i++)
-      push(flags[opt('e')].args[i], strlen(flags[opt('e')].args[i]));
+    for (size_t i = 0; i < flag('e'); i++) {
+      ftmp = fmemopen(flags[opt('e')].args[i], strlen(flags[opt('e')].args[i]), "r");
+      addpatterns(ftmp);
+    }
   }
   else {
     if (argc == 1) return 255;
-    push(argv[1], strlen(argv[1]));
+    ftmp = fmemopen(argv[1], strlen(argv[1]), "r");
+    addpatterns(ftmp);
     argc--;
     argv++;
   }

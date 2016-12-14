@@ -24,6 +24,7 @@ static int bin(char *argv[2]) {
 static int un(char *argv[]) {
   if (!strcmp(argv[1], "-n")) return argv[1][0] == 0;
   if (!strcmp(argv[1], "-z")) return argv[1][0] != 0;
+  if (!strcmp(argv[1], "-a")) return !!access(argv[2], F_OK);
   if (!strcmp(argv[1], "-e")) return !!access(argv[2], F_OK);
   if (!strcmp(argv[1], "-r")) return !!access(argv[2], R_OK);
   if (!strcmp(argv[1], "-w")) return !!access(argv[2], W_OK);
