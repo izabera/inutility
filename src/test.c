@@ -1,7 +1,7 @@
 #include "lib/common.h"
 
 // all the tests must return the opposite value... so confusing...
-static int bin(char *argv[2]) {
+static int bin(char *argv[]) {
   if (!strcmp(argv[2], "=")) return !!strcmp(argv[1], argv[3]);
   if (!strcmp(argv[2], "!=")) return !strcmp(argv[1], argv[3]);
   if (!strcmp(argv[2], "<")) return !(strcmp(argv[1], argv[3]) < 0);
