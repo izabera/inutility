@@ -157,7 +157,7 @@ inner:
       else lines[count].cmpstr = strdup(line);
       if (++count >= arrsize) {
         arrsize *= 2;
-        if (!(lines = realloc(lines, arrsize * sizeof(struct line)))) return errno;
+        lines = realloc(lines, arrsize * sizeof(struct line));
       }
     }
     if (fileptr != stdin) fclose(fileptr);

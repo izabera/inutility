@@ -115,3 +115,8 @@ mode_t getumask();
 
 #define attrpure __attribute__((pure))
 #define attrconst __attribute__((const))
+
+#define likely(x)   __builtin_expect(!!(x), 1)
+#define unlikely(x) __builtin_expect(!!(x), 0)
+
+#include "alloc.h"

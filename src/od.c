@@ -75,25 +75,32 @@ int main(int argc, char *argv[]) {
   if (!strchr("doxn", addressfmt)) return 255;
 
   // space needed for printf
-  uint8_t fieldwidth[9] = { 0 }, fields[9] = { 0 }, pad[] = {
-    [d1] = 4, [d2] = 6, [d4] = 11, [d8] = 20,
-    [o1] = 3, [o2] = 6, [o4] = 11, [o8] = 22,
-    [u1] = 3, [u2] = 5, [u4] = 10, [u8] = 20,
-    [x1] = 2, [x2] = 4, [x4] =  8, [x8] = 16,
-  };
+  int fieldwidth[9] = { 0 },
+      addressw = 0,
+      pad[] = {
+        [d1] = 4, [d2] = 6, [d4] = 11, [d8] = 20,
+        [o1] = 3, [o2] = 6, [o4] = 11, [o8] = 22,
+        [u1] = 3, [u2] = 5, [u4] = 10, [u8] = 20,
+        [x1] = 2, [x2] = 4, [x4] =  8, [x8] = 16,
+      };
 
-  size_t width = flag('w') ? lastnum('w') : 16, pos = 0;
+  size_t bufw = flag('w') ? lastnum('w') : 16, pos = 0;
 
   for (int i = 0; i < fmt.num; i++) {
-    unsigned opt = fmt.list[i];
-    if ((opt >> 4) < 4) { // if it's not -a or -c
+    unsigned opt = fmt.list[i], type = opt >> 4, width = opt & 15;
+    if (type < 4) { // if it's not -a or -c
       // sanity check for buffer width
       //      -w2 -tx4             -w3 -to2
-      if ((opt & 15) > width || width % (opt & 15)) return 255;
+      if (width > bufw || bufw % width) return 255;
 
-      fields[opt & 15] = 1;
+      // -to1 -tx2
+      // o1 is 3 char wide + 1 padding
+      // x2 is shorter than two o1 fields, so fieldwidth[2] becomes 3*2+1
+      /*switch (width) {*/
+        /*case 1: */
+      /*}*/
     }
-    else fields[1] = 1;
+    /*else fields[1] = 1;*/
   }
 
   // now adjust fieldwidth
@@ -101,12 +108,13 @@ int main(int argc, char *argv[]) {
     unsigned opt = fmt.list[i];
     if ((opt >> 4) < 4) { // if it's not -a or -c
       //      -w2 -tx4             -w3 -to2
-      if ((opt & 15) > width || width % (opt & 15)) return 255;
+      if ((opt & 15) > bufw || bufw % (opt & 15)) return 255;
     }
-    else fields[1] = 1;
+    /*else fields[1] = 1;*/
   }
 
-  char *curr = malloc(width), *old = malloc(width);
+  char *cur = aligned_alloc(8, bufw), // this will need to be wider for doubles
+       *old = aligned_alloc(8, bufw);
 
   int64_t jcount = 0, jval = flag('j') ? lastnum('j') : 0,
           Ncount = 0, Nval = flag('N') ? lastnum('N') + jval : INT64_MAX;
@@ -122,53 +130,53 @@ inner:
     do {
       if (pos == 0) {
         switch (addressfmt) {
-          case 'd': printf("%07" PRIi64, Ncount); break;
-          case 'o': printf("%07" PRIo64, Ncount); break;
-          case 'x': printf("%07" PRIx64, Ncount); break;
+          case 'd': addressw = printf("%07" PRIi64, Ncount); break;
+          case 'o': addressw = printf("%07" PRIo64, Ncount); break;
+          case 'x': addressw = printf("%06" PRIx64, Ncount); break;
         }
       }
       if (Ncount++ == Nval) break; // check before reading
       int ch = getc_unlocked(fileptr);
       if (ch == EOF) break;
       if (jcount++ < jval) continue;
-      curr[pos++] = ch;
+      cur[pos++] = ch;
 
-      if (pos == width) {
+      if (pos == bufw) {
         pos = 0;
-        if (!flag('v') && !memcmp(curr, old, width)) puts("*");
+        if (!flag('v') && !memcmp(cur, old, bufw)) puts("*");
         else {
           for (int i = 0; i < fmt.num; i++) {
-            if (i && addressfmt != 'n') printf("       ");
+            if (i && addressfmt != 'n') printf("%*s", addressw, "");
             unsigned opt = fmt.list[i];
             switch (opt) {
               case a:
-                for (size_t j = 0; j < width; j++)
-                  printf(" %*s", fieldwidth[1], namedchars_a[(unsigned char)curr[j]&~128]);
+                for (size_t j = 0; j < bufw; j++)
+                  printf(" %*s", fieldwidth[1], namedchars_a[(unsigned char)cur[j]&~128]);
                 break;
               case c:
-                for (size_t j = 0; j < width; j++)
-                  printf(" %*s", fieldwidth[1], namedchars_c[(unsigned char)curr[j]]);
+                for (size_t j = 0; j < bufw; j++)
+                  printf(" %*s", fieldwidth[1], namedchars_c[(unsigned char)cur[j]]);
                 break;
               default:
-                for (size_t j = 0; j < width; j += opt & 15) {
+                for (size_t j = 0; j < bufw; j += opt & 15) {
                   // handle -td specially because it's the only one that's signed
                   if (opt >> 4 == 0) {
                     int64_t value = 0; // = 0 because gcc is dumb
                     switch (opt & 15) {
-                      case 1: value = *(int8_t *)(curr+j); break;
-                      case 2: value = *(int16_t*)(curr+j); break;
-                      case 4: value = *(int32_t*)(curr+j); break;
-                      case 8: value = *(int64_t*)(curr+j); break;
+                      case 1: value = *(int8_t *)(cur+j); break;
+                      case 2: value = *(int16_t*)(cur+j); break;
+                      case 4: value = *(int32_t*)(cur+j); break;
+                      case 8: value = *(int64_t*)(cur+j); break;
                     }
                     printf(" %*" PRIi64, fieldwidth[opt & 15], value);
                   }
                   else {
                     uint64_t value = 0;
                     switch (opt & 15) {
-                      case 1: value = *(uint8_t *)(curr+j); break;
-                      case 2: value = *(uint16_t*)(curr+j); break;
-                      case 4: value = *(uint32_t*)(curr+j); break;
-                      case 8: value = *(uint64_t*)(curr+j); break;
+                      case 1: value = *(uint8_t *)(cur+j); break;
+                      case 2: value = *(uint16_t*)(cur+j); break;
+                      case 4: value = *(uint32_t*)(cur+j); break;
+                      case 8: value = *(uint64_t*)(cur+j); break;
                     }
                     char *format = opt >> 4 == 1 ? " %0*.*" PRIo64 :
                                    opt >> 4 == 2 ? " %*.*"  PRIu64 : " %0*.*" PRIx64;
@@ -180,8 +188,8 @@ inner:
           }
         }
         char *tmp = old;
-        old = curr;
-        curr = tmp;
+        old = cur;
+        cur = tmp;
       }
     } while (1);
 

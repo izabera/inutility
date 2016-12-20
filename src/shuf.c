@@ -10,7 +10,6 @@ int main(int argc, char *argv[]) {
     char *str;
     size_t size;
   } *head = calloc(1, sizeof(*head)), *last, *prev = head /* gcc */, *current;
-  if (!head) return errno;
   last = head;
 
   if (flag('o')) if (!freopen(lastarg('o'), "w", stdout)) return errno;
@@ -18,7 +17,6 @@ int main(int argc, char *argv[]) {
 #define addtolist(line, len)                            \
   do {                                                  \
     struct node *tmpnode = calloc(1, sizeof(*tmpnode)); \
-    if (!tmpnode) return errno;                         \
     last->str = line;                                   \
     last->size = len;                                   \
     last->next = tmpnode;                               \

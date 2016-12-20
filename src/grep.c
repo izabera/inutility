@@ -79,7 +79,7 @@ nextfile:
   return 0;
 }
 
-void addpatterns(FILE *f) {
+static void addpatterns(FILE *f) {
   do {
     char *tmp = NULL;
     size_t s = 0;

@@ -8,7 +8,7 @@ int main(int argc, char *argv[]) {
     size_t used, size;
   } lines;
   lines.size = 64;
-  if (!(lines.line = malloc(lines.size * sizeof(struct str)))) return 1;
+  lines.line = malloc(lines.size * sizeof(struct str));
 
   int file = 0;
   FILE *fileptr = stdin;
@@ -46,9 +46,9 @@ inner:
       while ((read = getline(&line, &len, fileptr)) != -1) {
         if (lines.used == lines.size) {
           lines.size *= 2;
-          if (!(lines.line = realloc(lines.line, lines.size * sizeof(struct str)))) return 1;
+          lines.line = realloc(lines.line, lines.size * sizeof(struct str));
         }
-        if (!(lines.line[lines.used].str = malloc(read))) return 1;
+        lines.line[lines.used].str = malloc(read);
         lines.line[lines.used].len = read;
         memcpy(lines.line[lines.used++].str, line, read);
       }

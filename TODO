@@ -6,8 +6,11 @@
 - utf8 aware rev
 - find a way to handle option parsing like in unshare
 - kill -TERM
-- find a way to implement grep -wo correctly
-  grep -wo 'a.*b' <<< ab.abc
-  should print ab, but it's not easy to do
+- find a way to implement grep -w correctly
+  grep -w 'a.*b' <<< ab.abc
+  should match ab, but it's not easy to do
   toybox and busybox print nothing
+  sbase adds \< \> but this breaks grep -w '\(.\)\1'
+- check grep -w ''
+- implement grep -o
 - fix envsubst <<< '$$PATH'
