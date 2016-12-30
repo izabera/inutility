@@ -21,6 +21,7 @@ int main(int argc, char *argv[]) {
       *seconds++ = 0;
       tm->tm_sec = strtol(seconds, NULL, 10);
     }
+    else tm->tm_sec = 0;
     size_t len = strlen(tmp);
     if (len != 8 && len != 10 && len != 12) return -1;
     strptime(tmp, "%C%y%m%d%H%M" + 12 - len, tm);

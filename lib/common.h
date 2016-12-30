@@ -120,3 +120,18 @@ mode_t getumask();
 #define unlikely(x) __builtin_expect(!!(x), 0)
 
 #include "alloc.h"
+
+// iterate over a compile time list
+// iterate(string, "foo", "bar", "baz") {
+//   puts(*string);
+// }
+#define iterate(var, firstelem, ...)                              \
+  for (int __i = 0; __i < 1; )                                    \
+  for (__auto_type __first = firstelem; __i < 1; __i++)           \
+  for (__typeof(*&__first) __tmp[] = { firstelem, __VA_ARGS__ },  \
+       *var = __tmp;                                              \
+       var < __tmp + sizeof __tmp/sizeof *__tmp;                  \
+       var++)
+
+// int *ptr = new(int[10]);
+#define new(x) malloc(sizeof(x))
