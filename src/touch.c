@@ -1,5 +1,7 @@
 #include "lib/common.h"
 
+// mostly written by ybden
+
 int main(int argc, char *argv[]) {
   options("acfmr:t:d:", .argleast = 1);
   int fd;
@@ -7,14 +9,17 @@ int main(int argc, char *argv[]) {
     { 0, UTIME_NOW },
     { 0, UTIME_NOW },
   };
+
   if (flag('d') && lastarg('d')[strlen(lastarg('d'))-1] == 'Z') setenv("TZ", "UTC", 1);
   struct tm *tm = localtime(&(time_t) { time(NULL) });
+
   if (flag('r')) {
     struct stat st;
     if (stat(lastarg('r'), &st) == -1) return errno;
-    ts[0].tv_sec  = ts[1].tv_sec  = st.st_mtim.tv_sec;
-    ts[0].tv_nsec = ts[1].tv_nsec = st.st_mtim.tv_nsec;
+    ts[0] = st.st_atim;
+    ts[1] = st.st_mtim;
   }
+
   else if (flag('t')) {
     char *seconds, *tmp = lastarg('t');
     if ((seconds = strchr(tmp, '.'))) {
@@ -28,6 +33,7 @@ int main(int argc, char *argv[]) {
     ts[0].tv_sec  = ts[1].tv_sec  = mktime(tm);
     ts[0].tv_nsec = ts[1].tv_nsec = 0;
   }
+
   else if (flag('d')) {
     char *frac, *tmp = strchr(lastarg('d'), ' '), buf[10] = "000000000";
     if (tmp) *tmp = 'T'; // it must be either a space or T
@@ -41,8 +47,10 @@ int main(int argc, char *argv[]) {
       ts[0].tv_nsec = ts[1].tv_nsec = strtoul(buf, NULL, 10);
     }
   }
+
   if (flag('m') && !flag('a')) ts[0].tv_nsec = UTIME_OMIT;
   if (!flag('m') && flag('a')) ts[1].tv_nsec = UTIME_OMIT;
+
   while (*++argv) {
     if (argv[0][0] == '-' && argv[0][1] == 0) {
       futimens(1, ts);
