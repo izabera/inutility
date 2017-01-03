@@ -10,7 +10,11 @@ obj = $(addprefix $(objdir)/,$(addsuffix .o,$(programs))) $(objlib)
 
 CFLAGS = -Wall -Wextra -Wshadow -pedantic -O2 -g -march=native
 LDFLAGS = -flto
-override CFLAGS += -std=c11 -DVERSION='"$(shell git describe --always --dirty || echo xxxxxxx)"' -D_GNU_SOURCE
+override CFLAGS += -DVERSION='"$(shell git describe --always --dirty || echo xxxxxxx)"' -D_GNU_SOURCE
+
+ifeq ($(shell echo $(CFLAGS) | grep -q -- -std=gnu || echo nostd),nostd)
+	override CFLAGS += -std=c11
+endif
 
 ifeq ($(notdir $(CC)),gcc)
 	override CFLAGS += -Wsuggest-attribute=const -Wsuggest-attribute=pure -Wsuggest-attribute=format -Wsuggest-attribute=noreturn
@@ -73,7 +77,7 @@ uninstall:
 	done
 
 fast:
-	make CFLAGS='-DNDEBUG -Ofast -march=native' LDFLAGS=-flto
+	make CFLAGS='-DNDEBUG -Ofast -march=native -std=gnu11' LDFLAGS=-flto
 
 smalldyn:
 	make CC=musl-gcc CFLAGS='-DNDEBUG -Os -fno-asynchronous-unwind-tables -fdata-sections -ffunction-sections -march=native' LDFLAGS='-flto -s -Wl,-gc-sections'

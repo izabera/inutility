@@ -79,7 +79,8 @@ int main(int argc, char *argv[]) {
     char *newfmt;
     if (asprintf(&newfmt, "%%s%s", format) == -1) return errno;
     if (!flag('f') && flag('w')) free(format);
-    for (val += incr; cond(incr,val,last); val += incr) printf(newfmt, separator, val);
+    int64_t count = 1;
+    for (val += incr; cond(incr,val,last); val = first + (++count * incr)) printf(newfmt, separator, val);
     putchar_unlocked('\n');
   }
   return errno;
