@@ -76,11 +76,11 @@ fast:
 	make CFLAGS='-DNDEBUG -Ofast -march=native' LDFLAGS=-flto
 
 smalldyn:
-	make CC=musl-gcc CFLAGS='-DNDEBUG -DSMALL -Os -fno-asynchronous-unwind-tables -fdata-sections -ffunction-sections -march=native' LDFLAGS='-flto -s -Wl,-gc-sections'
+	make CC=musl-gcc CFLAGS='-DNDEBUG -Os -fno-asynchronous-unwind-tables -fdata-sections -ffunction-sections -march=native' LDFLAGS='-flto -s -Wl,-gc-sections'
 	strip --strip-all --remove-section=.comment --remove-section=.note inutility
 	if type sstrip >/dev/null 2>&1; then sstrip inutility; fi
 
 small:
-	make CC=musl-gcc CFLAGS='-DNDEBUG -DSMALL -Os -fno-asynchronous-unwind-tables -fdata-sections -ffunction-sections -march=native' LDFLAGS='-flto -s -Wl,-gc-sections -static'
+	make CC=musl-gcc CFLAGS='-DNDEBUG -Os -fno-asynchronous-unwind-tables -fdata-sections -ffunction-sections -march=native' LDFLAGS='-flto -s -Wl,-gc-sections -static'
 	strip --strip-all --remove-section=.comment --remove-section=.note inutility
 	if type sstrip >/dev/null 2>&1; then sstrip inutility; fi
