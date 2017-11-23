@@ -59,7 +59,7 @@ int main(int argc, char *argv[]) {
                 case '8': val |= 8; break;
                 case 'C': val |= C; break;
                 case 'S': val |= S; break;
-                default : i--; // if -to we must go back to exit in the outer loop
+                default : i--; /* fallthrough */ // if -to we must go back to exit in the outer loop
                 case 'I': val |= I; break;
                 case 'L': val |= L; break;
               }

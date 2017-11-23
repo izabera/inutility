@@ -6,10 +6,10 @@ int main(int argc, char *argv[]) {
   size_t skip1 = 0, skip2 = 0, limit = flag('n') ? lastnum('n') : -1;
   switch (argc) {
     default:
-    case 5: skip2 = parsebyte(argv[4]);
-    case 4: skip1 = parsebyte(argv[3]);
+    case 5: skip2 = parsebyte(argv[4]); /* fallthrough */
+    case 4: skip1 = parsebyte(argv[3]); /* fallthrough */
     case 3: if (!strcmp("-", argv[2])) file2 = stdin;
-            else if (!(file2 = fopen(argv[2], "r"))) return -1;
+            else if (!(file2 = fopen(argv[2], "r"))) return -1; /* fallthrough */
     case 2: if (!strcmp("-", argv[1])) file1 = stdin;
             else if (!(file1 = fopen(argv[1], "r"))) return -1;
             if (argc == 2) argv[2] = "-";

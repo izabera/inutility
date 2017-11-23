@@ -50,7 +50,7 @@ int main(int argc, char *argv[]) {
 #define rpad(x) ((int)(20 - strlen(months[x]))/2)
   switch (argc) {
     case  3: tm->tm_year = atoi(argv[2]);
-             if ((tm->tm_mon = atoi(argv[1]) - 1) < 0 || tm->tm_mon > 11) return -1;
+             if ((tm->tm_mon = atoi(argv[1]) - 1) < 0 || tm->tm_mon > 11) return -1; /* fallthrough */
     case  1: printf("%*s %d\n%s\n", 17-rpad(tm->tm_mon), months[tm->tm_mon], tm->tm_year, days);
              fwrite_unlocked(printmon(tm, 0), 1, 126, stdout);
              break;

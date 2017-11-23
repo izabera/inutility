@@ -20,7 +20,7 @@ static struct Wc wc(int fd) { /* counts both utf8 chars and bytes, assuming vali
   while ((len = read(fd, buffer, bufsize)) > 0) {
     for (int i = 0; i < len; i++) {
       switch (buffer[i]) {
-        case '\n': lines++;
+        case '\n': lines++; /* fallthrough */
         case ' ': case '\t': case '\r': case '\f': case '\v':
           if (inword) {
             inword = 0;
