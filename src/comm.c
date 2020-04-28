@@ -2,9 +2,9 @@
 
 static int delim;
 static void miniprintf(const char *fmt, const char *str, size_t len) {
-  for ( ; *fmt == '\t'; fmt++) putchar_unlocked('\t');
-  if (*fmt) fwrite_unlocked(str, 1, len, stdout);
-  if (str[len-1] != delim) putchar_unlocked(delim);
+  for ( ; *fmt == '\t'; fmt++) putchar('\t');
+  if (*fmt) fwrite(str, 1, len, stdout);
+  if (str[len-1] != delim) putchar(delim);
 }
 
 int main(int argc, char *argv[]) {

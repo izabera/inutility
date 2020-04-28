@@ -46,26 +46,26 @@ static void makestr(struct str *dest, char *src) {
     switch (src[i]) {
       case '[': for (size_t j = 0; j < arrsize(classes); j++) {
                   if (!strncmp(classes[j].name, src+i, classes[j].namelen)) {
-                    fwrite_unlocked(classes[j].characters, 1, classes[j].charlen, stream);
+                    fwrite(classes[j].characters, 1, classes[j].charlen, stream);
                     i += classes[j].namelen - 1;
                     character = -1;
                     goto outfor;
                   }
                 }
-                fputc_unlocked(character = '[', stream);
+                fputc(character = '[', stream);
                 outfor: break;
-      case '-': if (character == -1 || !src[i+1]) fputc_unlocked(character = '-', stream);
+      case '-': if (character == -1 || !src[i+1]) fputc(character = '-', stream);
                 else {
                   int from = character+1, to; /* from+1 because we already added that char */
                   if (src[++i] == '\\') to = unescape(src, &i, 0);
                   else to = src[i];
-                  while (from <= to) fputc_unlocked(from++, stream);
+                  while (from <= to) fputc(from++, stream);
                   character = -1;
                 }
                 break;
-      case '\\': fputc_unlocked(character = unescape(src, &i, 0), stream);
+      case '\\': fputc(character = unescape(src, &i, 0), stream);
                  break;
-      default: fputc_unlocked(character = src[i], stream);
+      default: fputc(character = src[i], stream);
     }
   }
   fclose(stream);
@@ -119,14 +119,14 @@ int main(int argc, char *argv[]) {
   unsigned char inbuf[BUFSIZ], outbuf[BUFSIZ];
   int prev = -1;
   sequential(0);
-  while ((read = fread_unlocked(inbuf, 1, sizeof(inbuf), stdin)) > 0) {
+  while ((read = fread(inbuf, 1, sizeof(inbuf), stdin)) > 0) {
     for (i = j = 0; i < read; i++) {
       if (!delete[inbuf[i]]) {
         if (!squeeze[inbuf[i]] || prev != map[inbuf[i]])
           outbuf[j++] = prev = map[inbuf[i]];
       }
     }
-    fwrite_unlocked(outbuf, 1, j, stdout);
+    fwrite(outbuf, 1, j, stdout);
   }
 
   return 0;

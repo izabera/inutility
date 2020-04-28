@@ -2,9 +2,9 @@
 
 static unsigned long col = 0;
 static void printchar(char c) {
-  putchar_unlocked(c);
+  putchar(c);
   if (++col == flag('w')) {
-    putchar_unlocked('\n');
+    putchar('\n');
     col = 0;
   }
 }
@@ -28,7 +28,7 @@ int main(int argc, char *argv[]) {
   char old = 0, cur = 0;
 
   if (flag('d')) {
-    while ((c = fgetc_unlocked(file)) != EOF) {
+    while ((c = fgetc(file)) != EOF) {
       if (c == '\n') continue;
       if (decoded[c] == -1) {
         if (!flag('i')) return -1;
@@ -42,20 +42,20 @@ int main(int argc, char *argv[]) {
 
       switch (count++) {
         case 0: old = decoded[c]; break;
-        case 1: cur = decoded[c]; putchar_unlocked((old<<2)+(cur>>4)); old = cur % 16; break;
-        case 2: cur = decoded[c]; if (c != '=') putchar_unlocked((old<<4)+(cur>>2));
+        case 1: cur = decoded[c]; putchar((old<<2)+(cur>>4)); old = cur % 16; break;
+        case 2: cur = decoded[c]; if (c != '=') putchar((old<<4)+(cur>>2));
                 old = cur %  4;
                 break;
         case 3: cur = decoded[c];
                 if (c == '=') equal = 0;
-                else putchar_unlocked((old<<6)+cur);
+                else putchar((old<<6)+cur);
                 count = old = 0;
       }
     }
     if (count || old) return -1;
   }
   else {
-    while ((c = fgetc_unlocked(file)) != EOF) {
+    while ((c = fgetc(file)) != EOF) {
       switch (count++) {
         case 0: printchar(valid[ c>>2 ]);          old = c %  4; break;
         case 1: printchar(valid[(c>>4)+(old<<4)]); old = c % 16; break;
@@ -66,7 +66,7 @@ int main(int argc, char *argv[]) {
       case 1: printchar(valid[old<<4]); printchar('='); printchar('='); break;
       case 2: printchar(valid[old<<2]); printchar('=');
     }
-    if (flag('w') && col) putchar_unlocked('\n');
+    if (flag('w') && col) putchar('\n');
   }
   return errno;
 }

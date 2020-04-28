@@ -76,8 +76,8 @@ inner:
 
     for (size_t j = 0; j < randn; j++) current = current->next;
 
-    fwrite_unlocked(current->str, 1, current->size, stdout);
-    putchar_unlocked(delim);
+    fwrite(current->str, 1, current->size, stdout);
+    putchar(delim);
 
     if (!flag('r')) {
       free(current->str);

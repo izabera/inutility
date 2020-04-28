@@ -16,7 +16,7 @@ static void factor(const char* str) {
     }
   }
   if (num > 1) printf(" %" PRIu64, num);
-  putchar_unlocked('\n');
+  putchar('\n');
 }
 
 int main(int argc, char *argv[]) {

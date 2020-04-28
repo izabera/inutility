@@ -20,7 +20,7 @@ int main(int argc, char *argv[]) {
 
   while ((size = read(0, buf, sizeof(buf))) > 0)
     for (i = 0; i < argc; i++)
-      fwrite_unlocked(buf, 1, size, files[i]);
+      fwrite(buf, 1, size, files[i]);
 
   return errno;
 }

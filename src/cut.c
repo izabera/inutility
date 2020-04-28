@@ -74,10 +74,10 @@ inner:
       if (flag('b')) {
         for (tmprange = &ranges; tmprange->next &&
             tmprange->first < (size_t) read; tmprange = tmprange->next) {
-          fwrite_unlocked(line+tmprange->first-1, 1,
+          fwrite(line+tmprange->first-1, 1,
               min(read-tmprange->first, tmprange->last-tmprange->first+1), stdout);
         }
-        if (line[read-1] == ldelim) putchar_unlocked(line[read-1]);
+        if (line[read-1] == ldelim) putchar(line[read-1]);
       }
       else if (flag('c')) {
         char *tmp = line;
@@ -91,17 +91,17 @@ inner:
           else if (pos == tmprange->first) {
             do {
               pos++;
-              do { putchar_unlocked(*tmp++); } while ((*tmp & 0xC0) == 0x80); // print a char
+              do { putchar(*tmp++); } while ((*tmp & 0xC0) == 0x80); // print a char
             } while (pos <= tmprange->last);
             tmprange = tmprange->next;
           }
         }
-        if (line[read-1] == ldelim) putchar_unlocked(line[read-1]);
+        if (line[read-1] == ldelim) putchar(line[read-1]);
       } // this was relatively easy
       else {
         char *next = memchr(line, fdelim, read), *current = line;
         if (!next) {
-          if (!flag('s')) fwrite_unlocked(line, 1, read, stdout);
+          if (!flag('s')) fwrite(line, 1, read, stdout);
           continue;
         }
         size_t field = 1, printdelim = 0;
@@ -113,22 +113,22 @@ inner:
             next = memchr(next+1, fdelim, read-1-(next-line));   // check if off by 1
           }
           while (field <= tmprange->last) {
-            if (printdelim++) putchar_unlocked(fdelim);
+            if (printdelim++) putchar(fdelim);
             if (next) {
-              fwrite_unlocked(current, 1, next-current, stdout);
+              fwrite(current, 1, next-current, stdout);
               current = next+1;
               next = memchr(next+1, fdelim, read-1-(next-line));
               field++;
             }
             else {
-              fwrite_unlocked(current, 1, read-(current-line)-(line[read-1] == ldelim), stdout);
+              fwrite(current, 1, read-(current-line)-(line[read-1] == ldelim), stdout);
               goto nextline;
             }
           }
         } // this ended up being more complex than i thought
 
 nextline:
-        if (line[read-1] == ldelim) putchar_unlocked(line[read-1]);
+        if (line[read-1] == ldelim) putchar(line[read-1]);
       }
     }
     if (fileptr != stdin) fclose(fileptr);

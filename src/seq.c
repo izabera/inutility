@@ -59,11 +59,11 @@ int main(int argc, char *argv[]) {
       ptr += utoa(v, ptr);
       *ptr++ = '\n';
       if (ptr - buf > (signed) sizeof(buf) - 25) {
-        fwrite_unlocked(buf, 1, ptr - buf, stdout);
+        fwrite(buf, 1, ptr - buf, stdout);
         ptr = buf;
       }
     }
-    if (ptr != buf) fwrite_unlocked(buf, 1, ptr - buf, stdout);
+    if (ptr != buf) fwrite(buf, 1, ptr - buf, stdout);
     return errno;
   }
 
@@ -81,7 +81,7 @@ int main(int argc, char *argv[]) {
     if (!flag('f') && flag('w')) free(format);
     int64_t count = 1;
     for (val += incr; cond(incr,val,last); val = first + (++count * incr)) printf(newfmt, separator, val);
-    putchar_unlocked('\n');
+    putchar('\n');
   }
   return errno;
 }

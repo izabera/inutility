@@ -11,7 +11,7 @@ static void printstr(const char *str, int shell) {
       switch (shell) {
         Case 0:
                if (*str == '\'') printf("'\\''" );
-          else putchar_unlocked(*str);
+          else putchar(*str);
         Case 1: // not sure about this...
                if (*str == '\'') printf("'\\''" );
           else if (*str == '\\') printf("\\\\"  ); // especially this...
@@ -19,17 +19,17 @@ static void printstr(const char *str, int shell) {
           else if (*str == '!' ) printf("'\\!'" );
           else if (*str == ' ' ) printf("'\\ '" );
           else if (*str == '\t') printf("'\\\t'");
-          else putchar_unlocked(*str);
+          else putchar(*str);
         Case 2: // or this...
                if (*str == '\'') printf("''"    );
-          else putchar_unlocked(*str);
+          else putchar(*str);
         Case 3: // giucam says this is fine
                if (*str == '\'') printf("\\'"   );
           else if (*str == '\\') printf("\\\\"  );
-          else putchar_unlocked(*str);
+          else putchar(*str);
       }
     }
-    putchar_unlocked('\'');
+    putchar('\'');
   }
 }
 
@@ -97,6 +97,6 @@ int main(int argc, char *argv[]) {
 
   printf(" --");
   while (*++argv) func(*argv, shell);
-  putchar_unlocked('\n');
+  putchar('\n');
   return errno;
 }

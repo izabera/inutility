@@ -100,7 +100,7 @@ static void preparse(struct line *line) {
     for (     ; line->line[i]; i++)
       if (!((flag('d') && !(isblank(line->line[i]) || isalnum(line->line[i]))) ||
             (flag('i') && !isprint(line->line[i]))))
-        putc_unlocked(line->line[i], tmpfile);
+        putc(line->line[i], tmpfile);
     fclose(tmpfile);
   }
   else {
@@ -169,7 +169,7 @@ inner:
   for (size_t i = 0; i < count; i++) {
     if (!flag('u') || i == 0 || compare(&lines[i-1], &lines[i])) {
       lines[i].line[len = strlen(lines[i].line)] = '\n';
-      fwrite_unlocked(lines[i].line, len+1, 1, stdout);
+      fwrite(lines[i].line, len+1, 1, stdout);
     }
   }
   return errno;

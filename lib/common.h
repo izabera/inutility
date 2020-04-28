@@ -135,3 +135,34 @@ mode_t getumask();
 
 // int *ptr = new(int[10]);
 #define new(x) malloc(sizeof(x))
+
+#undef getc
+#define getc getc_unlocked
+#undef getchar
+#define getchar getchar_unlocked
+#undef putc
+#define putc putc_unlocked
+#undef putchar
+#define putchar putchar_unlocked
+#undef clearerr
+#define clearerr clearerr_unlocked
+#undef feof
+#define feof feof_unlocked
+#undef ferror
+#define ferror ferror_unlocked
+#undef fileno
+#define fileno fileno_unlocked
+#undef fflush
+#define fflush fflush_unlocked
+#undef fgetc
+#define fgetc fgetc_unlocked
+#undef fputc
+#define fputc fputc_unlocked
+#undef fread
+#define fread fread_unlocked
+#undef fwrite
+#define fwrite fwrite_unlocked
+#undef fgets
+#define fgets fgets_unlocked
+#undef fputs
+#define fputs fputs_unlocked

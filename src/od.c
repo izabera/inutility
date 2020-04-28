@@ -136,7 +136,7 @@ inner:
         }
       }
       if (Ncount++ == Nval) break; // check before reading
-      int ch = getc_unlocked(fileptr);
+      int ch = getc(fileptr);
       if (ch == EOF) break;
       if (jcount++ < jval) continue;
       cur[pos++] = ch;
@@ -184,7 +184,7 @@ inner:
                   }
                 }
             }
-            putchar_unlocked('\n');
+            putchar('\n');
           }
         }
         char *tmp = old;

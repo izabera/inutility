@@ -34,10 +34,10 @@ inner:
       if (number < 0) {
         int c; /* todo: replace this with something faster */
         for (i = 0; i > number; i--)
-          if ((c = getc_unlocked(fileptr)) == EOF) goto nextfile;
+          if ((c = getc(fileptr)) == EOF) goto nextfile;
           else bytebuffer[-i] = c;
-        while ((c = getc_unlocked(fileptr)) != EOF) {
-          putchar_unlocked(bytebuffer[-i%number]);
+        while ((c = getc(fileptr)) != EOF) {
+          putchar(bytebuffer[-i%number]);
           bytebuffer[-i%number] = c;
           i--;
         }
@@ -46,13 +46,13 @@ inner:
         char buf[BUFSIZ];
         i = number;
         while ((size_t)i > sizeof(buf)) {
-          if ((read = fread_unlocked(buf, 1, sizeof(buf), fileptr)) > 0)
-            fwrite_unlocked(buf, 1, read, stdout);
+          if ((read = fread(buf, 1, sizeof(buf), fileptr)) > 0)
+            fwrite(buf, 1, read, stdout);
           else break;
           i -= read;
         }
-        if ((read = fread_unlocked(buf, 1, i, fileptr)) > 0)
-          fwrite_unlocked(buf, 1, read, stdout);
+        if ((read = fread(buf, 1, i, fileptr)) > 0)
+          fwrite(buf, 1, read, stdout);
       }
     }
     else {
@@ -63,7 +63,7 @@ inner:
           linebuffer[-i].len = read;
         }
         while ((read = getdelim(&line, &len, !flag('z') * '\n', fileptr)) > 0) {
-          fwrite_unlocked(linebuffer[-i%number].line, 1, linebuffer[-i%number].len, stdout);
+          fwrite(linebuffer[-i%number].line, 1, linebuffer[-i%number].len, stdout);
           free(linebuffer[-i%number].line);
           linebuffer[-i%number].line = memdup(line, read);
           linebuffer[-i%number].len = read;
@@ -73,10 +73,10 @@ inner:
       else {
         char buf[BUFSIZ];
         for (int64_t q = 0, j; q < number; ) {
-          if ((read = fread_unlocked(buf, 1, sizeof(buf), fileptr)) > 0) {
+          if ((read = fread(buf, 1, sizeof(buf), fileptr)) > 0) {
             for (j = 0; j < read && q < number; )
               if (buf[j++] == '\n') --number;
-            fwrite_unlocked(buf, 1, j, stdout);
+            fwrite(buf, 1, j, stdout);
           }
           else break;
         }

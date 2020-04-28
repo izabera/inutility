@@ -15,7 +15,7 @@ inner: ;
 #include "lib/crc32.data"
 
     size_t size = 0;
-    for (int c; (c = fgetc_unlocked(fileptr)) != EOF; size++)
+    for (int c; (c = fgetc(fileptr)) != EOF; size++)
       sum = crc32table[(sum >> 24) ^ c] ^ (sum << 8);
 
     for (size_t c = size; c; c >>= 8)

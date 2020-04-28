@@ -28,14 +28,14 @@ int main(int argc, char *argv[]) {
 inner:
     sequential(file);
     if (anyflag) {
-#define pc putchar_unlocked // these silly macros are much faster than printf
-#define ps(x) fputs_unlocked(x, stdout)
-      while ((c = fgetc_unlocked(fileptr)) != EOF) { loop:
+#define pc putchar // these silly macros are much faster than printf
+#define ps(x) fputs(x, stdout)
+      while ((c = fgetc(fileptr)) != EOF) { loop:
              if (line)      { if (flag('n')) printf("%6lu\t", linecount); line = 0; }
              if (c == '\t')   if (flag('T')) ps("^I"); else pc('\t');
         else if (c == '\n') { if (flag('E')) pc('$'); pc('\n'); linecount++; line = 1;
           if (flag('s')) {
-            for (int i = 0; (c = fgetc_unlocked(fileptr)) == '\n'; ) if (!i++) pc('\n');
+            for (int i = 0; (c = fgetc(fileptr)) == '\n'; ) if (!i++) pc('\n');
             if (c == EOF) break;
             goto loop;
           }
@@ -47,7 +47,7 @@ inner:
         else if (himeta(c))   if (flag('v')) ps(((char[]) { 'M', '-', c - 128, 0 })); else pc(c);
         else                  pc(c);
       }
-      fflush_unlocked(stdout);
+      fflush(stdout);
     }
     else copyfd(file, 1);
     if (fileptr != stdin) fclose(fileptr);

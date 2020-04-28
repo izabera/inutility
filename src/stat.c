@@ -46,7 +46,7 @@ static void fsstatprint(char fmt, struct statfs *fs) {
           break;
         }
       printf("%s", name);
-    Default: putchar_unlocked('?'); return;
+    Default: putchar('?'); return;
   }
 }
 
@@ -115,7 +115,7 @@ static void statprint(char fmt, struct stat *st) {
     Case 'Y': printf("%lu", st->st_mtime);
     Case 'z': dodate(ctim);
     Case 'Z': printf("%lu", st->st_ctime);
-    Default: putchar_unlocked('?'); return;
+    Default: putchar('?'); return;
   }
 }
 
@@ -146,8 +146,8 @@ int main(int argc, char *argv[]) {
     for (char *fmt = format; *fmt; fmt++) { // stole the idea from toybox
       if (*fmt == '%') {
         fmt++;
-             if (*fmt ==  0 ) { putchar_unlocked('%'); break; }
-        else if (*fmt == '%') putchar_unlocked('%');
+             if (*fmt ==  0 ) { putchar('%'); break; }
+        else if (*fmt == '%') putchar('%');
         else if (*fmt == 'n') printf("%s", *argv); 
         else if (*fmt == 'N' && !flag('f')) { // toybox does this with a global var
           if (S_ISLNK(st.st_mode)) {
@@ -161,9 +161,9 @@ int main(int argc, char *argv[]) {
         else if (flag('f')) fsstatprint(*fmt, &fs);
         else                  statprint(*fmt, &st);
       }
-      else putchar_unlocked(*fmt);
+      else putchar(*fmt);
     }
-    putchar_unlocked('\n');
+    putchar('\n');
   }
   return errno;
 }

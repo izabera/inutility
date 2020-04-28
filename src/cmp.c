@@ -23,20 +23,20 @@ int main(int argc, char *argv[]) {
   size_t tmp;
   if (skip1 && fseek(file1, skip1, SEEK_CUR))
     while (skip1) {
-      if ((tmp = fread_unlocked(buf, 1, min(skip1, sizeof(buf)), file1)) <= 0) break;
+      if ((tmp = fread(buf, 1, min(skip1, sizeof(buf)), file1)) <= 0) break;
       skip1 -= tmp;
     }
   if (skip2 && fseek(file2, skip2, SEEK_CUR))
     while (skip2) {
-      if ((tmp = fread_unlocked(buf, 1, min(skip2, sizeof(buf)), file2)) <= 0) break;
+      if ((tmp = fread(buf, 1, min(skip2, sizeof(buf)), file2)) <= 0) break;
       skip2 -= tmp;
     }
   errno = 0;
 
   int c1, c2, ret = 0;
   for (size_t pos = 0, lineno = 0; pos < limit; pos++) {
-    c1 = getc_unlocked(file1);
-    c2 = getc_unlocked(file2);
+    c1 = getc(file1);
+    c2 = getc(file2);
 
     if (c1 == c2) {
       if (c1 == EOF) break;

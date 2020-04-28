@@ -9,7 +9,7 @@ static void printwc(struct Wc count, const char *name) {
   if (flag('m')) printf("%7zu ", count.m);
   if (flag('c')) printf("%7zu ", count.c);
   if (name) printf("%s", name);
-  putchar_unlocked('\n');
+  putchar('\n');
 }
 
 static struct Wc wc(int fd) { /* counts both utf8 chars and bytes, assuming valid utf8 */

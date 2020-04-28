@@ -5,16 +5,16 @@
 // parse a var after $
 char *getvar(FILE *input, FILE *fail) {
   int braces = 0, c;
-  if ((c = getc_unlocked(input)) == EOF) return NULL;
+  if ((c = getc(input)) == EOF) return NULL;
   if (c == '{') {
-    putc_unlocked(c, fail);
+    putc(c, fail);
     braces = 1;
   }
   else ungetc(c, input);
 
-  if ((c = getc_unlocked(input)) == EOF) return NULL;
+  if ((c = getc(input)) == EOF) return NULL;
   if (!isalpha(c) && c != '_') {
-    putc_unlocked(c, fail);
+    putc(c, fail);
     return NULL;
   }
 
@@ -22,11 +22,11 @@ char *getvar(FILE *input, FILE *fail) {
   char *var;
   fscanf(input, "%m[A-Za-z0-9_]", &var);
   if (!var) return NULL;
-  fputs_unlocked(var, fail);
+  fputs(var, fail);
 
   if (braces) {
-    if ((c = getchar_unlocked()) == EOF) return NULL;
-    putc_unlocked(c, fail);
+    if ((c = getchar()) == EOF) return NULL;
+    putc(c, fail);
     if (c != '}') {
       ungetc(c, input);
       return NULL;
@@ -47,7 +47,7 @@ int main(int argc, char *argv[]) {
         i++;
         FILE *fail = open_memstream(&failstring, &s),
              *str = fmemopen(argv[1]+i, strlen(argv[1]+i), "r");
-        putc_unlocked('$', fail);
+        putc('$', fail);
 
         char *var = getvar(str, fail);
         fclose(fail);
@@ -67,11 +67,11 @@ int main(int argc, char *argv[]) {
   }
 
   // same as above but now work on stdin instead of that string
-  for (int c; (c = getchar_unlocked()) != EOF; ) {
-    if (c != '$') putchar_unlocked(c);
+  for (int c; (c = getchar()) != EOF; ) {
+    if (c != '$') putchar(c);
     else {
       FILE *fail = open_memstream(&failstring, &s);
-      putc_unlocked('$', fail);
+      putc('$', fail);
 
       char *var = getvar(stdin, fail), *value;
       fclose(fail);
@@ -85,7 +85,7 @@ int main(int argc, char *argv[]) {
 
 printvar:
         value = getenv(var);
-        if (value) fputs_unlocked(value, stdout);
+        if (value) fputs(value, stdout);
       }
       else printfallback:
         fwrite(failstring, 1, s, stdout); // var not found or not whitelisted

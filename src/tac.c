@@ -53,7 +53,7 @@ inner:
         memcpy(lines.line[lines.used++].str, line, read);
       }
       while (lines.used--) {
-        fwrite_unlocked(lines.line[lines.used].str, 1, lines.line[lines.used].len, stdout);
+        fwrite(lines.line[lines.used].str, 1, lines.line[lines.used].len, stdout);
         free(lines.line[lines.used].str);
       }
     }

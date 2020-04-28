@@ -35,7 +35,7 @@ int unescapestr(char **target, const char *src, int oct4) {
   char *str;
   FILE *f = open_memstream(&str, &siz);
   while (src[i]) {
-    putc_unlocked(src[i] == '\\' ? unescape(src, &i, oct4) : src[i], f);
+    putc(src[i] == '\\' ? unescape(src, &i, oct4) : src[i], f);
     i++;
   }
   fclose(f);

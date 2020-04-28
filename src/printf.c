@@ -7,10 +7,10 @@ int main(int argc, char *argv[]) {
   do {
     for (size_t i = 0; format[i]; i++) {
       switch (format[i]) {
-        default: putchar_unlocked(format[i]); break;
-        case '\\': putchar_unlocked(unescape(format, &i, 0)); break;
+        default: putchar(format[i]); break;
+        case '\\': putchar(unescape(format, &i, 0)); break;
         case '%':
-          if (format[i+1] == '%') { putchar_unlocked('%'); i++; break; }
+          if (format[i+1] == '%') { putchar('%'); i++; break; }
           doformat = 1;
           int begin = i;
           while (strchr("#+-0123456789. ", format[++i])) ;
@@ -27,12 +27,12 @@ int main(int argc, char *argv[]) {
             case 'b': {
               size_t len = unescapestr(&ptr, *argv ? *argv++ : "", 1);
               // todo actual format with precision and width
-              fwrite_unlocked(ptr, 1, len, stdout);
+              fwrite(ptr, 1, len, stdout);
               free(ptr);
               break;
             }
             case 'c':
-              putchar_unlocked(*argv ? **argv++ : '\0'); break;
+              putchar(*argv ? **argv++ : '\0'); break;
           }
           free(currformat);
           break;
