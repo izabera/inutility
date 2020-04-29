@@ -1,9 +1,10 @@
 typedef struct htable htable;
-htable *htable_new(size_t size);
-char *htable_get(htable *h, const char *key);
-void htable_set(htable *h, const char *key, const char *val);
-void htable_del(htable *h, const char *key);
-void htable_destroy(htable *h);
+htable *hcreate(uint32_t size);
+char *hget(htable *h, const char *key);
+void hset(htable *h, const char *key, const char *val);
+void hdel(htable *h, const char *key);
+void hdestroy(htable *h);
+void hwalk(htable *h, void (*)(const char *, const char *, void *), void *context);
 
 // macros for putting numbers in hash tables that only accept null terminated strings
 
