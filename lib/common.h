@@ -47,7 +47,7 @@
 #include "uptime.h"
 //#include "readaline.h"
 #include "copyfd.h"
-//#include "hashtable.h"
+#include "hashtable.h"
 #include "sequential.h"
 #include "itoa.h"
 #include "casestr.h"

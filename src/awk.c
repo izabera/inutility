@@ -6,13 +6,10 @@
 #define lastnum(x) (flags[opt(x)].nums[flag(x)-1])
 */
 
-
-static void slurp(char *file, FILE *memstream) {
-  FILE *f = fopen(file, "r");
-  for (int c; (c = fgetc_unlocked(f)) != -1; )
-    fputc_unlocked(c, memstream);
-  fclose(f);
-}
+static htable *h;
+#define hset(...) hset(h, __VA_ARGS__)
+#define hget(...) hget(h, __VA_ARGS__)
+#define hdel(...) hdel(h, __VA_ARGS__)
 
 int main(int argc, char *argv[]) {
   options("f:F:v:");
@@ -20,21 +17,25 @@ int main(int argc, char *argv[]) {
   struct str script;
   if (flag('f')) {
     FILE *memstream = open_memstream(&script.str, &script.len);
-    for (size_t i = 0; i < flag('f'); i++) slurp(flags[opt('f')].args[i], memstream);
+    for (size_t i = 0; i < flag('f'); i++) {
+      FILE *f = fopen(flags[opt('f')].args[i], "r");
+      for (int c; (c = fgetc_unlocked(f)) != -1; )
+        fputc_unlocked(c, memstream);
+      fclose(f);
+    }
     fclose(memstream);
   }
   else
     script.str = argv[1];
 
-  void *root = 0;
-#define vars(x) tsearch(strdup(x), &root, strcmp)
-#define delete(x) tdelete((x), &root, strcmp)
-  vars("FS") = strdup(flag('F') ? lastarg('F') : " ");
+  h = hcreate(64);
+
+  hset("FS", flag('F') ? lastarg('F') : " ");
   for (size_t i = 0; i < flag('v'); i++) {
-    char *ptr = strchr('=', flags[opt('v')].args[i]);
+    char *ptr = strchr(flags[opt('v')].args[i], '=');
     if (ptr) {
       *ptr = 0;
-      vars(flags[opt('v')].args[i]) = strdup(ptr+1);
+      hset(flags[opt('v')].args[i], ptr+1);
     }
   }
 
@@ -62,4 +63,5 @@ inner:
   
 
   */
+  return 0;
 }
