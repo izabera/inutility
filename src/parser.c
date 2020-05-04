@@ -10,11 +10,7 @@
  *
  */
 
-#include <assert.h>
-#include <ctype.h>
-#include <stdio.h>
-#include <stdlib.h>
-#include <string.h>
+#include "lib/common.h"
 
 #define NDEBUG
 
@@ -62,10 +58,20 @@ enum {
     NUMBER = 'NU',
     STRING = 'ST',
 
+    BEGIN    = 'BE',
+    BREAK    = 'BR',
+    CONTINUE = 'CO',
+    DELETE   = 'DE',
+    ELSE     = 'EL',
+    END      = 'EN',
+    FOR      = 'FO',
     FUNCTION = 'FU',
-    IF = 'IF', WHILE = 'WH', FOR = 'FO',
-    IN = 'IN',
-    RETURN = 'RE',
+    IF       = 'IF',
+    IN       = 'IN',
+    NEXT     = 'NE',
+    RETURN   = 'RE',
+    WHILE    = 'WH',
+
 };
 // debug purposes only
 static char *syntax[] = {
@@ -93,10 +99,19 @@ static char *syntax[] = {
     [NUMBER] = "NUMBER",
     [STRING] = "STRING",
 
+    [BEGIN   ] = "BE",
+    [BREAK   ] = "BR",
+    [CONTINUE] = "CO",
+    [DELETE  ] = "DE",
+    [ELSE    ] = "EL",
+    [END     ] = "EN",
+    [FOR     ] = "FOR",
     [FUNCTION] = "FUNCTION",
-    [IF] = "IF", [WHILE] = "WHILE", [FOR] = "FOR",
-    [IN] = "IN",
-    [RETURN] = "RETURN",
+    [IF      ] = "IF",
+    [IN      ] = "IN",
+    [NEXT    ] = "NE",
+    [RETURN  ] = "RETURN",
+    [WHILE   ] = "WHILE",
 };
 
 dynarray(char) str;
@@ -110,6 +125,7 @@ struct token {
 
 
 
+// only tokenizer calls this
 static struct token *token(FILE *file) {
     static struct token t;
     int c;
@@ -213,12 +229,19 @@ static struct token *token(FILE *file) {
             } while ((c = getc(file)) != EOF);
             push(&t.data, 0);
 
-            if (!strcmp(t.data.data, "function")) t.type = FUNCTION;
-            if (!strcmp(t.data.data, "return"  )) t.type = RETURN;
-            if (!strcmp(t.data.data, "if"      )) t.type = IF;
-            if (!strcmp(t.data.data, "while"   )) t.type = WHILE;
+            if (!strcmp(t.data.data, "BEGIN"   )) t.type = BEGIN;
+            if (!strcmp(t.data.data, "break"   )) t.type = BREAK;
+            if (!strcmp(t.data.data, "continue")) t.type = CONTINUE;
+            if (!strcmp(t.data.data, "delete"  )) t.type = DELETE;
+            if (!strcmp(t.data.data, "else"    )) t.type = ELSE;
+            if (!strcmp(t.data.data, "END"     )) t.type = END;
             if (!strcmp(t.data.data, "for"     )) t.type = FOR;
+            if (!strcmp(t.data.data, "function")) t.type = FUNCTION;
+            if (!strcmp(t.data.data, "if"      )) t.type = IF;
             if (!strcmp(t.data.data, "in"      )) t.type = IN;
+            if (!strcmp(t.data.data, "next"    )) t.type = NEXT;
+            if (!strcmp(t.data.data, "return"  )) t.type = RETURN;
+            if (!strcmp(t.data.data, "while"   )) t.type = WHILE;
             break;
     }
 
@@ -303,11 +326,12 @@ int main() {
 
     tokenizer(text);
 
-    for (int i = 0; i < tokens.size; i++) {
+    for (size_t i = 0; i < tokens.size; i++) {
         printf("type: %-20s ", syntax[tokens.data[i].type]);
         if (tokens.data[i].type == STRING || tokens.data[i].type == IDENTIFIER || tokens.data[i].type == NUMBER)
             printf("%s", tokens.data[i].data.data);
         printf("\n");
     }
 
+    return 0;
 }
