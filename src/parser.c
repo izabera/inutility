@@ -179,7 +179,7 @@ static struct token *token(FILE *file) {
             break;
 
         // numbers
-        case '0'...'9':
+        case casedec:
             t.type = NUMBER;
             do {
                 if (isdigit(c)) push(&t.data, c);
@@ -216,9 +216,7 @@ static struct token *token(FILE *file) {
             break;
 
         // identifiers
-        case 'a'...'z':
-        case 'A'...'Z':
-        case '_':
+        case casealpha: case '_':
             t.type = IDENTIFIER;
             do {
                 if (isalnum(c) || c == '_') push(&t.data, c);
